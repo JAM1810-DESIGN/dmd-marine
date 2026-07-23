@@ -1,0 +1,138 @@
+Create complete marine service management.
+
+==================================================
+SERVICE CATEGORIES
+==================================================
+
+
+1. Marine Consultancy
+
+
+Services:
+
+Vessel Operations Consultation
+
+Marine Advisory
+
+Operational Risk Assessment
+
+
+
+2. Marine Survey & Inspection
+
+
+Services:
+
+Draft Survey
+
+Bunker Survey
+
+Third Party Hold Inspection
+
+Vessel Condition Inspection
+
+Pre-Purchase Inspection
+
+On-Hire / Off-Hire Survey
+
+
+
+3. Compliance Consulting
+
+
+Services:
+
+ISM / SMS Consulting
+
+ISPS Consulting
+
+Documentation Review
+
+
+
+4. Navigation & Deck Operations
+
+
+Services:
+
+Navigation Audit
+
+Bridge Team Management
+
+Deck Operations Consulting
+
+
+
+5. Maritime Training
+
+
+Services:
+
+Deck Officer Mentoring
+
+Career Development
+
+Competency Training
+
+
+
+6. Remote Marine Support
+
+
+Services:
+
+Online Consultation
+
+Document Review
+
+Expert Advisory
+
+
+
+7. Incident Support
+
+
+Services:
+
+Incident Investigation
+
+Root Cause Analysis
+
+Corrective Action
+
+
+
+8. Port Support
+
+
+Services:
+
+Cargo Operation Support
+
+Loading Supervision
+
+Port Advisory
+
+
+==================================================
+ADMIN SERVICE MANAGEMENT
+==================================================
+
+Admin can:
+
+Create service
+
+Edit service
+
+Disable service
+
+Manage categories
+
+Assign consultant
+
+View requests
+
+
+Deliver:
+
+Service management module.

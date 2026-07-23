@@ -1,0 +1,100 @@
+Create the complete database architecture.
+
+Create models:
+
+==================================================
+USER MANAGEMENT
+==================================================
+
+User
+
+Role
+
+Permissions
+
+
+==================================================
+CUSTOMER CRM
+==================================================
+
+Customer
+
+Company
+
+Vessel
+
+Contact History
+
+
+==================================================
+SERVICES
+==================================================
+
+Service Category
+
+Service
+
+Service Request
+
+
+==================================================
+BOOKING
+==================================================
+
+Booking
+
+Schedule
+
+Availability
+
+
+==================================================
+PROJECT MANAGEMENT
+==================================================
+
+Project
+
+Documents
+
+Reports
+
+
+==================================================
+COMMUNICATION
+==================================================
+
+Messages
+
+Notifications
+
+Facebook Leads
+
+
+==================================================
+SERVICE CATEGORIES
+==================================================
+
+Create:
+
+Marine Consultancy
+
+Marine Survey
+
+Marine Inspection
+
+Compliance Consulting
+
+Navigation Services
+
+Deck Officer Mentoring
+
+Remote Marine Support
+
+
+Deliver:
+
+Database schema
+
+Migration
+
+Seed data for development only

@@ -1,0 +1,134 @@
+Build the public website.
+
+Goal:
+
+Create a premium marine consultancy website.
+
+Design:
+
+Professional
+
+Trustworthy
+
+Corporate
+
+Modern
+
+Maritime
+
+
+Pages:
+
+
+HOME
+
+ABOUT
+
+SERVICES
+
+PROJECTS
+
+BLOG
+
+CONTACT
+
+BOOK CONSULTATION
+
+
+==================================================
+HOME PAGE
+==================================================
+
+Hero:
+
+Professional Marine Consultancy You Can Trust
+
+
+Text:
+
+Providing reliable marine consultation, surveys, inspections, and maritime mentoring services with professionalism and international standards.
+
+
+Buttons:
+
+Book Consultation
+
+Request Quote
+
+
+Sections:
+
+Company Introduction
+
+Services
+
+Why Choose Us
+
+Industries Served
+
+Projects
+
+Testimonials
+
+Contact
+
+
+==================================================
+ABOUT PAGE
+==================================================
+
+Include:
+
+Company Story
+
+Mission
+
+Vision
+
+Values
+
+Experience
+
+
+==================================================
+SERVICES PAGE
+==================================================
+
+Display all service categories.
+
+
+Each service has:
+
+Overview
+
+Benefits
+
+Scope
+
+Process
+
+FAQ
+
+Request Service
+
+
+==================================================
+CONTACT PAGE
+==================================================
+
+Include:
+
+Contact Form
+
+Location
+
+Email
+
+Phone
+
+Social Media
+
+
+Deliver:
+
+Fully responsive SEO website.

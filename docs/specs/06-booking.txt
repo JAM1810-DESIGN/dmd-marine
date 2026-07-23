@@ -1,0 +1,116 @@
+Create professional booking system.
+
+Customer booking form:
+
+Name
+
+Email
+
+Phone
+
+Company
+
+Vessel Name
+
+Port
+
+Service
+
+Preferred Date
+
+Preferred Time
+
+Message
+
+Attachments
+
+
+Workflow:
+
+Customer submits request
+
+↓
+
+Database
+
+↓
+
+Admin Notification
+
+↓
+
+Dashboard
+
+
+==================================================
+BOOKING DASHBOARD
+==================================================
+
+Create:
+
+Day View
+
+Week View
+
+Month View
+
+
+Navigation:
+
+Previous Day
+
+Today
+
+Next Day
+
+Date Picker
+
+
+Display booking table:
+
+
+Time
+
+Customer
+
+Company
+
+Vessel
+
+Service
+
+Assigned Consultant
+
+Status
+
+
+
+Status:
+
+New
+
+Reviewing
+
+Scheduled
+
+In Progress
+
+Completed
+
+Cancelled
+
+
+Features:
+
+Search
+
+Filter
+
+Sort
+
+Export
+
+
+Deliver:
+
+Complete booking system.

@@ -1,0 +1,85 @@
+Create business dashboard.
+
+Modules:
+
+
+Dashboard Overview
+
+Bookings
+
+Customers
+
+Services
+
+Projects
+
+Calendar
+
+Messages
+
+Facebook
+
+Reports
+
+Settings
+
+
+
+==================================================
+DASHBOARD CARDS
+==================================================
+
+Display:
+
+
+New inquiries
+
+Upcoming bookings
+
+Active projects
+
+Completed projects
+
+Customers
+
+Unread messages
+
+
+
+==================================================
+CALENDAR
+==================================================
+
+Display:
+
+Consultations
+
+Surveys
+
+Inspections
+
+Training sessions
+
+
+==================================================
+PROJECT TRACKING
+==================================================
+
+Statuses:
+
+New
+
+Planning
+
+Scheduled
+
+Active
+
+Completed
+
+Closed
+
+
+Deliver:
+
+Complete management dashboard.

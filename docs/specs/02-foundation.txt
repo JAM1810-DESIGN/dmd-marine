@@ -1,0 +1,74 @@
+Build the application foundation.
+
+Tasks:
+
+Create:
+
+Project structure
+
+Database configuration
+
+Prisma setup
+
+Authentication system
+
+User roles:
+
+
+Admin
+
+Manager
+
+Staff
+
+
+Create:
+
+Environment configuration
+
+Error handling
+
+API structure
+
+Reusable UI components
+
+Design system
+
+
+Create reusable components:
+
+Button
+
+Card
+
+Table
+
+Modal
+
+Form
+
+Navbar
+
+Sidebar
+
+Dashboard Layout
+
+Notification
+
+
+Create marine branding:
+
+Colors:
+
+Navy Blue
+
+Ocean Blue
+
+White
+
+Gold Accent
+
+
+Deliver:
+
+Working application foundation.

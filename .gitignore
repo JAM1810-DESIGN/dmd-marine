@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+build/
+dist/
+
+# env
+.env
+.env*.local
+!.env.example
+
+# prisma
+prisma/dev.db
+prisma/dev.db-journal
+src/generated/
+
+# docker
+postgres-data/
+
+# misc
+.DS_Store
+*.pem
+Thumbs.db
+
+# logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# testing / coverage
+coverage/
+
+# editors
+.vscode/*
+!.vscode/extensions.json
+.idea/

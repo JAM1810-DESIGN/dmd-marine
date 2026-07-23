@@ -1,0 +1,494 @@
+You are continuing development of the **DMD Marine Consultation & Services** platform.
+
+## Objective
+
+Expand the Admin Dashboard by adding a comprehensive **Finance Module** that allows administrators to record business expenses, monitor income, generate financial reports, and view financial statements.
+
+This module should integrate with the existing Booking, CRM, Projects, and Services modules so management can monitor the company's financial performance in one place.
+
+The Finance Module must be scalable and designed to support future accounting features.
+
+---
+
+# FINANCE MODULE
+
+Add a new sidebar menu:
+
+**Finance**
+
+Submenus:
+
+- Dashboard
+- Income
+- Expenses
+- Invoices
+- Payments
+- Financial Statements
+- Reports
+- Categories
+- Settings
+
+---
+
+# FINANCE DASHBOARD
+
+Display financial KPI cards.
+
+Cards:
+
+- Total Revenue
+- Total Expenses
+- Gross Profit
+- Net Profit
+- Outstanding Invoices
+- Paid Invoices
+- Monthly Revenue
+- Monthly Expenses
+- Cash Flow
+- Accounts Receivable
+
+Include charts:
+
+- Monthly Revenue
+- Monthly Expenses
+- Revenue vs Expenses
+- Income by Service
+- Expense by Category
+- Yearly Financial Trend
+
+---
+
+# EXPENSE MANAGEMENT
+
+Create a complete expense tracking system.
+
+Expense Categories:
+
+- Office Expenses
+- Fuel
+- Transportation
+- Port Fees
+- Travel
+- Hotel & Accommodation
+- Meals & Entertainment
+- Equipment
+- Survey Equipment
+- Office Supplies
+- Communication
+- Internet
+- Utilities
+- Software & Subscriptions
+- Marketing
+- Insurance
+- Professional Fees
+- Taxes & Government Fees
+- Employee Salary
+- Contractor Payments
+- Training
+- Vessel Inspection Costs
+- Miscellaneous
+
+Administrators can also create custom categories.
+
+Each expense should include:
+
+- Expense Number
+- Expense Date
+- Category
+- Vendor/Supplier
+- Description
+- Related Project (optional)
+- Related Booking (optional)
+- Branch
+- Amount
+- Tax Amount
+- Payment Method
+- Payment Status
+- Receipt Upload
+- Notes
+- Created By
+- Approved By
+
+Supported payment methods:
+
+- Cash
+- Bank Transfer
+- Credit Card
+- Debit Card
+- GCash
+- Maya
+- Check
+- Other
+
+Expense Status:
+
+- Pending
+- Approved
+- Rejected
+- Paid
+
+Features:
+
+- Create Expense
+- Edit Expense
+- Delete Expense
+- Approve Expense
+- Upload Receipt
+- Download Receipt
+- Duplicate Expense
+- Export Expenses
+
+Filters:
+
+- Date
+- Category
+- Branch
+- Vendor
+- Project
+- Booking
+- Status
+
+Search by:
+
+- Expense Number
+- Vendor
+- Description
+- Category
+
+---
+
+# INCOME MANAGEMENT
+
+Automatically record income from:
+
+- Marine Consultation
+- Draft Survey
+- Bunker Survey
+- Third-Party Hold Inspection
+- Deck Officer Mentoring
+- Other Services
+
+Each income record should contain:
+
+- Invoice Number
+- Customer
+- Company
+- Service
+- Booking
+- Branch
+- Amount
+- Tax
+- Payment Status
+- Payment Method
+- Payment Date
+
+Statuses:
+
+- Draft
+- Sent
+- Partial
+- Paid
+- Overdue
+- Cancelled
+
+---
+
+# INVOICES
+
+Create professional invoices.
+
+Invoice Features:
+
+- Company Logo
+- Invoice Number
+- Customer Information
+- Vessel Information
+- Service Details
+- Quantity
+- Unit Price
+- Tax
+- Discount
+- Total Amount
+- Payment Terms
+- Notes
+
+Actions:
+
+- Generate PDF
+- Email Invoice
+- Print Invoice
+- Mark as Paid
+
+---
+
+# PAYMENTS
+
+Track all incoming payments.
+
+Display:
+
+- Payment Date
+- Customer
+- Invoice
+- Amount
+- Method
+- Status
+- Reference Number
+
+Support:
+
+- Partial Payments
+- Full Payments
+- Refunds
+
+---
+
+# FINANCIAL STATEMENTS
+
+Generate financial statements automatically from recorded income and expenses.
+
+Include:
+
+## Profit & Loss Statement (Income Statement)
+
+Display:
+
+Revenue
+
+Less Cost of Services
+
+Gross Profit
+
+Operating Expenses
+
+Operating Income
+
+Other Income
+
+Other Expenses
+
+Net Profit
+
+Allow reports for:
+
+- Monthly
+- Quarterly
+- Yearly
+- Custom Date Range
+
+---
+
+## Balance Sheet
+
+Display:
+
+Assets
+
+Current Assets
+
+Cash
+
+Accounts Receivable
+
+Equipment
+
+Other Assets
+
+Liabilities
+
+Accounts Payable
+
+Loans
+
+Other Liabilities
+
+Owner's Equity
+
+Retained Earnings
+
+Net Income
+
+---
+
+## Cash Flow Statement
+
+Display:
+
+Operating Activities
+
+Investing Activities
+
+Financing Activities
+
+Beginning Cash
+
+Ending Cash
+
+---
+
+# REPORTS
+
+Generate reports for:
+
+- Revenue by Service
+- Revenue by Customer
+- Revenue by Branch
+- Expenses by Category
+- Expenses by Vendor
+- Project Profitability
+- Booking Profitability
+- Consultant Performance
+- Outstanding Invoices
+- Paid Invoices
+- Monthly Financial Summary
+- Annual Financial Summary
+
+Allow export to:
+
+- PDF
+- Excel
+- CSV
+
+---
+
+# BUDGET MANAGEMENT
+
+Allow administrators to create budgets.
+
+Budget Categories:
+
+- Monthly
+- Quarterly
+- Annual
+
+Track:
+
+- Budget Amount
+- Actual Spending
+- Remaining Budget
+- Percentage Used
+
+Display alerts when budgets exceed limits.
+
+---
+
+# BRANCH FINANCE
+
+Support multi-branch accounting.
+
+Each branch should have:
+
+- Revenue
+- Expenses
+- Profit
+- Financial Reports
+
+Allow consolidated company-wide reports.
+
+---
+
+# DASHBOARD WIDGETS
+
+Add finance widgets to the Admin Dashboard.
+
+Display:
+
+- Today's Revenue
+- Today's Expenses
+- Monthly Profit
+- Pending Invoices
+- Overdue Payments
+- Cash Flow
+- Revenue Trend
+- Expense Trend
+
+---
+
+# RECEIPT MANAGEMENT
+
+Allow uploading:
+
+- Expense Receipts
+- Supplier Invoices
+- Official Receipts
+- Supporting Documents
+
+Support:
+
+- Image Preview
+- PDF Preview
+- Download
+- Archive
+
+---
+
+# USER PERMISSIONS
+
+Roles:
+
+Admin
+
+- Full Access
+
+Manager
+
+- View and Approve
+
+Finance Officer
+
+- Manage Finance
+
+Staff
+
+- View Assigned Financial Records Only
+
+---
+
+# DATABASE
+
+Create tables/models for:
+
+- Expense
+- Expense Category
+- Vendor
+- Income
+- Invoice
+- Invoice Item
+- Payment
+- Budget
+- Financial Report
+- Financial Statement
+
+Design relationships so income can be linked to:
+
+- Booking
+- Customer
+- Branch
+- Service
+- Project
+
+Expenses can be linked to:
+
+- Branch
+- Project
+- Booking
+- Vendor
+- Category
+
+---
+
+# AUTOMATION
+
+Automatically:
+
+- Create income records when a booking is completed and invoiced.
+- Update revenue when payments are received.
+- Reflect approved expenses in financial statements.
+- Recalculate Profit & Loss, Balance Sheet, and Cash Flow whenever financial data changes.
+- Send notifications for overdue invoices and pending expense approvals.
+
+---
+
+# FINAL REQUIREMENT
+
+The Finance Module should provide DMD Marine Consultation & Services with a professional financial management system that integrates seamlessly with bookings, projects, CRM, and branch management. It should support daily operations while producing accurate financial statements and management reports suitable for business decision-making and future growth.

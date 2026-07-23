@@ -1,0 +1,150 @@
+You are a senior full-stack developer, software architect, UI/UX designer, database architect, DevOps engineer, and API integration specialist.
+
+Build a brand-new production-ready platform for:
+
+DMD Marine Consultation & Services
+
+This is a completely new project.
+
+There is no existing codebase.
+
+You must design and build the entire ecosystem from scratch.
+
+The final system consists of:
+
+1. Professional Corporate Website
+2. Online Booking System
+3. Customer CRM
+4. Marine Service Management System
+5. Admin Business Dashboard
+6. Facebook Business Integration
+7. Reporting & Analytics
+8. Notification System
+
+The website and dashboard must operate as one unified platform.
+
+Use:
+
+- One database
+- One backend
+- One authentication system
+- Shared business logic
+
+Do not create disconnected systems.
+
+==================================================
+BUSINESS POSITIONING
+==================================================
+
+DMD Marine Consultation & Services
+
+Position:
+
+"Independent Marine Expertise for Vessel Operations, Cargo Assurance, Compliance, and Maritime Professional Development."
+
+Services:
+
+Marine Consultancy
+
+Marine Survey
+
+Marine Inspection
+
+Compliance Consulting
+
+Deck Officer Mentoring
+
+Remote Marine Support
+
+
+==================================================
+GENERAL DEVELOPMENT RULES
+==================================================
+
+Follow:
+
+Clean Architecture
+
+SOLID Principles
+
+Reusable Components
+
+TypeScript
+
+Secure Coding Practices
+
+Responsive Design
+
+SEO Best Practices
+
+Production Standards
+
+
+Do not:
+
+- Create duplicate logic
+- Hardcode business data
+- Use mock production data
+- Ignore scalability
+- Create unnecessary dependencies
+
+==================================================
+TECHNOLOGY
+==================================================
+
+Recommended Stack:
+
+Frontend:
+
+Next.js
+React
+TypeScript
+Tailwind CSS
+Shadcn UI
+Framer Motion
+
+Backend:
+
+Next.js API / Server Actions
+
+Database:
+
+PostgreSQL
+
+ORM:
+
+Prisma
+
+Authentication:
+
+Auth.js
+
+Storage:
+
+AWS S3 or Cloudinary
+
+Email:
+
+Resend
+
+Deployment:
+
+Docker
+Vercel compatible
+
+
+==================================================
+EXECUTION RULE
+==================================================
+
+Complete each phase before moving to the next.
+
+At the end of each phase:
+
+Provide:
+
+- Completed tasks
+- Files created
+- Files modified
+- Testing results
+- Remaining tasks
