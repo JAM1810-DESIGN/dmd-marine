@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { BookingCalendar } from "./booking-calendar";
 import { BookingsTable } from "./bookings-table";
@@ -6,6 +7,12 @@ import { BookingsTable } from "./bookings-table";
 export const metadata: Metadata = { title: "Bookings" };
 
 export default async function BookingsPage() {
+  const session = await auth();
+  const canManage =
+    session?.user.role === "ADMIN" ||
+    session?.user.role === "MANAGER" ||
+    session?.user.role === "STAFF";
+
   const [bookings, consultants] = await Promise.all([
     db.booking.findMany({
       orderBy: { createdAt: "desc" },
@@ -38,6 +45,7 @@ export default async function BookingsPage() {
     serviceName: booking.service.name,
     status: booking.status,
     assignedConsultantId: booking.assignedConsultantId,
+    customerId: booking.customerId,
     preferredDate: booking.preferredDate ? booking.preferredDate.toISOString() : null,
     preferredTime: booking.preferredTime,
     createdAt: booking.createdAt.toISOString(),
@@ -53,7 +61,7 @@ export default async function BookingsPage() {
       </div>
 
       <BookingCalendar bookings={calendarBookings} />
-      <BookingsTable bookings={tableBookings} consultants={consultants} />
+      <BookingsTable bookings={tableBookings} consultants={consultants} canManage={canManage} />
     </div>
   );
 }

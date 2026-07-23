@@ -6,10 +6,10 @@ import { Badge } from "@/components/ui/badge";
 const LIVE_MODULES = [
   { title: "Bookings", href: "/dashboard/bookings" },
   { title: "Service Management", href: "/dashboard/services" },
+  { title: "Customer CRM", href: "/dashboard/customers" },
 ];
 
 const UPCOMING_MODULES = [
-  { title: "Customer CRM", phase: "Phase 6" },
   { title: "Projects", phase: "Phase 7" },
   { title: "Calendar", phase: "Phase 7" },
   { title: "Messages", phase: "Phase 7" },
@@ -28,7 +28,7 @@ export default async function DashboardPage() {
           Welcome back, {session?.user?.name}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Signed in as {session?.user?.email} — Phase 5 booking system.
+          Signed in as {session?.user?.email} — Phase 6 customer CRM.
         </p>
       </div>
 

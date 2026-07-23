@@ -29,7 +29,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, enabled: true },
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarClock, enabled: true },
-  { href: "/dashboard/customers", label: "Customers", icon: Users, enabled: false },
+  { href: "/dashboard/customers", label: "Customers", icon: Users, enabled: true },
   { href: "/dashboard/services", label: "Services", icon: Wrench, enabled: true },
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban, enabled: false },
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, enabled: false },

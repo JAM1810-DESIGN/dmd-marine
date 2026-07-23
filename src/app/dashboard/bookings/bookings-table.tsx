@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { Download, ArrowUpDown } from "lucide-react";
+import Link from "next/link";
+import { Download, ArrowUpDown, UserPlus } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -21,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
 import { updateBookingStatus, assignConsultant } from "./actions";
+import { addBookingToCrm } from "../customers/actions";
 
 export type BookingRow = {
   id: string;
@@ -31,6 +34,7 @@ export type BookingRow = {
   serviceName: string;
   status: string;
   assignedConsultantId: string | null;
+  customerId: string | null;
   preferredDate: string | null; // ISO date string
   preferredTime: string | null;
   createdAt: string; // ISO date string
@@ -128,12 +132,45 @@ function ConsultantSelect({
   );
 }
 
+function CrmCell({ id, customerId }: { id: string; customerId: string | null }) {
+  const [isPending, startTransition] = useTransition();
+
+  if (customerId) {
+    return (
+      <Link href={`/dashboard/customers/${customerId}`}>
+        <Badge variant="outline" className="hover:bg-secondary">
+          View Profile
+        </Badge>
+      </Link>
+    );
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={isPending}
+      onClick={() => {
+        startTransition(async () => {
+          await addBookingToCrm(id);
+          notify.success("Added to CRM");
+        });
+      }}
+    >
+      <UserPlus className="size-4" />
+      Add to CRM
+    </Button>
+  );
+}
+
 export function BookingsTable({
   bookings,
   consultants,
+  canManage,
 }: {
   bookings: BookingRow[];
   consultants: { id: string; name: string }[];
+  canManage: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -288,6 +325,7 @@ export function BookingsTable({
                   Status <ArrowUpDown className="size-3" />
                 </button>
               </TableHead>
+              <TableHead>CRM</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -313,14 +351,25 @@ export function BookingsTable({
                 </TableCell>
                 <TableCell className="text-sm">{booking.serviceName}</TableCell>
                 <TableCell>
-                  <ConsultantSelect
-                    id={booking.id}
-                    consultantId={booking.assignedConsultantId}
-                    consultants={consultants}
-                  />
+                  {canManage ? (
+                    <ConsultantSelect
+                      id={booking.id}
+                      consultantId={booking.assignedConsultantId}
+                      consultants={consultants}
+                    />
+                  ) : (
+                    consultants.find((c) => c.id === booking.assignedConsultantId)?.name ?? "Unassigned"
+                  )}
                 </TableCell>
                 <TableCell>
-                  <StatusSelect id={booking.id} status={booking.status} />
+                  {canManage ? (
+                    <StatusSelect id={booking.id} status={booking.status} />
+                  ) : (
+                    <Badge variant="outline">{booking.status.replace(/_/g, " ")}</Badge>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {canManage && <CrmCell id={booking.id} customerId={booking.customerId} />}
                 </TableCell>
               </TableRow>
             ))}
