@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { Download, ArrowUpDown, UserPlus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Download, ArrowUpDown, UserPlus, CalendarPlus, FolderPlus } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -24,6 +25,8 @@ import {
 import { notify } from "@/lib/notify";
 import { updateBookingStatus, assignConsultant } from "./actions";
 import { addBookingToCrm } from "../customers/actions";
+import { createProjectFromBooking } from "../projects/actions";
+import { ScheduleFormDialog } from "@/components/shared/schedule-form-dialog";
 
 export type BookingRow = {
   id: string;
@@ -159,6 +162,62 @@ function CrmCell({ id, customerId }: { id: string; customerId: string | null }) 
     >
       <UserPlus className="size-4" />
       Add to CRM
+    </Button>
+  );
+}
+
+function ScheduleButton({
+  booking,
+  consultants,
+}: {
+  booking: BookingRow;
+  consultants: { id: string; name: string }[];
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
+        <CalendarPlus className="size-4" />
+        Schedule
+      </Button>
+      <ScheduleFormDialog
+        open={open}
+        onOpenChange={setOpen}
+        target={{ type: "booking", bookingId: booking.id }}
+        defaultTitle={booking.serviceName}
+        defaultConsultantId={booking.assignedConsultantId}
+        preferredDate={booking.preferredDate}
+        preferredTime={booking.preferredTime}
+        consultants={consultants}
+      />
+    </>
+  );
+}
+
+function CreateProjectButton({ id }: { id: string }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={isPending}
+      onClick={() => {
+        startTransition(async () => {
+          const result = await createProjectFromBooking(id);
+          if (result.error) {
+            notify.error(result.error);
+            return;
+          }
+          notify.success("Project created");
+          if (result.projectId) router.push(`/dashboard/projects/${result.projectId}`);
+        });
+      }}
+    >
+      <FolderPlus className="size-4" />
+      Create Project
     </Button>
   );
 }
@@ -325,7 +384,7 @@ export function BookingsTable({
                   Status <ArrowUpDown className="size-3" />
                 </button>
               </TableHead>
-              <TableHead>CRM</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -369,7 +428,13 @@ export function BookingsTable({
                   )}
                 </TableCell>
                 <TableCell>
-                  {canManage && <CrmCell id={booking.id} customerId={booking.customerId} />}
+                  {canManage && (
+                    <div className="flex flex-wrap items-center gap-1">
+                      <CrmCell id={booking.id} customerId={booking.customerId} />
+                      <ScheduleButton booking={booking} consultants={consultants} />
+                      <CreateProjectButton id={booking.id} />
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

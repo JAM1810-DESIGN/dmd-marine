@@ -31,13 +31,13 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarClock, enabled: true },
   { href: "/dashboard/customers", label: "Customers", icon: Users, enabled: true },
   { href: "/dashboard/services", label: "Services", icon: Wrench, enabled: true },
-  { href: "/dashboard/projects", label: "Projects", icon: FolderKanban, enabled: false },
-  { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, enabled: false },
-  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, enabled: false },
+  { href: "/dashboard/projects", label: "Projects", icon: FolderKanban, enabled: true },
+  { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, enabled: true },
+  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, enabled: true },
   { href: "/dashboard/facebook", label: "Facebook", icon: Megaphone, enabled: false },
   { href: "/dashboard/finance", label: "Finance", icon: Wallet, enabled: false },
   { href: "/dashboard/reports", label: "Reports", icon: BarChart3, enabled: false },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings, enabled: false },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings, enabled: true },
 ];
 
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {

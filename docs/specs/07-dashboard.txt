@@ -1,74 +1,85 @@
-Continue DMD Marine project.
+Create business dashboard.
 
-Complete the platform.
+Modules:
 
-==================================================
-REPORTS
-==================================================
 
-Create:
-
-Monthly inquiries
+Dashboard Overview
 
 Bookings
 
-Completed services
+Customers
 
-Lead sources
+Services
 
-Customer growth
+Projects
 
-Popular services
+Calendar
 
+Messages
 
-==================================================
-NOTIFICATIONS
-==================================================
+Facebook
 
-Create:
+Reports
 
-New inquiry notification
+Settings
 
-New booking notification
-
-Facebook message notification
-
-Appointment reminder
 
 
 ==================================================
-FINAL IMPROVEMENTS
+DASHBOARD CARDS
 ==================================================
 
-Add:
+Display:
 
-Security review
 
-Performance optimization
+New inquiries
 
-Mobile testing
+Upcoming bookings
 
-SEO review
+Active projects
 
-Error handling
+Completed projects
 
-Documentation
+Customers
+
+Unread messages
+
 
 
 ==================================================
-FINAL DELIVERY
+CALENDAR
 ==================================================
 
-Provide:
+Display:
 
-Complete source code
+Consultations
 
-Database documentation
+Surveys
 
-API documentation
+Inspections
 
-Deployment guide
+Training sessions
 
-Environment variables
 
-Admin setup guide
+==================================================
+PROJECT TRACKING
+==================================================
+
+Statuses:
+
+New
+
+Planning
+
+Scheduled
+
+Active
+
+Completed
+
+Closed
+
+
+Deliver:
+
+Complete management dashboard.

@@ -1,9 +1,9 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { authConfig } from "@/auth.config";
+import { verifyPassword } from "@/lib/password";
 import type { Role } from "@/generated/prisma/enums";
 
 const credentialsSchema = z.object({
@@ -40,7 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const user = await db.user.findUnique({ where: { email } });
         if (!user || !user.isActive) return null;
 
-        const passwordValid = await bcrypt.compare(password, user.passwordHash);
+        const passwordValid = await verifyPassword(password, user.passwordHash);
         if (!passwordValid) return null;
 
         return {

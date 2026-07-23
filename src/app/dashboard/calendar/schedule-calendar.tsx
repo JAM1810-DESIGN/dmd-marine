@@ -21,45 +21,44 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarHeader, type CalendarViewMode } from "@/components/shared/calendar-header";
 import { cn } from "@/lib/utils";
 
-export type CalendarBooking = {
+export type CalendarSchedule = {
   id: string;
-  customerName: string;
-  serviceName: string;
-  status: string;
-  preferredDate: string; // ISO date string, YYYY-MM-DD prefix used as key
-  preferredTime: string | null;
+  title: string;
+  type: string;
+  startAt: string; // ISO datetime
+  endAt: string;
+  consultantName: string;
 };
 
-const STATUS_DOT: Record<string, string> = {
-  NEW: "bg-navy",
-  REVIEWING: "bg-gold",
-  SCHEDULED: "bg-ocean",
-  IN_PROGRESS: "bg-ocean",
-  COMPLETED: "bg-muted-foreground",
-  CANCELLED: "bg-destructive",
+const TYPE_DOT: Record<string, string> = {
+  CONSULTATION: "bg-navy",
+  SURVEY: "bg-ocean",
+  INSPECTION: "bg-gold",
+  TRAINING: "bg-emerald-600",
+  OTHER: "bg-muted-foreground",
 };
 
 function dateKey(date: Date) {
   return format(date, "yyyy-MM-dd");
 }
 
-export function BookingCalendar({ bookings }: { bookings: CalendarBooking[] }) {
+export function ScheduleCalendar({ schedules }: { schedules: CalendarSchedule[] }) {
   const [view, setView] = useState<CalendarViewMode>("month");
   const [currentDate, setCurrentDate] = useState(() => new Date());
 
-  const bookingsByDate = useMemo(() => {
-    const map = new Map<string, CalendarBooking[]>();
-    for (const booking of bookings) {
-      const key = booking.preferredDate.slice(0, 10);
+  const schedulesByDate = useMemo(() => {
+    const map = new Map<string, CalendarSchedule[]>();
+    for (const schedule of schedules) {
+      const key = dateKey(new Date(schedule.startAt));
       const existing = map.get(key);
-      if (existing) existing.push(booking);
-      else map.set(key, [booking]);
+      if (existing) existing.push(schedule);
+      else map.set(key, [schedule]);
     }
     for (const list of map.values()) {
-      list.sort((a, b) => (a.preferredTime ?? "").localeCompare(b.preferredTime ?? ""));
+      list.sort((a, b) => a.startAt.localeCompare(b.startAt));
     }
     return map;
-  }, [bookings]);
+  }, [schedules]);
 
   function goPrev() {
     setCurrentDate((date) =>
@@ -92,14 +91,12 @@ export function BookingCalendar({ bookings }: { bookings: CalendarBooking[] }) {
 
       <div className="mt-4">
         {view === "month" && (
-          <MonthGrid currentDate={currentDate} bookingsByDate={bookingsByDate} onSelectDay={goToDay} />
+          <MonthGrid currentDate={currentDate} schedulesByDate={schedulesByDate} onSelectDay={goToDay} />
         )}
         {view === "week" && (
-          <WeekList currentDate={currentDate} bookingsByDate={bookingsByDate} onSelectDay={goToDay} />
+          <WeekList currentDate={currentDate} schedulesByDate={schedulesByDate} onSelectDay={goToDay} />
         )}
-        {view === "day" && (
-          <DayList bookings={bookingsByDate.get(dateKey(currentDate)) ?? []} />
-        )}
+        {view === "day" && <DayList schedules={schedulesByDate.get(dateKey(currentDate)) ?? []} />}
       </div>
     </div>
   );
@@ -107,11 +104,11 @@ export function BookingCalendar({ bookings }: { bookings: CalendarBooking[] }) {
 
 function MonthGrid({
   currentDate,
-  bookingsByDate,
+  schedulesByDate,
   onSelectDay,
 }: {
   currentDate: Date;
-  bookingsByDate: Map<string, CalendarBooking[]>;
+  schedulesByDate: Map<string, CalendarSchedule[]>;
   onSelectDay: (date: Date) => void;
 }) {
   const gridStart = startOfWeek(startOfMonth(currentDate));
@@ -126,7 +123,7 @@ function MonthGrid({
         </div>
       ))}
       {days.map((day) => {
-        const dayBookings = bookingsByDate.get(dateKey(day)) ?? [];
+        const dayEvents = schedulesByDate.get(dateKey(day)) ?? [];
         const inMonth = isSameMonth(day, currentDate);
         return (
           <button
@@ -147,16 +144,14 @@ function MonthGrid({
               {format(day, "d")}
             </span>
             <div className="mt-1 flex flex-col gap-0.5">
-              {dayBookings.slice(0, 2).map((booking) => (
-                <div key={booking.id} className="flex items-center gap-1 truncate text-[11px]">
-                  <span className={cn("size-1.5 shrink-0 rounded-full", STATUS_DOT[booking.status])} />
-                  <span className="truncate">{booking.customerName}</span>
+              {dayEvents.slice(0, 2).map((event) => (
+                <div key={event.id} className="flex items-center gap-1 truncate text-[11px]">
+                  <span className={cn("size-1.5 shrink-0 rounded-full", TYPE_DOT[event.type])} />
+                  <span className="truncate">{event.title}</span>
                 </div>
               ))}
-              {dayBookings.length > 2 && (
-                <span className="text-[11px] text-muted-foreground">
-                  +{dayBookings.length - 2} more
-                </span>
+              {dayEvents.length > 2 && (
+                <span className="text-[11px] text-muted-foreground">+{dayEvents.length - 2} more</span>
               )}
             </div>
           </button>
@@ -168,22 +163,19 @@ function MonthGrid({
 
 function WeekList({
   currentDate,
-  bookingsByDate,
+  schedulesByDate,
   onSelectDay,
 }: {
   currentDate: Date;
-  bookingsByDate: Map<string, CalendarBooking[]>;
+  schedulesByDate: Map<string, CalendarSchedule[]>;
   onSelectDay: (date: Date) => void;
 }) {
-  const days = eachDayOfInterval({
-    start: startOfWeek(currentDate),
-    end: endOfWeek(currentDate),
-  });
+  const days = eachDayOfInterval({ start: startOfWeek(currentDate), end: endOfWeek(currentDate) });
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-7">
       {days.map((day) => {
-        const dayBookings = bookingsByDate.get(dateKey(day)) ?? [];
+        const dayEvents = schedulesByDate.get(dateKey(day)) ?? [];
         return (
           <div key={day.toISOString()} className="rounded-lg border border-border p-2">
             <button
@@ -202,16 +194,16 @@ function WeekList({
               </span>
             </button>
             <div className="flex flex-col gap-1.5">
-              {dayBookings.length === 0 && (
-                <p className="text-xs text-muted-foreground">No bookings</p>
-              )}
-              {dayBookings.map((booking) => (
-                <div key={booking.id} className="rounded-md bg-secondary/50 p-1.5 text-xs">
+              {dayEvents.length === 0 && <p className="text-xs text-muted-foreground">No events</p>}
+              {dayEvents.map((event) => (
+                <div key={event.id} className="rounded-md bg-secondary/50 p-1.5 text-xs">
                   <div className="flex items-center gap-1">
-                    <span className={cn("size-1.5 shrink-0 rounded-full", STATUS_DOT[booking.status])} />
-                    <span className="font-medium text-foreground">{booking.customerName}</span>
+                    <span className={cn("size-1.5 shrink-0 rounded-full", TYPE_DOT[event.type])} />
+                    <span className="font-medium text-foreground">{event.title}</span>
                   </div>
-                  <p className="truncate text-muted-foreground">{booking.serviceName}</p>
+                  <p className="truncate text-muted-foreground">
+                    {format(new Date(event.startAt), "h:mm a")} · {event.consultantName}
+                  </p>
                 </div>
               ))}
             </div>
@@ -222,25 +214,25 @@ function WeekList({
   );
 }
 
-function DayList({ bookings }: { bookings: CalendarBooking[] }) {
-  if (bookings.length === 0) {
-    return <p className="text-sm text-muted-foreground">No bookings for this day.</p>;
+function DayList({ schedules }: { schedules: CalendarSchedule[] }) {
+  if (schedules.length === 0) {
+    return <p className="text-sm text-muted-foreground">No scheduled events for this day.</p>;
   }
 
   return (
     <div className="flex flex-col divide-y divide-border">
-      {bookings.map((booking) => (
-        <div key={booking.id} className="flex items-center justify-between gap-4 py-3">
+      {schedules.map((event) => (
+        <div key={event.id} className="flex items-center justify-between gap-4 py-3">
           <div className="flex items-center gap-3">
-            <span className="w-16 shrink-0 text-sm text-muted-foreground">
-              {booking.preferredTime ?? "—"}
+            <span className="w-20 shrink-0 text-sm text-muted-foreground">
+              {format(new Date(event.startAt), "h:mm a")}
             </span>
             <div>
-              <p className="font-medium text-foreground">{booking.customerName}</p>
-              <p className="text-sm text-muted-foreground">{booking.serviceName}</p>
+              <p className="font-medium text-foreground">{event.title}</p>
+              <p className="text-sm text-muted-foreground">{event.consultantName}</p>
             </div>
           </div>
-          <Badge variant="outline">{booking.status.replace(/_/g, " ")}</Badge>
+          <Badge variant="outline">{event.type.replace(/_/g, " ")}</Badge>
         </div>
       ))}
     </div>

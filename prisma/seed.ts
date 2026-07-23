@@ -5,9 +5,9 @@
 // invoices, or other business records. Service copy fields (overview,
 // benefits, scope, process, FAQ) are intentionally left blank for the
 // business to fill in via the admin service management module (Phase 4).
-import bcrypt from "bcryptjs";
 import { db } from "../src/lib/db";
 import { slugify } from "../src/lib/slugify";
+import { hashPassword } from "../src/lib/password";
 
 const SERVICE_CATALOG: { category: string; services: string[] }[] = [
   {
@@ -78,7 +78,7 @@ const EXPENSE_CATEGORIES = [
 ];
 
 async function seedAdmin() {
-  const passwordHash = await bcrypt.hash("DevAdmin123!", 12);
+  const passwordHash = await hashPassword("DevAdmin123!");
 
   const admin = await db.user.upsert({
     where: { email: "admin@dmdmarine.dev" },
