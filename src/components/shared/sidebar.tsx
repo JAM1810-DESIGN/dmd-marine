@@ -34,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban, enabled: true },
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, enabled: true },
   { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, enabled: true },
-  { href: "/dashboard/facebook", label: "Facebook", icon: Megaphone, enabled: false },
+  { href: "/dashboard/facebook", label: "Facebook", icon: Megaphone, enabled: true },
   { href: "/dashboard/finance", label: "Finance", icon: Wallet, enabled: false },
   { href: "/dashboard/reports", label: "Reports", icon: BarChart3, enabled: false },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, enabled: true },

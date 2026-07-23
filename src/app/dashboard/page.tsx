@@ -12,11 +12,11 @@ const LIVE_MODULES = [
   { title: "Projects", href: "/dashboard/projects" },
   { title: "Calendar", href: "/dashboard/calendar" },
   { title: "Messages", href: "/dashboard/messages" },
+  { title: "Facebook", href: "/dashboard/facebook" },
   { title: "Settings", href: "/dashboard/settings" },
 ];
 
 const UPCOMING_MODULES = [
-  { title: "Facebook Integration", phase: "Phase 8" },
   { title: "Finance", phase: "Phase 9" },
   { title: "Reports & Analytics", phase: "Phase 10" },
 ];

@@ -13,7 +13,8 @@ Under active phased development. See `docs/specs/` for the original phase briefs
 - **Frontend/Backend:** Next.js (App Router) + TypeScript + Tailwind CSS + shadcn/ui + Framer Motion
 - **Database:** PostgreSQL via Prisma ORM
 - **Auth:** Auth.js v5 (Credentials provider, JWT sessions) — internal staff roles only (Admin / Manager / Staff / Finance Officer). No customer accounts; booking is a public guest form.
-- **Storage:** Cloudinary (receipts, attachments, media) — wired in a later phase
+- **Storage:** Cloudinary (booking attachments, project documents) — set `CLOUDINARY_*` env vars to activate
+- **Facebook:** Messenger + Lead Ads webhook at `/api/facebook/webhook` — set `FACEBOOK_*` env vars to activate
 - **Email:** Resend — wired in a later phase
 - **Package manager:** pnpm
 - **Deployment:** Docker, Vercel-compatible

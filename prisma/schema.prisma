@@ -228,6 +228,7 @@ model Customer {
   projects       Project[]
   invoices       Invoice[]
   messages       Message[]
+  facebookLeads  FacebookLead[]
 
   @@index([companyId])
   @@map("customers")
@@ -504,6 +505,9 @@ model Notification {
 model FacebookLead {
   id         String             @id @default(cuid())
   pageId     String
+  // Messenger page-scoped user id — the thread identity for conversations.
+  psid       String?            @unique
+  // Lead Ads submission id — present when this record originated from a lead form.
   leadgenId  String?            @unique
   name       String?
   email      String?
@@ -511,13 +515,16 @@ model FacebookLead {
   message    String?
   status     FacebookLeadStatus @default(NEW)
   rawPayload Json?
+  customerId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
   messages Message[]
 
   @@index([status])
+  @@index([customerId])
   @@map("facebook_leads")
 }
 
