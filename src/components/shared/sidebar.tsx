@@ -28,7 +28,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, enabled: true },
-  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarClock, enabled: false },
+  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarClock, enabled: true },
   { href: "/dashboard/customers", label: "Customers", icon: Users, enabled: false },
   { href: "/dashboard/services", label: "Services", icon: Wrench, enabled: true },
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban, enabled: false },

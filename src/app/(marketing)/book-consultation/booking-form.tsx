@@ -22,9 +22,11 @@ type ServiceOption = { id: string; name: string; categoryName: string };
 export function BookingForm({
   services,
   defaultServiceId,
+  attachmentsEnabled,
 }: {
   services: ServiceOption[];
   defaultServiceId?: string;
+  attachmentsEnabled: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(submitBookingForm, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -102,6 +104,14 @@ export function BookingForm({
         <Label htmlFor="message">Message</Label>
         <Textarea id="message" name="message" rows={4} />
       </div>
+
+      {attachmentsEnabled && (
+        <div className="grid gap-1.5">
+          <Label htmlFor="attachments">Attachments (optional)</Label>
+          <Input id="attachments" name="attachments" type="file" multiple />
+          <p className="text-xs text-muted-foreground">Up to 5 files, 10 MB each.</p>
+        </div>
+      )}
 
       {state.error && <p className="text-sm font-medium text-destructive">{state.error}</p>}
 

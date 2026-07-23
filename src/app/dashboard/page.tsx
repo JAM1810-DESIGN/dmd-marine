@@ -3,10 +3,12 @@ import { auth } from "@/auth";
 import { Card, CardHeader, CardTitle, CardDescription, CardAction } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const LIVE_MODULES = [{ title: "Service Management", href: "/dashboard/services" }];
+const LIVE_MODULES = [
+  { title: "Bookings", href: "/dashboard/bookings" },
+  { title: "Service Management", href: "/dashboard/services" },
+];
 
 const UPCOMING_MODULES = [
-  { title: "Bookings", phase: "Phase 5" },
   { title: "Customer CRM", phase: "Phase 6" },
   { title: "Projects", phase: "Phase 7" },
   { title: "Calendar", phase: "Phase 7" },
@@ -26,7 +28,7 @@ export default async function DashboardPage() {
           Welcome back, {session?.user?.name}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Signed in as {session?.user?.email} — Phase 4 marine service management.
+          Signed in as {session?.user?.email} — Phase 5 booking system.
         </p>
       </div>
 

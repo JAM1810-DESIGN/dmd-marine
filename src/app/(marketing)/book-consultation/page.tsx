@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
+import { isStorageConfigured } from "@/lib/storage";
 import { Section } from "@/components/marketing/section";
 import { BookingForm } from "./booking-form";
 
@@ -46,6 +47,7 @@ export default async function BookConsultationPage({
             categoryName: service.category.name,
           }))}
           defaultServiceId={defaultService?.id}
+          attachmentsEnabled={isStorageConfigured}
         />
       </div>
     </Section>
