@@ -12,6 +12,7 @@ export default async function BookingsPage() {
     session?.user.role === "ADMIN" ||
     session?.user.role === "MANAGER" ||
     session?.user.role === "STAFF";
+  const canManageFinance = session?.user.role === "ADMIN" || session?.user.role === "FINANCE_OFFICER";
 
   const [bookings, consultants] = await Promise.all([
     db.booking.findMany({
@@ -61,7 +62,12 @@ export default async function BookingsPage() {
       </div>
 
       <BookingCalendar bookings={calendarBookings} />
-      <BookingsTable bookings={tableBookings} consultants={consultants} canManage={canManage} />
+      <BookingsTable
+        bookings={tableBookings}
+        consultants={consultants}
+        canManage={canManage}
+        canManageFinance={canManageFinance}
+      />
     </div>
   );
 }

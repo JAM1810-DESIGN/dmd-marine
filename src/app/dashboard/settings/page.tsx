@@ -6,6 +6,7 @@ import { isFacebookConfigured, facebookConfigStatus } from "@/lib/facebook";
 import { isStorageConfigured } from "@/lib/storage";
 import { env } from "@/lib/env";
 import { Badge } from "@/components/ui/badge";
+import { AccessDenied } from "@/components/shared/access-denied";
 import { UsersTable } from "./users-table";
 import { SiteSettingsForm } from "./site-settings-form";
 
@@ -15,13 +16,7 @@ export default async function SettingsPage() {
   const session = await auth();
 
   if (session?.user.role !== "ADMIN") {
-    return (
-      <div className="rounded-xl bg-card p-6 text-center ring-1 ring-foreground/10">
-        <p className="text-sm text-muted-foreground">
-          Only administrators can view account and site settings.
-        </p>
-      </div>
-    );
+    return <AccessDenied message="Only administrators can view account and site settings." />;
   }
 
   const [users, settings] = await Promise.all([

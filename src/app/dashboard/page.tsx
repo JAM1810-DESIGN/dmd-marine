@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
 import { Inbox, CalendarClock, FolderKanban, CheckCircle2, Users, MessageSquare } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { getRevenueTotal, getExpenseTotal, getCashFlow } from "@/lib/finance-calculations";
 import { Card, CardHeader, CardTitle, CardDescription, CardAction } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -13,13 +15,15 @@ const LIVE_MODULES = [
   { title: "Calendar", href: "/dashboard/calendar" },
   { title: "Messages", href: "/dashboard/messages" },
   { title: "Facebook", href: "/dashboard/facebook" },
+  { title: "Finance", href: "/dashboard/finance" },
   { title: "Settings", href: "/dashboard/settings" },
 ];
 
-const UPCOMING_MODULES = [
-  { title: "Finance", phase: "Phase 9" },
-  { title: "Reports & Analytics", phase: "Phase 10" },
-];
+const UPCOMING_MODULES = [{ title: "Reports & Analytics", phase: "Phase 10" }];
+
+function currency(value: number) {
+  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+}
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -49,6 +53,36 @@ export default async function DashboardPage() {
     { title: "Unread Messages", value: unreadMessages, icon: MessageSquare, href: "/dashboard/messages" },
   ];
 
+  const canViewFinance =
+    session?.user.role === "ADMIN" ||
+    session?.user.role === "MANAGER" ||
+    session?.user.role === "FINANCE_OFFICER";
+
+  const financeWidgets = canViewFinance
+    ? await (async () => {
+        const today = { start: startOfDay(new Date()), end: endOfDay(new Date()) };
+        const month = { start: startOfMonth(new Date()), end: endOfMonth(new Date()) };
+        const [todayRevenue, todayExpenses, monthlyRevenue, monthlyExpenses, cashFlow, pendingInvoices, overdueInvoices] =
+          await Promise.all([
+            getRevenueTotal(today),
+            getExpenseTotal(today),
+            getRevenueTotal(month),
+            getExpenseTotal(month),
+            getCashFlow(month),
+            db.invoice.count({ where: { status: { in: ["DRAFT", "SENT", "PARTIAL"] } } }),
+            db.invoice.count({ where: { status: "OVERDUE" } }),
+          ]);
+        return {
+          todayRevenue,
+          todayExpenses,
+          monthlyProfit: monthlyRevenue - monthlyExpenses,
+          pendingInvoices,
+          overdueInvoices,
+          cashFlow: cashFlow.net,
+        };
+      })()
+    : null;
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -73,6 +107,33 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      {financeWidgets && (
+        <div>
+          <h2 className="mb-3 font-heading text-base font-semibold text-foreground">Finance Snapshot</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: "Today's Revenue", value: financeWidgets.todayRevenue },
+              { title: "Today's Expenses", value: financeWidgets.todayExpenses },
+              { title: "Monthly Profit", value: financeWidgets.monthlyProfit },
+              { title: "Pending Invoices", value: financeWidgets.pendingInvoices, isCount: true },
+              { title: "Overdue Invoices", value: financeWidgets.overdueInvoices, isCount: true },
+              { title: "Cash Flow (this month)", value: financeWidgets.cashFlow },
+            ].map((widget) => (
+              <Link key={widget.title} href="/dashboard/finance">
+                <Card className="h-full transition-shadow hover:shadow-md">
+                  <CardHeader>
+                    <CardDescription>{widget.title}</CardDescription>
+                    <CardTitle className="text-2xl font-semibold">
+                      {widget.isCount ? widget.value : currency(widget.value)}
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         <h2 className="mb-3 font-heading text-base font-semibold text-foreground">Modules</h2>

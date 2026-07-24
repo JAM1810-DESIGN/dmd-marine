@@ -24,6 +24,7 @@ type NavItem = {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   enabled: boolean;
+  children?: { href: string; label: string }[];
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -35,7 +36,22 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, enabled: true },
   { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, enabled: true },
   { href: "/dashboard/facebook", label: "Facebook", icon: Megaphone, enabled: true },
-  { href: "/dashboard/finance", label: "Finance", icon: Wallet, enabled: false },
+  {
+    href: "/dashboard/finance",
+    label: "Finance",
+    icon: Wallet,
+    enabled: true,
+    children: [
+      { href: "/dashboard/finance", label: "Dashboard" },
+      { href: "/dashboard/finance/expenses", label: "Expenses" },
+      { href: "/dashboard/finance/invoices", label: "Invoices" },
+      { href: "/dashboard/finance/payments", label: "Payments" },
+      { href: "/dashboard/finance/statements", label: "Financial Statements" },
+      { href: "/dashboard/finance/reports", label: "Reports" },
+      { href: "/dashboard/finance/budgets", label: "Budgets" },
+      { href: "/dashboard/finance/settings", label: "Settings" },
+    ],
+  },
   { href: "/dashboard/reports", label: "Reports", icon: BarChart3, enabled: false },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, enabled: true },
 ];
@@ -74,6 +90,51 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                 >
                   Soon
                 </Badge>
+              </div>
+            );
+          }
+
+          if (item.children) {
+            const isSectionActive = pathname.startsWith(item.href);
+            return (
+              <div key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={onNavigate}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : isSectionActive
+                        ? "text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  )}
+                >
+                  <Icon className="size-4" />
+                  {item.label}
+                </Link>
+                {isSectionActive && (
+                  <div className="mt-1 ml-4 flex flex-col space-y-0.5 border-l border-sidebar-border pl-3">
+                    {item.children.map((child) => {
+                      const childActive = pathname === child.href;
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          onClick={onNavigate}
+                          className={cn(
+                            "rounded-md px-2 py-1.5 text-sm transition-colors",
+                            childActive
+                              ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                          )}
+                        >
+                          {child.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           }

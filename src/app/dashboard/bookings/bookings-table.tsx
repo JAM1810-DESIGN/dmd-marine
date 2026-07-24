@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Download, ArrowUpDown, UserPlus, CalendarPlus, FolderPlus } from "lucide-react";
+import { Download, ArrowUpDown, UserPlus, CalendarPlus, FolderPlus, Receipt } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -23,9 +23,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
+import { buildCsv, downloadCsv } from "@/lib/csv";
 import { updateBookingStatus, assignConsultant } from "./actions";
 import { addBookingToCrm } from "../customers/actions";
 import { createProjectFromBooking } from "../projects/actions";
+import { createInvoiceFromBooking } from "../finance/invoices/actions";
 import { ScheduleFormDialog } from "@/components/shared/schedule-form-dialog";
 
 export type BookingRow = {
@@ -61,13 +63,6 @@ function formatDate(iso: string | null) {
     month: "short",
     day: "numeric",
   });
-}
-
-function toCsvValue(value: string) {
-  if (/[",\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-  return value;
 }
 
 function StatusSelect({ id, status }: { id: string; status: string }) {
@@ -222,14 +217,43 @@ function CreateProjectButton({ id }: { id: string }) {
   );
 }
 
+function GenerateInvoiceButton({ id }: { id: string }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={isPending}
+      onClick={() => {
+        startTransition(async () => {
+          const result = await createInvoiceFromBooking(id);
+          if (result.error) {
+            notify.error(result.error);
+            return;
+          }
+          notify.success("Invoice created");
+          if (result.id) router.push(`/dashboard/finance/invoices/${result.id}`);
+        });
+      }}
+    >
+      <Receipt className="size-4" />
+      Invoice
+    </Button>
+  );
+}
+
 export function BookingsTable({
   bookings,
   consultants,
   canManage,
+  canManageFinance,
 }: {
   bookings: BookingRow[];
   consultants: { id: string; name: string }[];
   canManage: boolean;
+  canManageFinance: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -301,14 +325,7 @@ export function BookingsTable({
       formatDate(booking.createdAt) ?? "",
     ]);
 
-    const csv = [header, ...rows].map((row) => row.map(toCsvValue).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `bookings-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(`bookings-${new Date().toISOString().slice(0, 10)}.csv`, buildCsv(header, rows));
   }
 
   return (
@@ -433,6 +450,7 @@ export function BookingsTable({
                       <CrmCell id={booking.id} customerId={booking.customerId} />
                       <ScheduleButton booking={booking} consultants={consultants} />
                       <CreateProjectButton id={booking.id} />
+                      {canManageFinance && <GenerateInvoiceButton id={booking.id} />}
                     </div>
                   )}
                 </TableCell>
