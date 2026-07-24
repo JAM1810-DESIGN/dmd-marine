@@ -52,7 +52,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/dashboard/finance/settings", label: "Settings" },
     ],
   },
-  { href: "/dashboard/reports", label: "Reports", icon: BarChart3, enabled: false },
+  { href: "/dashboard/reports", label: "Reports", icon: BarChart3, enabled: true },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, enabled: true },
 ];
 

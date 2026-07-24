@@ -58,6 +58,15 @@ export async function createExpense(
     },
   });
 
+  await db.notification.create({
+    data: {
+      type: "EXPENSE_PENDING_APPROVAL",
+      title: "Expense pending approval",
+      message: `${expenseNumber} (${rest.amount.toLocaleString("en-US", { style: "currency", currency: "USD" })}) is awaiting approval.`,
+      link: "/dashboard/finance/expenses",
+    },
+  });
+
   revalidatePath("/dashboard/finance/expenses");
   return { success: true };
 }

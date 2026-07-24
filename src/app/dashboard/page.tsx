@@ -16,10 +16,11 @@ const LIVE_MODULES = [
   { title: "Messages", href: "/dashboard/messages" },
   { title: "Facebook", href: "/dashboard/facebook" },
   { title: "Finance", href: "/dashboard/finance" },
+  { title: "Reports & Analytics", href: "/dashboard/reports" },
   { title: "Settings", href: "/dashboard/settings" },
 ];
 
-const UPCOMING_MODULES = [{ title: "Reports & Analytics", phase: "Phase 10" }];
+const UPCOMING_MODULES: { title: string; phase: string }[] = [];
 
 function currency(value: number) {
   return value.toLocaleString("en-US", { style: "currency", currency: "USD" });

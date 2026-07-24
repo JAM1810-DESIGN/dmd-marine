@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarNav } from "@/components/shared/sidebar";
+import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { signOutAction } from "@/app/dashboard/actions";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -34,8 +35,12 @@ function initials(name: string) {
 
 export function DashboardTopbar({
   user,
+  notifications,
+  unreadCount,
 }: {
   user: { name: string; email: string; role: string };
+  notifications: NotificationItem[];
+  unreadCount: number;
 }) {
   return (
     <header className="flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-4 sm:px-6">
@@ -56,6 +61,8 @@ export function DashboardTopbar({
       </Sheet>
 
       <div className="flex-1" />
+
+      <NotificationBell notifications={notifications} unreadCount={unreadCount} />
 
       <DropdownMenu>
         <DropdownMenuTrigger

@@ -17,7 +17,7 @@ import {
   type DateRange,
 } from "@/lib/finance-calculations";
 import { ReportSelector } from "./report-selector";
-import { ReportTable } from "./report-table";
+import { ReportTable } from "@/components/shared/report-table";
 
 export const metadata: Metadata = { title: "Finance Reports" };
 
