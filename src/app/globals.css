@@ -4,12 +4,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Marine brand constants — stable across light/dark, used for brand-specific
-   sections (hero, marketing navbar/footer) via bg-navy / text-gold / etc. */
+/* Maritime brand palette — raw values. Components should reference the semantic
+   tokens below (bg-primary, text-accent, etc.), not these --brand-* variables
+   directly, except for deliberate one-off brand moments (e.g. text-brand-coral
+   on a marketing page). */
 :root {
-  --brand-navy: #0a2540;
-  --brand-navy-dark: #051423;
-  --brand-ocean: #1e6091;
+  --brand-navy: #0b2545;
+  --brand-deep-sea: #003049;
+  --brand-ocean: #1565c0;
+  --brand-harbor: #4a90e2;
+  --brand-seafoam: #2ec4b6;
+  --brand-coral: #ff6b6b;
+  --brand-mist: #eaf4f8;
+  --brand-sand: #f8f5f0;
+
+  /* Legacy tokens — still referenced by hero.tsx and login-form.tsx until the
+     Marketing+Auth plan migrates them. Remove then, not before. */
   --brand-gold: #c9a036;
   --brand-gold-light: #e4c878;
 }
@@ -21,8 +31,13 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-navy: var(--brand-navy);
-  --color-navy-dark: var(--brand-navy-dark);
+  --color-deep-sea: var(--brand-deep-sea);
   --color-ocean: var(--brand-ocean);
+  --color-harbor: var(--brand-harbor);
+  --color-seafoam: var(--brand-seafoam);
+  --color-coral: var(--brand-coral);
+  --color-mist: var(--brand-mist);
+  --color-sand: var(--brand-sand);
   --color-gold: var(--brand-gold);
   --color-gold-light: var(--brand-gold-light);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -42,6 +57,8 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -64,72 +81,76 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a1f33;
+  --background: #f7fafc;
+  --foreground: #102a43;
   --card: #ffffff;
-  --card-foreground: #0a1f33;
+  --card-foreground: #102a43;
   --popover: #ffffff;
-  --popover-foreground: #0a1f33;
-  --primary: #0a2540;
+  --popover-foreground: #102a43;
+  --primary: #1565c0;
   --primary-foreground: #ffffff;
-  --secondary: #e6f0f7;
-  --secondary-foreground: #0a2540;
-  --muted: #f1f5f8;
-  --muted-foreground: #55707f;
-  --accent: #c9a036;
-  --accent-foreground: #0a2540;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #d9e2e8;
-  --input: #d9e2e8;
-  --ring: #1e6091;
-  --chart-1: #0a2540;
-  --chart-2: #1e6091;
-  --chart-3: #c9a036;
-  --chart-4: #2e8b9a;
-  --chart-5: #7c8b99;
+  --secondary: #eaf4f8;
+  --secondary-foreground: #0b2545;
+  --muted: #f8f5f0;
+  --muted-foreground: #5c677d;
+  --accent: #2ec4b6;
+  --accent-foreground: #0b2545;
+  --destructive: #e63946;
+  --success: #2ecc71;
+  --warning: #f4b400;
+  --border: #dce6ef;
+  --input: #dce6ef;
+  --ring: #4a90e2;
+  --chart-1: #0b2545;
+  --chart-2: #1565c0;
+  --chart-3: #2ec4b6;
+  --chart-4: #4a90e2;
+  --chart-5: #f4b400;
   --radius: 0.625rem;
-  --sidebar: #0a2540;
+  --sidebar: #0b2545;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #c9a036;
-  --sidebar-primary-foreground: #0a2540;
+  --sidebar-primary: #2ec4b6;
+  --sidebar-primary-foreground: #0b2545;
   --sidebar-accent: #123a5e;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #123a5e;
-  --sidebar-ring: #c9a036;
+  --sidebar-ring: #2ec4b6;
 }
 
 .dark {
-  --background: #071624;
-  --foreground: #e8eef2;
-  --card: #0d2136;
-  --card-foreground: #e8eef2;
-  --popover: #0d2136;
-  --popover-foreground: #e8eef2;
-  --primary: #2e8fc0;
-  --primary-foreground: #06131f;
-  --secondary: #123a5e;
-  --secondary-foreground: #e8eef2;
-  --muted: #123049;
-  --muted-foreground: #93a9b8;
-  --accent: #d4af37;
-  --accent-foreground: #06131f;
-  --destructive: oklch(0.704 0.191 22.216);
+  --background: #04101a;
+  --foreground: #eaf4f8;
+  --card: #003049;
+  --card-foreground: #eaf4f8;
+  --popover: #003049;
+  --popover-foreground: #eaf4f8;
+  --primary: #4a90e2;
+  --primary-foreground: #04101a;
+  --secondary: #0b2545;
+  --secondary-foreground: #eaf4f8;
+  --muted: #0a2a40;
+  --muted-foreground: #9fb7c7;
+  --accent: #2ec4b6;
+  --accent-foreground: #04101a;
+  --destructive: #e63946;
+  --success: #2ecc71;
+  --warning: #f4b400;
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #d4af37;
-  --chart-1: #2e8fc0;
-  --chart-2: #d4af37;
-  --chart-3: #5ba8b8;
-  --chart-4: #6c87a0;
-  --chart-5: #9fb7c7;
-  --sidebar: #050f1a;
-  --sidebar-foreground: #e8eef2;
-  --sidebar-primary: #d4af37;
-  --sidebar-primary-foreground: #06131f;
+  --ring: #2ec4b6;
+  --chart-1: #4a90e2;
+  --chart-2: #2ec4b6;
+  --chart-3: #f4b400;
+  --chart-4: #ff6b6b;
+  --chart-5: #eaf4f8;
+  --sidebar: #020b12;
+  --sidebar-foreground: #eaf4f8;
+  --sidebar-primary: #2ec4b6;
+  --sidebar-primary-foreground: #04101a;
   --sidebar-accent: #0d2136;
-  --sidebar-accent-foreground: #e8eef2;
+  --sidebar-accent-foreground: #eaf4f8;
   --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: #d4af37;
+  --sidebar-ring: #2ec4b6;
 }
 
 @layer base {
