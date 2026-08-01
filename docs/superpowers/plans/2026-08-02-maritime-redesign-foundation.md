@@ -32,7 +32,8 @@
 | `src/components/shared/empty-state.tsx` (new) | Reusable empty-list UI |
 | `src/components/ui/alert.tsx` (new) | Static inline banner (info/success/warning/error) |
 | `src/components/shared/stat-card.tsx` (new) | Reusable KPI card |
-| `src/app/dashboard/loading.tsx`, `src/app/dashboard/finance/loading.tsx`, `src/app/dashboard/customers/loading.tsx`, `src/app/dashboard/reports/loading.tsx` (new) | Route-level loading skeletons |
+| `src/components/shared/route-loading-skeleton.tsx` (new) | Shared skeleton shape for route `loading.tsx` files |
+| `src/app/dashboard/loading.tsx`, `src/app/dashboard/finance/loading.tsx`, `src/app/dashboard/customers/loading.tsx`, `src/app/dashboard/reports/loading.tsx` (new) | Route-level loading skeletons (render `RouteLoadingSkeleton`) |
 | `src/components/shared/sidebar.tsx` | Nav item spacing/radius polish |
 | `src/components/shared/dashboard-layout.tsx` | Content max-width/padding polish |
 | `src/components/shared/dashboard-topbar.tsx` | Fix hardcoded avatar color, add `ThemeToggle` |
@@ -748,6 +749,7 @@ git commit -m "Add reusable StatCard component"
 ### Task 8: Route-level loading skeletons
 
 **Files:**
+- Create: `src/components/shared/route-loading-skeleton.tsx`
 - Create: `src/app/dashboard/loading.tsx`
 - Create: `src/app/dashboard/finance/loading.tsx`
 - Create: `src/app/dashboard/customers/loading.tsx`
@@ -755,15 +757,21 @@ git commit -m "Add reusable StatCard component"
 
 **Interfaces:**
 - Consumes: `Skeleton` from `@/components/ui/skeleton` (already exists, unchanged).
-- Produces: nothing consumed by other tasks — these are Next.js App Router convention files, picked up automatically by the framework for their respective route segments.
+- Produces: `RouteLoadingSkeleton({ cardCount?: number, showTable?: boolean })` — a regular shared component (Next.js `loading.tsx` convention files can import any component, there's no route-boundary restriction), consumed by the four `loading.tsx` files below. Nothing here is consumed by later tasks in this plan.
 
-- [ ] **Step 1: Create the shared shape (repeated in each file — Next.js loading.tsx files cannot import a shared component across route boundaries and stay a server-free convention file, so this is intentionally duplicated per the framework's own pattern)**
+- [ ] **Step 1: Create the shared skeleton component**
 
 ```tsx
-// src/app/dashboard/loading.tsx
+// src/components/shared/route-loading-skeleton.tsx
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Loading() {
+export function RouteLoadingSkeleton({
+  cardCount = 6,
+  showTable = false,
+}: {
+  cardCount?: number;
+  showTable?: boolean;
+}) {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -771,37 +779,34 @@ export default function Loading() {
         <Skeleton className="h-4 w-72" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: cardCount }).map((_, i) => (
           <Skeleton key={i} className="h-24 rounded-xl" />
         ))}
       </div>
+      {showTable && <Skeleton className="h-96 rounded-xl" />}
     </div>
   );
 }
 ```
 
-- [ ] **Step 2: Create the same file for finance, customers, and reports**
-
-Create `src/app/dashboard/finance/loading.tsx`, `src/app/dashboard/customers/loading.tsx`, and `src/app/dashboard/reports/loading.tsx` with identical content to Step 1, changing only the grid item count to `3` (these routes show fewer top-level cards/tables than the main overview):
+- [ ] **Step 2: Create the four route `loading.tsx` files**
 
 ```tsx
-import { Skeleton } from "@/components/ui/skeleton";
+// src/app/dashboard/loading.tsx
+import { RouteLoadingSkeleton } from "@/components/shared/route-loading-skeleton";
 
 export default function Loading() {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Skeleton className="h-7 w-48" />
-        <Skeleton className="h-4 w-72" />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 rounded-xl" />
-        ))}
-      </div>
-      <Skeleton className="h-96 rounded-xl" />
-    </div>
-  );
+  return <RouteLoadingSkeleton cardCount={6} />;
+}
+```
+
+Create `src/app/dashboard/finance/loading.tsx`, `src/app/dashboard/customers/loading.tsx`, and `src/app/dashboard/reports/loading.tsx` with the same content, but `cardCount={3}` and `showTable`:
+
+```tsx
+import { RouteLoadingSkeleton } from "@/components/shared/route-loading-skeleton";
+
+export default function Loading() {
+  return <RouteLoadingSkeleton cardCount={3} showTable />;
 }
 ```
 
@@ -815,7 +820,7 @@ Run `pnpm dev`. Open browser devtools → Network tab → set throttling to "Slo
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/app/dashboard/loading.tsx src/app/dashboard/finance/loading.tsx src/app/dashboard/customers/loading.tsx src/app/dashboard/reports/loading.tsx
+git add src/components/shared/route-loading-skeleton.tsx src/app/dashboard/loading.tsx src/app/dashboard/finance/loading.tsx src/app/dashboard/customers/loading.tsx src/app/dashboard/reports/loading.tsx
 git commit -m "Add loading skeletons for dashboard, finance, customers, and reports routes"
 ```
 
