@@ -1,0 +1,55 @@
+Complete and verify the production-hardening work from spec 12 (currently uncommitted).
+
+
+Already implemented, uncommitted (verify, don't redo):
+
+Timing-safe login (dummy bcrypt hash so response timing doesn't reveal registered emails)
+Session expiry (8h, re-issued hourly on activity) with LOGIN_SUCCESS / LOGIN_FAILED audit entries
+Rate limiting on login, contact form, booking form (in-memory fixed window)
+CSP + security headers (production only)
+Audit logging on: expense approve/reject, invoice payment record/refund, user create/role-change/activate-deactivate
+DB indexes on Expense.vendorId/branchId, Invoice.customerId/branchId
+SEO metadata (OpenGraph/Twitter), Docker prod config, docs/DEPLOYMENT.md, docs/ENVIRONMENT.md, docs/DATABASE.md, docs/API.md, docs/ADMIN_GUIDE.md, docs/BACKUP.md
+
+
+Gap: audit log coverage from spec 12 is partial. Extend logAudit() to the remaining
+destructive and status/role-equivalent actions (deletes, status changes, significant
+state conversions). Skip plain creates/reads and low-stakes field edits — the goal is
+an accountability trail for actions that destroy data, change a record's standing, or
+convert one entity into another, not a log of every edit.
+
+  finance/expenses/actions.ts   - deleteExpense, markExpensePaid
+  finance/invoices/actions.ts   - deleteInvoice, cancelInvoice, markInvoiceSent
+  finance/budgets/actions.ts    - deleteBudget
+  finance/settings/actions.ts   - toggleBranchActive, toggleExpenseCategoryActive
+  bookings/actions.ts           - updateBookingStatus, assignConsultant
+  projects/actions.ts           - updateProjectStatus, createProjectFromBooking
+  facebook/actions.ts           - updateLeadStatus, addFacebookLeadToCrm
+  services/actions.ts           - toggleCategoryActive, toggleServiceActive
+  customers/actions.ts          - addBookingToCrm
+
+Each entry follows the existing logAudit({ userId, action, entityType, entityId, metadata? })
+pattern already used in the covered modules. Action names follow the existing
+SCREAMING_SNAKE_CASE convention (e.g. EXPENSE_DELETED, INVOICE_CANCELLED).
+
+
+Security review:
+
+Run a security review over the full pending diff plus the audit-log extension above.
+Fix anything found (access control, injection, secrets, session handling).
+
+
+Verification (spec 12's "Final testing", not done yet):
+
+pnpm typecheck and pnpm build must pass
+Apply the two pending migrations (20260724105718_add_audit_log,
+20260724134829_add_performance_indexes) to the dev database
+Smoke-test: login (success + failure + rate limit), one audited delete/status action,
+the audit log page renders entries, contact/booking forms still submit and rate-limit
+Confirm CSP header only appears in a production build, not dev
+
+
+Deliver:
+
+Single commit with the completed spec-12 work plus the audit-log extension, passing
+typecheck/build/migrations, with security-review findings resolved.
