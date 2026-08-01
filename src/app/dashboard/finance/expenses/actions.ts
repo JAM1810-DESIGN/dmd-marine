@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
 import { AppError } from "@/lib/errors";
 import { isStorageConfigured, uploadFile } from "@/lib/storage";
+import { logAudit } from "@/lib/audit";
 import { expenseSchema } from "@/lib/validations/finance";
 
 export type ActionState = { error?: string; success?: boolean };
@@ -114,6 +115,7 @@ export async function approveExpense(id: string) {
     where: { id },
     data: { paymentStatus: "APPROVED", approvedById: session.user.id },
   });
+  await logAudit({ userId: session.user.id, action: "EXPENSE_APPROVED", entityType: "Expense", entityId: id });
   revalidatePath("/dashboard/finance/expenses");
 }
 
@@ -123,6 +125,7 @@ export async function rejectExpense(id: string) {
     where: { id },
     data: { paymentStatus: "REJECTED", approvedById: session.user.id },
   });
+  await logAudit({ userId: session.user.id, action: "EXPENSE_REJECTED", entityType: "Expense", entityId: id });
   revalidatePath("/dashboard/finance/expenses");
 }
 

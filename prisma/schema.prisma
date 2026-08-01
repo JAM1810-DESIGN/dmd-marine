@@ -178,6 +178,7 @@ model User {
   expensesApproved    Expense[]            @relation("ExpensesApproved")
   financialStatements FinancialStatement[]
   blogPosts           BlogPost[]
+  auditLogs           AuditLog[]
 
   @@map("users")
 }
@@ -502,6 +503,27 @@ model Notification {
   @@map("notifications")
 }
 
+/// Append-only record of sensitive actions (auth, role changes, approvals, payments).
+/// userId is nullable so a log entry survives if the actor's account is later deleted.
+model AuditLog {
+  id         String  @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
 model FacebookLead {
   id         String             @id @default(cuid())
   pageId     String
@@ -623,6 +645,8 @@ model Expense {
   @@index([paymentStatus])
   @@index([expenseDate])
   @@index([categoryId])
+  @@index([vendorId])
+  @@index([branchId])
   @@map("expenses")
 }
 
@@ -665,6 +689,8 @@ model Invoice {
 
   @@index([status])
   @@index([issueDate])
+  @@index([customerId])
+  @@index([branchId])
   @@map("invoices")
 }
 

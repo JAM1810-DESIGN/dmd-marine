@@ -3,7 +3,8 @@ import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { authConfig } from "@/auth.config";
-import { verifyPassword } from "@/lib/password";
+import { verifyPassword, DUMMY_PASSWORD_HASH } from "@/lib/password";
+import { logAudit } from "@/lib/audit";
 import type { Role } from "@/generated/prisma/enums";
 
 const credentialsSchema = z.object({
@@ -25,7 +26,9 @@ declare module "next-auth" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  session: { strategy: "jwt" },
+  // Staff sessions carry access to customer, booking, and financial data — keep the
+  // window shorter than NextAuth's 30-day default and re-issue on activity.
+  session: { strategy: "jwt", maxAge: 8 * 60 * 60, updateAge: 60 * 60 },
   providers: [
     Credentials({
       credentials: {
@@ -38,10 +41,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const { email, password } = parsed.data;
 
         const user = await db.user.findUnique({ where: { email } });
-        if (!user || !user.isActive) return null;
+        // Always run bcrypt against a hash (real or dummy) so response timing doesn't
+        // reveal whether an email is registered.
+        const passwordValid = await verifyPassword(password, user?.passwordHash ?? DUMMY_PASSWORD_HASH);
+        if (!user || !user.isActive || !passwordValid) {
+          await logAudit({
+            userId: user?.id ?? null,
+            action: "LOGIN_FAILED",
+            entityType: "User",
+            entityId: user?.id ?? null,
+            metadata: { email },
+          }).catch(() => undefined);
+          return null;
+        }
 
-        const passwordValid = await verifyPassword(password, user.passwordHash);
-        if (!passwordValid) return null;
+        await logAudit({
+          userId: user.id,
+          action: "LOGIN_SUCCESS",
+          entityType: "User",
+          entityId: user.id,
+        }).catch(() => undefined);
 
         return {
           id: user.id,

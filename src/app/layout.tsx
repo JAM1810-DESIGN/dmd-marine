@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { env } from "@/lib/env";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,13 +14,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const description =
+  "Independent marine expertise for vessel operations, cargo assurance, compliance, and maritime professional development.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: {
     default: "DMD Marine Consultation & Services",
     template: "%s | DMD Marine Consultation & Services",
   },
-  description:
-    "Independent marine expertise for vessel operations, cargo assurance, compliance, and maritime professional development.",
+  description,
+  openGraph: {
+    type: "website",
+    siteName: "DMD Marine Consultation & Services",
+    title: "DMD Marine Consultation & Services",
+    description,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary",
+    title: "DMD Marine Consultation & Services",
+    description,
+  },
 };
 
 export default function RootLayout({

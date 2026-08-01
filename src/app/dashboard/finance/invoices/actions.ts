@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
 import { AppError } from "@/lib/errors";
 import { invoiceSchema, paymentSchema } from "@/lib/validations/finance";
+import { logAudit } from "@/lib/audit";
 import { Prisma } from "@/generated/prisma/client";
 
 export type ActionState = { error?: string; success?: boolean; id?: string };
@@ -187,7 +188,7 @@ export async function recordPayment(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireRole(...MANAGE_ROLES);
+  const session = await requireRole(...MANAGE_ROLES);
 
   const parsed = paymentSchema.safeParse({
     paymentDate: formData.get("paymentDate"),
@@ -198,7 +199,7 @@ export async function recordPayment(
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
 
-  await db.payment.create({
+  const payment = await db.payment.create({
     data: {
       ...parsed.data,
       paymentDate: new Date(parsed.data.paymentDate),
@@ -209,6 +210,14 @@ export async function recordPayment(
 
   await recomputeInvoiceStatus(invoiceId);
 
+  await logAudit({
+    userId: session.user.id,
+    action: "PAYMENT_RECORDED",
+    entityType: "Invoice",
+    entityId: invoiceId,
+    metadata: { paymentId: payment.id, amount: parsed.data.amount, method: parsed.data.method },
+  });
+
   revalidatePath("/dashboard/finance/invoices");
   revalidatePath(`/dashboard/finance/invoices/${invoiceId}`);
   revalidatePath("/dashboard/finance/payments");
@@ -216,9 +225,16 @@ export async function recordPayment(
 }
 
 export async function refundPayment(paymentId: string) {
-  await requireRole(...MANAGE_ROLES);
+  const session = await requireRole(...MANAGE_ROLES);
   const payment = await db.payment.update({ where: { id: paymentId }, data: { status: "REFUNDED" } });
   await recomputeInvoiceStatus(payment.invoiceId);
+  await logAudit({
+    userId: session.user.id,
+    action: "PAYMENT_REFUNDED",
+    entityType: "Invoice",
+    entityId: payment.invoiceId,
+    metadata: { paymentId },
+  });
   revalidatePath("/dashboard/finance/invoices");
   revalidatePath(`/dashboard/finance/invoices/${payment.invoiceId}`);
   revalidatePath("/dashboard/finance/payments");

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
 import { AppError } from "@/lib/errors";
 import { hashPassword } from "@/lib/password";
+import { logAudit } from "@/lib/audit";
 import { siteSettingsSchema, createUserSchema } from "@/lib/validations/settings";
 import type { Role } from "@/generated/prisma/enums";
 
@@ -48,7 +49,7 @@ export async function createUser(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireRole("ADMIN");
+  const session = await requireRole("ADMIN");
 
   const parsed = createUserSchema.safeParse({
     name: formData.get("name"),
@@ -66,13 +67,21 @@ export async function createUser(
   }
 
   const passwordHash = await hashPassword(parsed.data.password);
-  await db.user.create({
+  const user = await db.user.create({
     data: {
       name: parsed.data.name,
       email: parsed.data.email,
       role: parsed.data.role,
       passwordHash,
     },
+  });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "USER_CREATED",
+    entityType: "User",
+    entityId: user.id,
+    metadata: { email: user.email, role: user.role },
   });
 
   revalidatePath("/dashboard/settings");
@@ -84,7 +93,17 @@ export async function updateUserRole(id: string, role: Role) {
   if (id === session.user.id) {
     throw new AppError("BAD_REQUEST", "You can't change your own role.");
   }
+  const before = await db.user.findUniqueOrThrow({ where: { id } });
   await db.user.update({ where: { id }, data: { role } });
+
+  await logAudit({
+    userId: session.user.id,
+    action: "USER_ROLE_CHANGED",
+    entityType: "User",
+    entityId: id,
+    metadata: { from: before.role, to: role },
+  });
+
   revalidatePath("/dashboard/settings");
 }
 
@@ -94,5 +113,13 @@ export async function toggleUserActive(id: string, isActive: boolean) {
     throw new AppError("BAD_REQUEST", "You can't deactivate your own account.");
   }
   await db.user.update({ where: { id }, data: { isActive } });
+
+  await logAudit({
+    userId: session.user.id,
+    action: isActive ? "USER_ACTIVATED" : "USER_DEACTIVATED",
+    entityType: "User",
+    entityId: id,
+  });
+
   revalidatePath("/dashboard/settings");
 }

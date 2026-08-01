@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { bookingSchema } from "@/lib/validations/booking";
 import { isStorageConfigured, uploadFile } from "@/lib/storage";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export type BookingFormState = { error?: string; success?: boolean };
 
@@ -13,6 +14,12 @@ export async function submitBookingForm(
   _prevState: BookingFormState,
   formData: FormData,
 ): Promise<BookingFormState> {
+  const ip = await getClientIp();
+  const { allowed } = rateLimit(`booking:${ip}`, 5, 60 * 60 * 1000);
+  if (!allowed) {
+    return { error: "Too many requests from this connection. Please try again later." };
+  }
+
   const parsed = bookingSchema.safeParse({
     customerName: formData.get("customerName"),
     customerEmail: formData.get("customerEmail"),

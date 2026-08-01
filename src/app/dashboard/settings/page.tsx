@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getSiteSettings } from "@/lib/site-settings";
@@ -89,6 +91,19 @@ export default async function SettingsPage() {
           </div>
         </div>
       </div>
+
+      <Link
+        href="/dashboard/settings/audit-log"
+        className="flex items-center justify-between rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-md"
+      >
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="size-5 text-muted-foreground" />
+          <div>
+            <p className="text-sm font-medium text-foreground">Audit Log</p>
+            <p className="text-xs text-muted-foreground">Sign-ins, account changes, approvals, and payments.</p>
+          </div>
+        </div>
+      </Link>
     </div>
   );
 }
