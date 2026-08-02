@@ -1,4 +1,3 @@
-// src/components/shared/empty-state.tsx
 import type { ComponentType, ReactNode } from "react";
 import { Compass } from "lucide-react";
 import { cn } from "@/lib/utils";
