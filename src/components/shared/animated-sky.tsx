@@ -24,7 +24,7 @@ export function AnimatedSky({ variant = "full" }: { variant?: "full" | "subtle" 
     <div
       aria-hidden="true"
       className={cn(
-        "sky-parallax pointer-events-none fixed inset-0 overflow-hidden",
+        "sky-parallax pointer-events-none fixed inset-0 -z-10 overflow-hidden",
         subtle ? "opacity-40" : "opacity-100"
       )}
     >
