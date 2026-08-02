@@ -1,11 +1,25 @@
 import Link from "next/link";
 import { startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
-import { Inbox, CalendarClock, FolderKanban, CheckCircle2, Users, MessageSquare } from "lucide-react";
+import {
+  Inbox,
+  CalendarClock,
+  FolderKanban,
+  CheckCircle2,
+  Users,
+  MessageSquare,
+  DollarSign,
+  Receipt,
+  TrendingUp,
+  FileClock,
+  AlertTriangle,
+  Wallet,
+} from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getRevenueTotal, getExpenseTotal, getCashFlow } from "@/lib/finance-calculations";
 import { Card, CardHeader, CardTitle, CardDescription, CardAction } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatCard } from "@/components/shared/stat-card";
 
 const LIVE_MODULES = [
   { title: "Bookings", href: "/dashboard/bookings" },
@@ -95,17 +109,7 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kpis.map((kpi) => (
-          <Link key={kpi.title} href={kpi.href}>
-            <Card className="h-full transition-shadow hover:shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
-                <div>
-                  <CardDescription>{kpi.title}</CardDescription>
-                  <CardTitle className="text-3xl font-semibold">{kpi.value}</CardTitle>
-                </div>
-                <kpi.icon className="size-8 shrink-0 text-muted-foreground" />
-              </CardHeader>
-            </Card>
-          </Link>
+          <StatCard key={kpi.title} icon={kpi.icon} label={kpi.title} value={kpi.value} href={kpi.href} />
         ))}
       </div>
 
@@ -114,23 +118,20 @@ export default async function DashboardPage() {
           <h2 className="mb-3 font-heading text-base font-semibold text-foreground">Finance Snapshot</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { title: "Today's Revenue", value: financeWidgets.todayRevenue },
-              { title: "Today's Expenses", value: financeWidgets.todayExpenses },
-              { title: "Monthly Profit", value: financeWidgets.monthlyProfit },
-              { title: "Pending Invoices", value: financeWidgets.pendingInvoices, isCount: true },
-              { title: "Overdue Invoices", value: financeWidgets.overdueInvoices, isCount: true },
-              { title: "Cash Flow (this month)", value: financeWidgets.cashFlow },
+              { title: "Today's Revenue", value: currency(financeWidgets.todayRevenue), icon: DollarSign },
+              { title: "Today's Expenses", value: currency(financeWidgets.todayExpenses), icon: Receipt },
+              { title: "Monthly Profit", value: currency(financeWidgets.monthlyProfit), icon: TrendingUp },
+              { title: "Pending Invoices", value: financeWidgets.pendingInvoices, icon: FileClock },
+              { title: "Overdue Invoices", value: financeWidgets.overdueInvoices, icon: AlertTriangle },
+              { title: "Cash Flow (this month)", value: currency(financeWidgets.cashFlow), icon: Wallet },
             ].map((widget) => (
-              <Link key={widget.title} href="/dashboard/finance">
-                <Card className="h-full transition-shadow hover:shadow-md">
-                  <CardHeader>
-                    <CardDescription>{widget.title}</CardDescription>
-                    <CardTitle className="text-2xl font-semibold">
-                      {widget.isCount ? widget.value : currency(widget.value)}
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
-              </Link>
+              <StatCard
+                key={widget.title}
+                icon={widget.icon}
+                label={widget.title}
+                value={widget.value}
+                href="/dashboard/finance"
+              />
             ))}
           </div>
         </div>
