@@ -25,7 +25,9 @@ export function DashboardLayout({
         <div className="print:hidden">
           <DashboardTopbar user={user} notifications={notifications} unreadCount={unreadCount} />
         </div>
-        <main className="flex-1 p-4 sm:p-6 print:p-0">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 print:p-0">
+          <div className="mx-auto max-w-7xl">{children}</div>
+        </main>
       </div>
     </div>
   );
