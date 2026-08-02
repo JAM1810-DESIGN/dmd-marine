@@ -5,6 +5,7 @@ import { CalendarPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScheduleFormDialog } from "@/components/shared/schedule-form-dialog";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type ScheduleRow = {
   id: string;
@@ -45,7 +46,7 @@ export function SchedulesSection({
       </div>
 
       {schedules.length === 0 ? (
-        <p className="px-4 pb-4 text-sm text-muted-foreground">No scheduled events yet.</p>
+        <EmptyState className="border-none" title="No scheduled events yet" />
       ) : (
         <ul className="flex flex-col divide-y divide-border">
           {schedules.map((schedule) => (

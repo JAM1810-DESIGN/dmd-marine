@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
 import { uploadProjectDocument } from "../actions";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type DocumentRow = {
   id: string;
@@ -68,7 +69,7 @@ export function DocumentsSection({
       </div>
 
       {documents.length === 0 ? (
-        <p className="px-4 text-sm text-muted-foreground">No documents yet.</p>
+        <EmptyState className="border-none" title="No documents yet" />
       ) : (
         <ul className="flex flex-col divide-y divide-border">
           {documents.map((doc) => (

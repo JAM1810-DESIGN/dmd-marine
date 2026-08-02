@@ -24,6 +24,7 @@ import {
 import { notify } from "@/lib/notify";
 import { updateProjectStatus } from "./actions";
 import { ProjectFormDialog } from "./project-form-dialog";
+import { EmptyState } from "@/components/shared/empty-state";
 
 const STATUS_OPTIONS = ["NEW", "PLANNING", "SCHEDULED", "ACTIVE", "COMPLETED", "CLOSED"] as const;
 
@@ -142,7 +143,7 @@ export function ProjectsTable({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="px-4 pb-4 text-sm text-muted-foreground">No projects match your filters.</p>
+        <EmptyState className="border-none" title="No projects match your filters" description="Try adjusting your search or status filter." />
       ) : (
         <Table>
           <TableHeader>
