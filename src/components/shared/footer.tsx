@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Anchor, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import { LogoMark } from "@/components/shared/logo-mark";
 import { getSiteSettings } from "@/lib/site-settings";
 
 const FOOTER_LINKS = [
@@ -20,7 +21,7 @@ export async function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
         <div>
           <div className="flex items-center gap-2 text-foreground">
-            <Anchor className="size-6 text-primary" aria-hidden />
+            <LogoMark className="size-6 text-primary" aria-hidden />
             <span className="font-heading text-base font-semibold tracking-tight">
               {settings.companyName}
             </span>

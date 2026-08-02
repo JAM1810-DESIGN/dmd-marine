@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Anchor,
   LayoutDashboard,
   CalendarClock,
   Users,
@@ -16,6 +15,7 @@ import {
   BarChart3,
   Settings,
 } from "lucide-react";
+import { LogoMark } from "@/components/shared/logo-mark";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -62,7 +62,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-        <Anchor className="size-6 text-sidebar-primary" aria-hidden />
+        <LogoMark className="size-6 text-sidebar-primary" aria-hidden />
         <span className="font-heading text-sm font-semibold tracking-tight">
           DMD Marine
         </span>
