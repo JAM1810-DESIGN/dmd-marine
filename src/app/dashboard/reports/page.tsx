@@ -65,7 +65,7 @@ export default async function ReportsPage({
       columns = ["Service", "Completed Count"];
       const data = await getCompletedServices(range);
       rows = data.map((d) => [d.name, d.count]);
-      chart = <CountBarChart data={data} color="#2f9e44" />;
+      chart = <CountBarChart data={data} color="var(--success)" />;
       break;
     }
     case "lead-sources": {
@@ -89,7 +89,7 @@ export default async function ReportsPage({
       columns = ["Service", "Bookings"];
       const data = await getPopularServices(range);
       rows = data.map((d) => [d.name, d.count]);
-      chart = <CountBarChart data={data} color="#1e6091" />;
+      chart = <CountBarChart data={data} color="var(--chart-2)" />;
       break;
     }
   }

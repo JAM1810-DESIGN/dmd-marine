@@ -16,9 +16,15 @@ import {
   Legend,
 } from "recharts";
 
-const COLORS = ["#0a2540", "#1e6091", "#c9a036", "#2f9e44", "#e8590c", "#5f3dc4", "#e03131", "#0c8599"];
+const COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
 
-export function CountBarChart({ data, color = "#0a2540" }: { data: { name: string; count: number }[]; color?: string }) {
+export function CountBarChart({ data, color = "var(--chart-1)" }: { data: { name: string; count: number }[]; color?: string }) {
   if (data.length === 0) {
     return <p className="flex h-64 items-center justify-center text-sm text-muted-foreground">No data for this period.</p>;
   }
@@ -72,8 +78,8 @@ export function InquiriesSeriesChart({
           <YAxis fontSize={12} allowDecimals={false} width={40} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="bookings" name="Bookings" fill="#0a2540" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="contactSubmissions" name="Contact Form" fill="#c9a036" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="bookings" name="Bookings" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="contactSubmissions" name="Contact Form" fill="var(--chart-3)" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -94,8 +100,8 @@ export function CustomerGrowthChart({
           <YAxis fontSize={12} allowDecimals={false} width={40} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="newCustomers" name="New Customers" fill="#1e6091" radius={[4, 4, 0, 0]} />
-          <Line type="monotone" dataKey="totalCustomers" name="Total Customers" stroke="#c9a036" strokeWidth={2} />
+          <Bar dataKey="newCustomers" name="New Customers" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
+          <Line type="monotone" dataKey="totalCustomers" name="Total Customers" stroke="var(--chart-3)" strokeWidth={2} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
