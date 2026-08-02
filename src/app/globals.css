@@ -164,3 +164,74 @@
     @apply font-sans;
   }
 }
+
+/* AnimatedSky keyframes and motion classes — GPU-composited (transform/opacity
+   only). Disabled entirely under prefers-reduced-motion, per WCAG 2.2 motion
+   guidance: users get the same colors/gradients, fully static. */
+@keyframes sky-drift {
+  from {
+    transform: translateX(-4%);
+  }
+  to {
+    transform: translateX(4%);
+  }
+}
+
+@keyframes sky-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.sky-cloud {
+  animation: sky-drift 80s ease-in-out infinite alternate;
+}
+
+.sky-glow {
+  animation: sky-glow-pulse 100s ease-in-out infinite;
+}
+
+.star-dot {
+  animation: star-twinkle 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-cloud,
+  .sky-glow,
+  .star-dot {
+    animation: none;
+  }
+}
+
+/* Subtle scroll-linked parallax on the sky background. Progressive
+   enhancement only — browsers without scroll-driven animation support
+   simply never apply it, no fallback code needed. */
+@keyframes sky-parallax-shift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(2%);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .sky-parallax {
+    animation: sky-parallax-shift linear both;
+    animation-timeline: scroll(root block);
+  }
+}
