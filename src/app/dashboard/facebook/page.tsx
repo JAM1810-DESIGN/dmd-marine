@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { isFacebookConfigured } from "@/lib/facebook";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FacebookInbox } from "./facebook-inbox";
 
 export const metadata: Metadata = { title: "Facebook" };
@@ -26,10 +27,12 @@ export default async function FacebookPage() {
           Messenger conversations and lead form submissions from your Facebook Page.
         </p>
         {!isFacebookConfigured && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Not connected yet — set the FACEBOOK_* environment variables to receive live
-            messages and leads. See Settings for connection status.
-          </p>
+          <Alert variant="warning" className="mt-3">
+            <AlertDescription>
+              Not connected yet — set the FACEBOOK_* environment variables to receive live
+              messages and leads. See Settings for connection status.
+            </AlertDescription>
+          </Alert>
         )}
       </div>
 

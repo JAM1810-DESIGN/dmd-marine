@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/shared/empty-state";
 import { replyToLead, markLeadRead, updateLeadStatus, addFacebookLeadToCrm } from "./actions";
 
 const STATUS_OPTIONS = ["NEW", "CONTACTED", "CONVERTED", "CLOSED"] as const;
@@ -137,11 +138,10 @@ export function FacebookInbox({ leads, canManage }: { leads: FacebookLeadRow[]; 
 
   if (leads.length === 0) {
     return (
-      <div className="rounded-xl bg-card p-6 text-center ring-1 ring-foreground/10">
-        <p className="text-sm text-muted-foreground">
-          No Facebook messages or leads yet. They&apos;ll appear here once the webhook is connected.
-        </p>
-      </div>
+      <EmptyState
+        title="No Facebook messages or leads yet"
+        description="They'll appear here once the webhook is connected."
+      />
     );
   }
 
