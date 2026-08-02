@@ -15,6 +15,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarNav } from "@/components/shared/sidebar";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { signOutAction } from "@/app/dashboard/actions";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -62,6 +63,7 @@ export function DashboardTopbar({
 
       <div className="flex-1" />
 
+      <ThemeToggle />
       <NotificationBell notifications={notifications} unreadCount={unreadCount} />
 
       <DropdownMenu>
@@ -69,7 +71,7 @@ export function DashboardTopbar({
           render={
             <button className="flex items-center gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-muted">
               <Avatar className="size-8">
-                <AvatarFallback className="bg-navy text-xs text-white">
+                <AvatarFallback className="bg-primary text-xs text-primary-foreground">
                   {initials(user.name)}
                 </AvatarFallback>
               </Avatar>

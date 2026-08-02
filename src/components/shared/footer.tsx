@@ -16,11 +16,11 @@ export async function Footer() {
   const hasSocial = settings.facebookUrl || settings.linkedinUrl || settings.instagramUrl;
 
   return (
-    <footer className="border-t border-navy/10 bg-secondary/40">
+    <footer className="border-t border-border bg-muted">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
         <div>
-          <div className="flex items-center gap-2 text-navy">
-            <Anchor className="size-6 text-gold" aria-hidden />
+          <div className="flex items-center gap-2 text-foreground">
+            <Anchor className="size-6 text-primary" aria-hidden />
             <span className="font-heading text-base font-semibold tracking-tight">
               {settings.companyName}
             </span>
@@ -32,13 +32,13 @@ export async function Footer() {
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-navy">Navigate</h3>
+          <h3 className="text-sm font-semibold text-foreground">Navigate</h3>
           <ul className="mt-3 space-y-2">
             {FOOTER_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-sm text-muted-foreground transition-colors hover:text-navy"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {link.label}
                 </Link>
@@ -48,13 +48,13 @@ export async function Footer() {
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-navy">Contact</h3>
+          <h3 className="text-sm font-semibold text-foreground">Contact</h3>
           {hasContactDetails ? (
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
               {settings.email && (
                 <li className="flex items-center gap-2">
                   <Mail className="size-4 shrink-0" />
-                  <a href={`mailto:${settings.email}`} className="hover:text-navy">
+                  <a href={`mailto:${settings.email}`} className="hover:text-foreground">
                     {settings.email}
                   </a>
                 </li>
@@ -62,7 +62,7 @@ export async function Footer() {
               {settings.phone && (
                 <li className="flex items-center gap-2">
                   <Phone className="size-4 shrink-0" />
-                  <a href={`tel:${settings.phone}`} className="hover:text-navy">
+                  <a href={`tel:${settings.phone}`} className="hover:text-foreground">
                     {settings.phone}
                   </a>
                 </li>
@@ -76,7 +76,7 @@ export async function Footer() {
             </ul>
           ) : (
             <p className="mt-3 text-sm text-muted-foreground">
-              <Link href="/contact" className="underline underline-offset-4 hover:text-navy">
+              <Link href="/contact" className="underline underline-offset-4 hover:text-foreground">
                 Get in touch
               </Link>
             </p>
@@ -88,7 +88,7 @@ export async function Footer() {
                   href={settings.facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground underline underline-offset-4 hover:text-navy"
+                  className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
                 >
                   Facebook
                 </a>
@@ -98,7 +98,7 @@ export async function Footer() {
                   href={settings.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground underline underline-offset-4 hover:text-navy"
+                  className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
                 >
                   LinkedIn
                 </a>
@@ -108,7 +108,7 @@ export async function Footer() {
                   href={settings.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground underline underline-offset-4 hover:text-navy"
+                  className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
                 >
                   Instagram
                 </a>
@@ -118,7 +118,7 @@ export async function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-navy/10 py-6 text-center text-xs text-navy/50">
+      <div className="border-t border-border py-6 text-center text-xs text-muted-foreground">
         {`© ${new Date().getFullYear()} ${settings.companyName}`}
       </div>
     </footer>

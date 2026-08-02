@@ -77,7 +77,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             return (
               <div
                 key={item.href}
-                className="flex cursor-not-allowed items-center justify-between rounded-md px-3 py-2 text-sm text-sidebar-foreground/40"
+                className="flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/40"
                 aria-disabled
               >
                 <span className="flex items-center gap-3">
@@ -102,7 +102,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                   href={item.href}
                   onClick={onNavigate}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground"
                       : isSectionActive
@@ -145,7 +145,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
