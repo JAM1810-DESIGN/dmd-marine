@@ -241,3 +241,17 @@
     animation: none;
   }
 }
+
+/* Reusable frosted-glass accent for sparing use on marketing hero/CTA
+   moments — not a default Card variant, not used in the dashboard. */
+.glass-panel {
+  @apply bg-card/60 ring-1 ring-foreground/10 backdrop-blur-md;
+}
+
+/* Native browser cross-page fade transition for App Router navigations.
+   No JavaScript; browsers without View Transitions API support simply
+   ignore this at-rule (standard CSS error-tolerant parsing), no fallback
+   code needed. */
+@view-transition {
+  navigation: auto;
+}
