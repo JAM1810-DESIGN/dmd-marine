@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { AccessDenied } from "@/components/shared/access-denied";
+import { ShieldCheck } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   Table,
   TableBody,
@@ -36,7 +38,12 @@ export default async function AuditLogPage() {
 
       <div className="rounded-xl bg-card ring-1 ring-foreground/10">
         {logs.length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">No activity recorded yet.</p>
+          <EmptyState
+            className="border-none"
+            icon={ShieldCheck}
+            title="No activity recorded yet"
+            description="Sign-ins, account changes, approvals, and payments will appear here."
+          />
         ) : (
           <Table>
             <TableHeader>
