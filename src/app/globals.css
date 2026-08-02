@@ -235,3 +235,9 @@
     animation-timeline: scroll(root block);
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-parallax {
+    animation: none;
+  }
+}
