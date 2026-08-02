@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Mail, MailOpen } from "lucide-react";
+import { Mail, MailOpen, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/shared/empty-state";
 import { markMessageRead } from "./actions";
 
 export type MessageRow = {
@@ -87,9 +88,16 @@ export function MessagesList({
       </div>
 
       {items.length === 0 ? (
-        <p className="px-4 py-4 text-sm text-muted-foreground">
-          {tab === "inbox" ? "No messages yet." : "You haven't sent any messages yet."}
-        </p>
+        <EmptyState
+          className="border-none"
+          icon={MessageSquare}
+          title={tab === "inbox" ? "No messages yet" : "No sent messages yet"}
+          description={
+            tab === "inbox"
+              ? "New messages will appear here."
+              : "Messages you send will appear here."
+          }
+        />
       ) : (
         <ul className="flex flex-col divide-y divide-border">
           {items.map((message) => (
