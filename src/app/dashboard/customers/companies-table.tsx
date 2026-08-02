@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { CompanyFormDialog } from "./company-form-dialog";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type CompanyRow = {
   id: string;
@@ -54,7 +55,7 @@ export function CompaniesTable({
       </div>
 
       {companies.length === 0 ? (
-        <p className="px-4 pb-4 text-sm text-muted-foreground">No companies yet.</p>
+        <EmptyState className="border-none" title="No companies yet" description="Add your first company to get started." />
       ) : (
         <Table>
           <TableHeader>

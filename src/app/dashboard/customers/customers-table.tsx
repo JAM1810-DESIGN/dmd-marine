@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CustomerFormDialog } from "./customer-form-dialog";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type CustomerRow = {
   id: string;
@@ -79,7 +80,7 @@ export function CustomersTable({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="px-4 pb-4 text-sm text-muted-foreground">No customers match your search.</p>
+        <EmptyState className="border-none" title="No customers match your search" description="Try a different name or company." />
       ) : (
         <Table>
           <TableHeader>

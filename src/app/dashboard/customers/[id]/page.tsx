@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { CustomerFormDialog } from "../customer-form-dialog";
 import { VesselsSection } from "./vessels-section";
 import { ContactHistorySection } from "./contact-history-section";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export const metadata: Metadata = { title: "Customer Profile" };
 
@@ -100,7 +101,7 @@ export default async function CustomerDetailPage({
           <p className="text-sm text-muted-foreground">Requests linked to this customer.</p>
         </div>
         {customer.bookings.length === 0 ? (
-          <p className="px-4 pb-4 text-sm text-muted-foreground">No linked bookings.</p>
+          <EmptyState className="border-none" title="No linked bookings" />
         ) : (
           <ul className="flex flex-col divide-y divide-border">
             {customer.bookings.map((booking) => (

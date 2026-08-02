@@ -2,6 +2,7 @@ import { MessageSquarePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ContactHistoryFormDialog } from "./contact-history-form-dialog";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type ContactHistoryRow = {
   id: string;
@@ -38,7 +39,7 @@ export function ContactHistorySection({
       </div>
 
       {entries.length === 0 ? (
-        <p className="px-4 pb-4 text-sm text-muted-foreground">No contact history yet.</p>
+        <EmptyState className="border-none" title="No contact history yet" />
       ) : (
         <ul className="flex flex-col divide-y divide-border">
           {entries.map((entry) => (
