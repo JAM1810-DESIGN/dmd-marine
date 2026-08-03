@@ -38,7 +38,7 @@ export default async function ProjectDetailPage({
           {project.service.name}
         </Badge>
       )}
-      <h1 className="text-3xl font-semibold tracking-tight text-navy sm:text-4xl">
+      <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
         {project.name}
       </h1>
       {project.summary && <p className="mt-4 text-muted-foreground">{project.summary}</p>}
