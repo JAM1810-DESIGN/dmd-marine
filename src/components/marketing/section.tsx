@@ -31,14 +31,14 @@ export function SectionHeading({
   return (
     <div className={cn("mx-auto max-w-2xl text-center", className)}>
       {eyebrow && (
-        <span className="text-xs font-semibold tracking-wide text-gold uppercase">
+        <span className="text-xs font-semibold tracking-wide text-accent uppercase">
           {eyebrow}
         </span>
       )}
       <h2
         className={cn(
           "mt-2 text-3xl font-semibold tracking-tight sm:text-4xl",
-          invert ? "text-white" : "text-navy",
+          invert ? "text-white" : "text-foreground",
         )}
       >
         {title}
