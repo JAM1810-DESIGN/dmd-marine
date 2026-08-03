@@ -28,10 +28,10 @@ export default async function BookConsultationPage({
 
   return (
     <Section containerClassName="max-w-2xl">
-      <span className="text-xs font-semibold tracking-wide text-gold uppercase">
+      <span className="text-xs font-semibold tracking-wide text-accent uppercase">
         Book Consultation
       </span>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
         Request a Consultation
       </h1>
       <p className="mt-4 text-muted-foreground">

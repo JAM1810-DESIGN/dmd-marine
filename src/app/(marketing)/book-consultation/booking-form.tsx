@@ -118,7 +118,7 @@ export function BookingForm({
       <Button
         type="submit"
         disabled={isPending}
-        className="mt-2 self-start bg-gold text-navy hover:bg-gold/90"
+        className="self-start"
       >
         {isPending ? "Submitting..." : "Submit Booking Request"}
       </Button>
