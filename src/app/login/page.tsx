@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Anchor } from "lucide-react";
+import { LogoMark } from "@/components/shared/logo-mark";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="hidden flex-col justify-between bg-navy p-10 text-white lg:flex">
+      <div className="hidden flex-col justify-between bg-sidebar p-10 text-sidebar-foreground lg:flex">
         <div className="flex items-center gap-2">
-          <Anchor className="size-7 text-gold" aria-hidden />
+          <LogoMark className="size-7 text-sidebar-primary" aria-hidden />
           <span className="font-heading text-lg font-semibold">DMD Marine</span>
         </div>
         <div>
@@ -28,8 +28,8 @@ export default function LoginPage() {
       <div className="flex flex-col items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="mb-8 flex flex-col gap-1 lg:hidden">
-            <div className="flex items-center gap-2 text-navy">
-              <Anchor className="size-6 text-gold" aria-hidden />
+            <div className="flex items-center gap-2 text-foreground">
+              <LogoMark className="size-6 text-primary" aria-hidden />
               <span className="font-heading text-lg font-semibold">DMD Marine</span>
             </div>
           </div>

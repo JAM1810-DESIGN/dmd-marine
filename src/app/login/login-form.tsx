@@ -29,7 +29,7 @@ export function LoginForm() {
 
       {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
-      <Button type="submit" disabled={isPending} className="mt-2 bg-navy text-white hover:bg-navy/90">
+      <Button type="submit" disabled={isPending}>
         {isPending ? "Signing in..." : "Sign in"}
       </Button>
     </form>
