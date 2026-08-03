@@ -36,10 +36,10 @@ export default function AboutPage() {
   return (
     <>
       <Section containerClassName="max-w-3xl text-center">
-        <span className="text-xs font-semibold tracking-wide text-gold uppercase">
+        <span className="text-xs font-semibold tracking-wide text-accent uppercase">
           About Us
         </span>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Independent marine expertise, built on standards
         </h1>
         <p className="mt-4 text-muted-foreground">
@@ -54,8 +54,8 @@ export default function AboutPage() {
       <Section className="bg-secondary/30" containerClassName="grid gap-10 md:grid-cols-2">
         <Card>
           <CardContent className="flex flex-col gap-3 pt-2">
-            <Target className="size-8 text-gold" />
-            <h2 className="font-heading text-xl font-semibold text-navy">Our Mission</h2>
+            <Target className="size-8 text-primary" />
+            <h2 className="font-heading text-xl font-semibold text-foreground">Our Mission</h2>
             <p className="text-sm text-muted-foreground">
               To provide independent, standards-aligned marine consultancy and
               survey services that protect our clients&apos; vessels, cargo, and
@@ -66,8 +66,8 @@ export default function AboutPage() {
         </Card>
         <Card>
           <CardContent className="flex flex-col gap-3 pt-2">
-            <Eye className="size-8 text-gold" />
-            <h2 className="font-heading text-xl font-semibold text-navy">Our Vision</h2>
+            <Eye className="size-8 text-primary" />
+            <h2 className="font-heading text-xl font-semibold text-foreground">Our Vision</h2>
             <p className="text-sm text-muted-foreground">
               To be a trusted, independent name in marine consultancy — known for
               rigorous, defensible findings and for raising the standard of
@@ -82,10 +82,10 @@ export default function AboutPage() {
         <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {VALUES.map((value) => (
             <div key={value.title} className="text-center">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-navy text-white">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-sidebar text-sidebar-foreground">
                 <value.icon className="size-6" />
               </div>
-              <h3 className="mt-4 font-heading text-sm font-semibold text-navy">
+              <h3 className="mt-4 font-heading text-sm font-semibold text-foreground">
                 {value.title}
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">{value.description}</p>
@@ -94,8 +94,8 @@ export default function AboutPage() {
         </div>
       </Section>
 
-      <Section className="bg-navy text-white" containerClassName="max-w-3xl text-center">
-        <span className="text-xs font-semibold tracking-wide text-gold uppercase">
+      <Section className="bg-sidebar text-sidebar-foreground" containerClassName="max-w-3xl text-center">
+        <span className="text-xs font-semibold tracking-wide text-accent uppercase">
           Our Experience
         </span>
         <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
