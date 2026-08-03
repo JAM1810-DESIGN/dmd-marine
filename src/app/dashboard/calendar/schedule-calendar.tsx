@@ -33,7 +33,7 @@ export type CalendarSchedule = {
 const TYPE_DOT: Record<string, string> = {
   CONSULTATION: "bg-navy",
   SURVEY: "bg-ocean",
-  INSPECTION: "bg-gold",
+  INSPECTION: "bg-accent",
   TRAINING: "bg-success",
   OTHER: "bg-muted-foreground",
 };

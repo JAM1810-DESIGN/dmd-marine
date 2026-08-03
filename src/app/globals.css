@@ -17,11 +17,6 @@
   --brand-coral: #ff6b6b;
   --brand-mist: #eaf4f8;
   --brand-sand: #f8f5f0;
-
-  /* Legacy tokens — still referenced by hero.tsx and login-form.tsx until the
-     Marketing+Auth plan migrates them. Remove then, not before. */
-  --brand-gold: #c9a036;
-  --brand-gold-light: #e4c878;
 }
 
 @theme inline {
@@ -38,8 +33,6 @@
   --color-coral: var(--brand-coral);
   --color-mist: var(--brand-mist);
   --color-sand: var(--brand-sand);
-  --color-gold: var(--brand-gold);
-  --color-gold-light: var(--brand-gold-light);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

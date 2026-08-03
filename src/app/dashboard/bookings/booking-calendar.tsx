@@ -32,7 +32,7 @@ export type CalendarBooking = {
 
 const STATUS_DOT: Record<string, string> = {
   NEW: "bg-navy",
-  REVIEWING: "bg-gold",
+  REVIEWING: "bg-accent",
   SCHEDULED: "bg-ocean",
   IN_PROGRESS: "bg-ocean",
   COMPLETED: "bg-muted-foreground",
