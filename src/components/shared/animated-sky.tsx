@@ -61,21 +61,14 @@ export function AnimatedSky({ variant = "full" }: { variant?: "full" | "subtle" 
         subtle ? "opacity-40" : "opacity-100"
       )}
     >
-      {subtle ? (
-        <>
-          {/* Toned teal wash — dashboard light mode */}
-          <div className="absolute inset-0 bg-gradient-to-b from-secondary to-background dark:hidden">
-            <div className="sky-glow absolute -top-20 right-[10%] size-96 rounded-full bg-white/60 blur-3xl" />
-          </div>
-          {/* Full bioluminescent glow — dashboard dark mode */}
-          <div className="absolute inset-0 hidden dark:block">
-            <BioluminescentScene subtle={subtle} />
-          </div>
-        </>
-      ) : (
-        // Marketing: always the bioluminescent scene, regardless of the visitor's theme
+      {/* Toned teal wash — light mode */}
+      <div className="absolute inset-0 bg-gradient-to-b from-secondary to-background dark:hidden">
+        <div className="sky-glow absolute -top-20 right-[10%] size-96 rounded-full bg-white/60 blur-3xl" />
+      </div>
+      {/* Full bioluminescent glow — dark mode */}
+      <div className="absolute inset-0 hidden dark:block">
         <BioluminescentScene subtle={subtle} />
-      )}
+      </div>
     </div>
   );
 }
