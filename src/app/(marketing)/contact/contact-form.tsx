@@ -55,7 +55,7 @@ export function ContactForm() {
       <Button
         type="submit"
         disabled={isPending}
-        className="mt-2 self-start"
+        className="self-start"
       >
         {isPending ? "Sending..." : "Send Message"}
       </Button>
