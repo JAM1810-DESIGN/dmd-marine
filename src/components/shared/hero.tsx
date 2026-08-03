@@ -11,7 +11,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="rounded-full bg-secondary px-3 py-1 text-xs font-medium tracking-wide text-foreground uppercase"
+        className="rounded-full bg-sidebar-accent px-3 py-1 text-xs font-medium tracking-wide text-sidebar-foreground uppercase"
       >
         Independent Marine Consultancy
       </motion.span>
@@ -20,7 +20,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="max-w-3xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
+        className="max-w-3xl text-4xl font-semibold tracking-tight text-sidebar-foreground sm:text-5xl"
       >
         Professional Marine Consultancy You Can Trust
       </motion.h1>
@@ -29,7 +29,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="max-w-2xl text-lg text-muted-foreground"
+        className="max-w-2xl text-lg text-sidebar-foreground/70"
       >
         Providing reliable marine consultation, surveys, inspections, and maritime
         mentoring services with professionalism and international standards.
@@ -44,12 +44,14 @@ export function Hero() {
         <Button
           size="lg"
           nativeButton={false}
+          className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
           render={<Link href="/book-consultation">Book Consultation</Link>}
         />
         <Button
           size="lg"
           variant="outline"
           nativeButton={false}
+          className="border-sidebar-foreground/30 text-sidebar-foreground hover:bg-sidebar-foreground/10"
           render={<Link href="/contact">Request Quote</Link>}
         />
       </motion.div>
