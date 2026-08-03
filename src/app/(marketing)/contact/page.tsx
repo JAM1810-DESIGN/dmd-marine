@@ -17,10 +17,10 @@ export default async function ContactPage() {
   return (
     <Section containerClassName="grid gap-12 md:grid-cols-2">
       <div>
-        <span className="text-xs font-semibold tracking-wide text-gold uppercase">
+        <span className="text-xs font-semibold tracking-wide text-accent uppercase">
           Get In Touch
         </span>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Contact Us
         </h1>
         <p className="mt-4 text-muted-foreground">
@@ -32,23 +32,23 @@ export default async function ContactPage() {
           <ul className="mt-8 space-y-3 text-sm text-muted-foreground">
             {settings.email && (
               <li className="flex items-center gap-2">
-                <Mail className="size-4 shrink-0 text-gold" />
-                <a href={`mailto:${settings.email}`} className="hover:text-navy">
+                <Mail className="size-4 shrink-0 text-primary" />
+                <a href={`mailto:${settings.email}`} className="hover:text-foreground">
                   {settings.email}
                 </a>
               </li>
             )}
             {settings.phone && (
               <li className="flex items-center gap-2">
-                <Phone className="size-4 shrink-0 text-gold" />
-                <a href={`tel:${settings.phone}`} className="hover:text-navy">
+                <Phone className="size-4 shrink-0 text-primary" />
+                <a href={`tel:${settings.phone}`} className="hover:text-foreground">
                   {settings.phone}
                 </a>
               </li>
             )}
             {settings.address && (
               <li className="flex items-center gap-2">
-                <MapPin className="size-4 shrink-0 text-gold" />
+                <MapPin className="size-4 shrink-0 text-primary" />
                 <span>{settings.address}</span>
               </li>
             )}
@@ -62,7 +62,7 @@ export default async function ContactPage() {
                 href={settings.facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground underline underline-offset-4 hover:text-navy"
+                className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
                 Facebook
               </a>
@@ -72,7 +72,7 @@ export default async function ContactPage() {
                 href={settings.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground underline underline-offset-4 hover:text-navy"
+                className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
                 LinkedIn
               </a>
@@ -82,7 +82,7 @@ export default async function ContactPage() {
                 href={settings.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground underline underline-offset-4 hover:text-navy"
+                className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
                 Instagram
               </a>
