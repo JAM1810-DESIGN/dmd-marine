@@ -42,11 +42,11 @@ export function WhyChooseUs() {
       <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {REASONS.map((reason) => (
           <div key={reason.title} className="flex gap-4">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-navy text-white">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-sidebar text-sidebar-foreground">
               <reason.icon className="size-5" />
             </div>
             <div>
-              <h3 className="font-heading text-sm font-semibold text-navy">{reason.title}</h3>
+              <h3 className="font-heading text-sm font-semibold text-foreground">{reason.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{reason.description}</p>
             </div>
           </div>

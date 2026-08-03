@@ -40,7 +40,7 @@ export async function ServicesOverview() {
       <div className="mt-10 text-center">
         <Link
           href="/services"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-navy hover:underline"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:underline"
         >
           View all services
           <ArrowRight className="size-4" />

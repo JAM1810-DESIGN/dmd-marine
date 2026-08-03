@@ -4,10 +4,10 @@ export function CompanyIntroduction() {
   return (
     <Section containerClassName="grid gap-10 md:grid-cols-2 md:items-center">
       <div>
-        <span className="text-xs font-semibold tracking-wide text-gold uppercase">
+        <span className="text-xs font-semibold tracking-wide text-accent uppercase">
           Who We Are
         </span>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Independent marine expertise, on your side
         </h2>
         <p className="mt-4 text-muted-foreground">
@@ -31,7 +31,7 @@ export function CompanyIntroduction() {
           { label: "Experienced Consultants", detail: "Career maritime professionals" },
         ].map((item) => (
           <div key={item.label} className="rounded-xl bg-secondary/60 p-5">
-            <p className="font-heading text-sm font-semibold text-navy">{item.label}</p>
+            <p className="font-heading text-sm font-semibold text-foreground">{item.label}</p>
             <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>
           </div>
         ))}

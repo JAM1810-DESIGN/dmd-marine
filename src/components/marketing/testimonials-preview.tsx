@@ -20,7 +20,7 @@ export async function TestimonialsPreview() {
           <Card key={testimonial.id}>
             <CardContent className="pt-2">
               <p className="text-sm text-muted-foreground">&ldquo;{testimonial.quote}&rdquo;</p>
-              <p className="mt-4 text-sm font-semibold text-navy">{testimonial.authorName}</p>
+              <p className="mt-4 text-sm font-semibold text-foreground">{testimonial.authorName}</p>
               {(testimonial.authorTitle || testimonial.company) && (
                 <p className="text-xs text-muted-foreground">
                   {[testimonial.authorTitle, testimonial.company].filter(Boolean).join(", ")}

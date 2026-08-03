@@ -4,7 +4,7 @@ import { Section } from "@/components/marketing/section";
 
 export function ContactCta() {
   return (
-    <Section containerClassName="flex flex-col items-center gap-6 rounded-2xl bg-navy px-6 py-12 text-center text-white sm:px-12">
+    <Section containerClassName="flex flex-col items-center gap-6 rounded-2xl bg-sidebar px-6 py-12 text-center text-sidebar-foreground sm:px-12">
       <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
         Ready to talk to a marine consultant?
       </h2>
@@ -16,7 +16,6 @@ export function ContactCta() {
         <Button
           size="lg"
           nativeButton={false}
-          className="bg-gold text-navy hover:bg-gold/90"
           render={<Link href="/book-consultation">Book Consultation</Link>}
         />
         <Button

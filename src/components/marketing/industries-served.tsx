@@ -13,7 +13,7 @@ const INDUSTRIES = [
 
 export function IndustriesServed() {
   return (
-    <Section className="bg-navy text-white">
+    <Section className="bg-sidebar text-sidebar-foreground">
       <SectionHeading eyebrow="Who We Serve" title="Industries Served" invert />
 
       <div className="mt-10 flex flex-wrap justify-center gap-3">
