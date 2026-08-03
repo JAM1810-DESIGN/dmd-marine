@@ -18,8 +18,8 @@ export default async function BlogPage() {
   return (
     <Section containerClassName="max-w-5xl">
       <div className="max-w-2xl">
-        <span className="text-xs font-semibold tracking-wide text-gold uppercase">Insights</span>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">
+        <span className="text-xs font-semibold tracking-wide text-accent uppercase">Insights</span>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Blog
         </h1>
       </div>
