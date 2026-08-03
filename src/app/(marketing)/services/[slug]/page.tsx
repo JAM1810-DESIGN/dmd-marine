@@ -59,11 +59,11 @@ export default async function ServiceDetailPage({
       <Section containerClassName="max-w-3xl">
         <Link
           href={`/services#${service.category.slug}`}
-          className="text-xs font-semibold tracking-wide text-gold uppercase"
+          className="text-xs font-semibold tracking-wide text-accent uppercase"
         >
           {service.category.name}
         </Link>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {service.name}
         </h1>
 
@@ -71,7 +71,7 @@ export default async function ServiceDetailPage({
           <div className="mt-8 space-y-8">
             {service.overview && (
               <div>
-                <h2 className="font-heading text-lg font-semibold text-navy">Overview</h2>
+                <h2 className="font-heading text-lg font-semibold text-foreground">Overview</h2>
                 <p className="mt-2 whitespace-pre-line text-muted-foreground">
                   {service.overview}
                 </p>
@@ -79,7 +79,7 @@ export default async function ServiceDetailPage({
             )}
             {service.benefits && (
               <div>
-                <h2 className="font-heading text-lg font-semibold text-navy">Benefits</h2>
+                <h2 className="font-heading text-lg font-semibold text-foreground">Benefits</h2>
                 <p className="mt-2 whitespace-pre-line text-muted-foreground">
                   {service.benefits}
                 </p>
@@ -87,13 +87,13 @@ export default async function ServiceDetailPage({
             )}
             {service.scope && (
               <div>
-                <h2 className="font-heading text-lg font-semibold text-navy">Scope</h2>
+                <h2 className="font-heading text-lg font-semibold text-foreground">Scope</h2>
                 <p className="mt-2 whitespace-pre-line text-muted-foreground">{service.scope}</p>
               </div>
             )}
             {service.process && (
               <div>
-                <h2 className="font-heading text-lg font-semibold text-navy">Process</h2>
+                <h2 className="font-heading text-lg font-semibold text-foreground">Process</h2>
                 <p className="mt-2 whitespace-pre-line text-muted-foreground">
                   {service.process}
                 </p>
@@ -109,7 +109,7 @@ export default async function ServiceDetailPage({
 
         {faq.length > 0 && (
           <div className="mt-10">
-            <h2 className="font-heading text-lg font-semibold text-navy">
+            <h2 className="font-heading text-lg font-semibold text-foreground">
               Frequently Asked Questions
             </h2>
             <Accordion className="mt-4">
@@ -127,7 +127,6 @@ export default async function ServiceDetailPage({
           <Button
             size="lg"
             nativeButton={false}
-            className="bg-gold text-navy hover:bg-gold/90"
             render={
               <Link href={`/book-consultation?service=${service.slug}`}>
                 Request This Service

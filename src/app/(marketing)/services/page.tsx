@@ -21,10 +21,10 @@ export default async function ServicesPage() {
   return (
     <>
       <Section containerClassName="max-w-3xl text-center">
-        <span className="text-xs font-semibold tracking-wide text-gold uppercase">
+        <span className="text-xs font-semibold tracking-wide text-accent uppercase">
           What We Do
         </span>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Our Services
         </h1>
         <p className="mt-4 text-muted-foreground">
@@ -39,7 +39,7 @@ export default async function ServicesPage() {
           id={category.slug}
           className={index % 2 === 1 ? "bg-secondary/30" : undefined}
         >
-          <h2 className="text-2xl font-semibold tracking-tight text-navy">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
             {category.name}
           </h2>
           {category.description && (
