@@ -52,7 +52,7 @@ export function Hero() {
             size="lg"
             variant="outline"
             nativeButton={false}
-            className="border-sidebar-foreground/30 text-sidebar-foreground hover:bg-sidebar-foreground/10"
+            className="border-sidebar-foreground/30 bg-transparent text-sidebar-foreground hover:bg-sidebar-foreground/10 hover:text-sidebar-foreground"
             render={<Link href="/contact">Request Quote</Link>}
           />
         </motion.div>
