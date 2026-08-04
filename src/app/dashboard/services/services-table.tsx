@@ -180,7 +180,9 @@ export function ServicesTable({
         service={dialog.service}
         categories={categories}
         consultants={consultants}
-        topLevelServices={topLevel.map((service) => ({ id: service.id, name: service.name }))}
+        topLevelServices={topLevel
+          .filter((service) => service.isActive)
+          .map((service) => ({ id: service.id, name: service.name }))}
       />
     </div>
   );

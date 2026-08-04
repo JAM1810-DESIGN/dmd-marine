@@ -24,7 +24,7 @@ export default async function ProjectDetailPage({
     session?.user.role === "MANAGER" ||
     session?.user.role === "STAFF";
 
-  const [project, customers, vessels, services, consultants] = await Promise.all([
+  const [project, customers, vessels, consultants] = await Promise.all([
     db.project.findUnique({
       where: { id },
       include: {
@@ -39,13 +39,18 @@ export default async function ProjectDetailPage({
     }),
     db.customer.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     db.vessel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    db.service.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     db.user.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
   ]);
+
+  const services = await db.service.findMany({
+    where: { OR: [{ isActive: true }, ...(project?.serviceId ? [{ id: project.serviceId }] : [])] },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
 
   if (!project) notFound();
 

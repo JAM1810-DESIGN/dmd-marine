@@ -63,7 +63,7 @@ export default async function ServiceDetailPage({
       <Section containerClassName="max-w-3xl">
         <div className="flex flex-wrap items-center gap-x-1.5 text-xs font-semibold tracking-wide text-accent uppercase">
           <Link href={`/services#${service.category.slug}`}>{service.category.name}</Link>
-          {service.parent && (
+          {service.parent?.isActive && (
             <>
               <span aria-hidden>/</span>
               <Link href={`/services/${service.parent.slug}`}>{service.parent.name}</Link>

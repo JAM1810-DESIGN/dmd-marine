@@ -16,12 +16,30 @@ export default async function InvoicesPage() {
 
   await refreshOverdueInvoices();
 
-  const [invoices, customers, services, branches] = await Promise.all([
+  const [invoices, customers, branches] = await Promise.all([
     db.invoice.findMany({ orderBy: { issueDate: "desc" }, include: { customer: true } }),
     db.customer.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    db.service.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     db.branch.findMany({ where: { isActive: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
+
+  const invoiceLevelServiceIds = invoices
+    .map((invoice) => invoice.serviceId)
+    .filter((id): id is string => id != null);
+  const invoiceItemServiceIds = (
+    await db.invoiceItem.findMany({
+      where: { serviceId: { not: null } },
+      select: { serviceId: true },
+      distinct: ["serviceId"],
+    })
+  )
+    .map((item) => item.serviceId)
+    .filter((id): id is string => id != null);
+  const referencedServiceIds = [...new Set([...invoiceLevelServiceIds, ...invoiceItemServiceIds])];
+  const services = await db.service.findMany({
+    where: { OR: [{ isActive: true }, { id: { in: referencedServiceIds } }] },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
 
   return (
     <div className="flex flex-col gap-6">

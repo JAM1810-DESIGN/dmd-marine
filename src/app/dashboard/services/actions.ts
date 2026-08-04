@@ -111,10 +111,10 @@ export async function createService(
   if (parsed.data.parentServiceId) {
     const parent = await db.service.findUnique({
       where: { id: parsed.data.parentServiceId },
-      select: { parentServiceId: true },
+      select: { parentServiceId: true, isActive: true },
     });
-    if (!parent || parent.parentServiceId) {
-      return { error: "Parent service must be a top-level service." };
+    if (!parent || parent.parentServiceId || !parent.isActive) {
+      return { error: "Parent service must be an active, top-level service." };
     }
   }
 
@@ -170,10 +170,10 @@ export async function updateService(
     }
     const parent = await db.service.findUnique({
       where: { id: parsed.data.parentServiceId },
-      select: { parentServiceId: true },
+      select: { parentServiceId: true, isActive: true },
     });
-    if (!parent || parent.parentServiceId) {
-      return { error: "Parent service must be a top-level service." };
+    if (!parent || parent.parentServiceId || !parent.isActive) {
+      return { error: "Parent service must be an active, top-level service." };
     }
   }
 

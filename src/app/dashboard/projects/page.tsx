@@ -12,20 +12,28 @@ export default async function ProjectsPage() {
     session?.user.role === "MANAGER" ||
     session?.user.role === "STAFF";
 
-  const [projects, customers, vessels, services, consultants] = await Promise.all([
+  const [projects, customers, vessels, consultants] = await Promise.all([
     db.project.findMany({
       orderBy: { createdAt: "desc" },
       include: { customer: true, consultant: true },
     }),
     db.customer.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     db.vessel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    db.service.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     db.user.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     }),
   ]);
+
+  const referencedServiceIds = [
+    ...new Set(projects.map((project) => project.serviceId).filter((id): id is string => id != null)),
+  ];
+  const services = await db.service.findMany({
+    where: { OR: [{ isActive: true }, { id: { in: referencedServiceIds } }] },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
 
   return (
     <div className="flex flex-col gap-6">

@@ -8,7 +8,9 @@ export async function ServicesOverview() {
   const categories = await db.serviceCategory.findMany({
     where: { isActive: true },
     orderBy: { order: "asc" },
-    include: { _count: { select: { services: true } } },
+    include: {
+      _count: { select: { services: { where: { isActive: true, parentServiceId: null } } } },
+    },
   });
 
   if (categories.length === 0) return null;
