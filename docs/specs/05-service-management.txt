@@ -27,9 +27,10 @@ Draft Survey
 
 Bunker Survey
 
-Third Party Hold Inspection
+Develop Vessel-Specific Draft Survey Form
 
 Vessel Condition Inspection
+  - Third Party Hold Inspection (submodule)
 
 Pre-Purchase Inspection
 
@@ -72,8 +73,6 @@ Deck Officer Mentoring
 
 Career Development
 
-Competency Training
-
 
 
 6. Remote Marine Support
@@ -82,10 +81,6 @@ Competency Training
 Services:
 
 Online Consultation
-
-Document Review
-
-Expert Advisory
 
 
 
