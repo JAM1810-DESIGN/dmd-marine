@@ -23,6 +23,7 @@ type ServiceRow = {
   slug: string;
   categoryId: string;
   categoryName: string;
+  parentServiceId: string | null;
   overview: string | null;
   benefits: string | null;
   scope: string | null;
@@ -51,6 +52,54 @@ function ActiveToggle({ id, isActive }: { id: string; isActive: boolean }) {
   );
 }
 
+function ServiceTableRow({
+  service,
+  canManage,
+  indent,
+  onEdit,
+}: {
+  service: ServiceRow;
+  canManage: boolean;
+  indent: boolean;
+  onEdit: () => void;
+}) {
+  return (
+    <TableRow>
+      <TableCell>
+        <div className={`font-medium text-foreground ${indent ? "pl-6" : ""}`}>
+          {indent ? "↳ " : ""}
+          {service.name}
+        </div>
+        <div className={`text-xs text-muted-foreground ${indent ? "pl-6" : ""}`}>
+          /{service.slug}
+        </div>
+      </TableCell>
+      <TableCell>
+        <Badge variant="outline">{service.categoryName}</Badge>
+      </TableCell>
+      <TableCell className="text-sm text-muted-foreground">
+        {service.defaultConsultantName ?? "—"}
+      </TableCell>
+      <TableCell>
+        {canManage ? (
+          <ActiveToggle id={service.id} isActive={service.isActive} />
+        ) : (
+          <Badge variant={service.isActive ? "default" : "outline"}>
+            {service.isActive ? "Active" : "Disabled"}
+          </Badge>
+        )}
+      </TableCell>
+      <TableCell>
+        {canManage && (
+          <Button variant="ghost" size="icon-sm" aria-label="Edit service" onClick={onEdit}>
+            <Pencil className="size-4" />
+          </Button>
+        )}
+      </TableCell>
+    </TableRow>
+  );
+}
+
 export function ServicesTable({
   services,
   categories,
@@ -66,6 +115,23 @@ export function ServicesTable({
     open: false,
     service: undefined,
   });
+
+  const topLevel = services.filter((service) => !service.parentServiceId);
+  const childrenByParent = new Map<string, ServiceRow[]>();
+  for (const service of services) {
+    if (!service.parentServiceId) continue;
+    const siblings = childrenByParent.get(service.parentServiceId) ?? [];
+    siblings.push(service);
+    childrenByParent.set(service.parentServiceId, siblings);
+  }
+
+  const orderedRows: { service: ServiceRow; indent: boolean }[] = [];
+  for (const parent of topLevel) {
+    orderedRows.push({ service: parent, indent: false });
+    for (const child of childrenByParent.get(parent.id) ?? []) {
+      orderedRows.push({ service: child, indent: true });
+    }
+  }
 
   return (
     <div className="rounded-xl bg-card ring-1 ring-foreground/10">
@@ -95,40 +161,14 @@ export function ServicesTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {services.map((service) => (
-            <TableRow key={service.id}>
-              <TableCell>
-                <div className="font-medium text-foreground">{service.name}</div>
-                <div className="text-xs text-muted-foreground">/{service.slug}</div>
-              </TableCell>
-              <TableCell>
-                <Badge variant="outline">{service.categoryName}</Badge>
-              </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
-                {service.defaultConsultantName ?? "—"}
-              </TableCell>
-              <TableCell>
-                {canManage ? (
-                  <ActiveToggle id={service.id} isActive={service.isActive} />
-                ) : (
-                  <Badge variant={service.isActive ? "default" : "outline"}>
-                    {service.isActive ? "Active" : "Disabled"}
-                  </Badge>
-                )}
-              </TableCell>
-              <TableCell>
-                {canManage && (
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Edit service"
-                    onClick={() => setDialog({ open: true, service })}
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                )}
-              </TableCell>
-            </TableRow>
+          {orderedRows.map(({ service, indent }) => (
+            <ServiceTableRow
+              key={service.id}
+              service={service}
+              canManage={canManage}
+              indent={indent}
+              onEdit={() => setDialog({ open: true, service })}
+            />
           ))}
         </TableBody>
       </Table>
@@ -140,6 +180,7 @@ export function ServicesTable({
         service={dialog.service}
         categories={categories}
         consultants={consultants}
+        topLevelServices={topLevel.map((service) => ({ id: service.id, name: service.name }))}
       />
     </div>
   );

@@ -64,6 +64,7 @@ export default async function ServiceManagementPage() {
           slug: service.slug,
           categoryId: service.categoryId,
           categoryName: service.category.name,
+          parentServiceId: service.parentServiceId,
           overview: service.overview,
           benefits: service.benefits,
           scope: service.scope,

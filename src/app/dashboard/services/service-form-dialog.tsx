@@ -27,6 +27,7 @@ type ServiceRecord = {
   id: string;
   name: string;
   categoryId: string;
+  parentServiceId: string | null;
   overview: string | null;
   benefits: string | null;
   scope: string | null;
@@ -42,12 +43,14 @@ export function ServiceFormDialog({
   service,
   categories,
   consultants,
+  topLevelServices,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   service?: ServiceRecord;
   categories: { id: string; name: string }[];
   consultants: { id: string; name: string }[];
+  topLevelServices: { id: string; name: string }[];
 }) {
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
@@ -55,6 +58,8 @@ export function ServiceFormDialog({
   const [faqItems, setFaqItems] = useState<FaqItem[]>(() =>
     isFaqArray(service?.faq) ? service.faq : [],
   );
+
+  const parentOptions = topLevelServices.filter((option) => option.id !== service?.id);
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -101,6 +106,23 @@ export function ServiceFormDialog({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="parentServiceId">Parent Service</Label>
+            <Select name="parentServiceId" defaultValue={service?.parentServiceId ?? "none"}>
+              <SelectTrigger id="parentServiceId" className="w-full">
+                <SelectValue placeholder="None (top-level service)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None (top-level service)</SelectItem>
+                {parentOptions.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-1.5">
