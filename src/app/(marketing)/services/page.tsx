@@ -15,7 +15,15 @@ export default async function ServicesPage() {
   const categories = await db.serviceCategory.findMany({
     where: { isActive: true },
     orderBy: { order: "asc" },
-    include: { services: { where: { isActive: true }, orderBy: { order: "asc" } } },
+    include: {
+      services: {
+        where: { isActive: true, parentServiceId: null },
+        orderBy: { order: "asc" },
+        include: {
+          children: { where: { isActive: true }, orderBy: { order: "asc" } },
+        },
+      },
+    },
   });
 
   return (
@@ -48,14 +56,28 @@ export default async function ServicesPage() {
 
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {category.services.map((service) => (
-              <Link key={service.id} href={`/services/${service.slug}`}>
-                <Card className="h-full transition-shadow hover:shadow-md">
+              <Card key={service.id} className="h-full transition-shadow hover:shadow-md">
+                <Link href={`/services/${service.slug}`}>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-base">{service.name}</CardTitle>
                     <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
                   </CardHeader>
-                </Card>
-              </Link>
+                </Link>
+                {service.children.length > 0 && (
+                  <ul className="flex flex-col gap-1 px-6 pb-4">
+                    {service.children.map((child) => (
+                      <li key={child.id}>
+                        <Link
+                          href={`/services/${child.slug}`}
+                          className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+                        >
+                          {child.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
             ))}
           </div>
         </Section>
