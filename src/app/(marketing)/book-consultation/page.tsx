@@ -23,10 +23,20 @@ export default async function BookConsultationPage({
   });
 
   const topLevel = services.filter((service) => !service.parentServiceId);
-  const orderedServices = topLevel.flatMap((parent) => [
+  const nested = topLevel.flatMap((parent) => [
     parent,
     ...services.filter((service) => service.parentServiceId === parent.id),
   ]);
+  // A child can be active while its parent isn't (e.g. an admin deactivates
+  // the parent but leaves the child active) — `nested` only ever finds
+  // children through a parent present in `topLevel`, so such a child would
+  // otherwise be silently dropped from the list entirely. Append any
+  // remaining active services (orphaned children) at the end instead of
+  // losing them.
+  const nestedIds = new Set(nested.map((service) => service.id));
+  const orphaned = services.filter((service) => !nestedIds.has(service.id));
+  const orphanedIds = new Set(orphaned.map((service) => service.id));
+  const orderedServices = [...nested, ...orphaned];
 
   const defaultService = serviceSlug
     ? services.find((service) => service.slug === serviceSlug)
@@ -51,7 +61,10 @@ export default async function BookConsultationPage({
             id: service.id,
             name: service.name,
             categoryName: service.category.name,
-            parentServiceId: service.parentServiceId,
+            // Orphaned children (parent deactivated) render as normal,
+            // unindented entries since they have no visible parent above
+            // them in the list.
+            parentServiceId: orphanedIds.has(service.id) ? null : service.parentServiceId,
           }))}
           defaultServiceId={defaultService?.id}
           attachmentsEnabled={isStorageConfigured}
