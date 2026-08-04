@@ -15,7 +15,11 @@ import {
 async function getService(slug: string) {
   return db.service.findUnique({
     where: { slug, isActive: true },
-    include: { category: true },
+    include: {
+      category: true,
+      parent: true,
+      children: { where: { isActive: true }, orderBy: { order: "asc" } },
+    },
   });
 }
 
@@ -57,12 +61,15 @@ export default async function ServiceDetailPage({
   return (
     <>
       <Section containerClassName="max-w-3xl">
-        <Link
-          href={`/services#${service.category.slug}`}
-          className="text-xs font-semibold tracking-wide text-accent uppercase"
-        >
-          {service.category.name}
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-1.5 text-xs font-semibold tracking-wide text-accent uppercase">
+          <Link href={`/services#${service.category.slug}`}>{service.category.name}</Link>
+          {service.parent && (
+            <>
+              <span aria-hidden>/</span>
+              <Link href={`/services/${service.parent.slug}`}>{service.parent.name}</Link>
+            </>
+          )}
+        </div>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {service.name}
         </h1>
@@ -105,6 +112,24 @@ export default async function ServiceDetailPage({
             Detailed information for this service is being finalized. Contact us
             for a full overview of scope, process, and pricing.
           </p>
+        )}
+
+        {service.children.length > 0 && (
+          <div className="mt-10">
+            <h2 className="font-heading text-lg font-semibold text-foreground">Includes</h2>
+            <ul className="mt-2 flex flex-col gap-1">
+              {service.children.map((child) => (
+                <li key={child.id}>
+                  <Link
+                    href={`/services/${child.slug}`}
+                    className="text-muted-foreground hover:text-foreground hover:underline"
+                  >
+                    {child.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
 
         {faq.length > 0 && (
