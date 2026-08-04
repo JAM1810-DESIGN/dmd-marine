@@ -16,6 +16,10 @@ const faqItemSchema = z.object({
 export const serviceSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   categoryId: z.string().min(1, "Please select a category"),
+  parentServiceId: z
+    .string()
+    .optional()
+    .transform((value) => (value && value !== "none" ? value : null)),
   overview: z.string().optional(),
   benefits: z.string().optional(),
   scope: z.string().optional(),

@@ -95,6 +95,7 @@ export async function createService(
   const parsed = serviceSchema.safeParse({
     name: formData.get("name"),
     categoryId: formData.get("categoryId"),
+    parentServiceId: formData.get("parentServiceId") || undefined,
     overview: formData.get("overview") || undefined,
     benefits: formData.get("benefits") || undefined,
     scope: formData.get("scope") || undefined,
@@ -105,6 +106,16 @@ export async function createService(
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
+  }
+
+  if (parsed.data.parentServiceId) {
+    const parent = await db.service.findUnique({
+      where: { id: parsed.data.parentServiceId },
+      select: { parentServiceId: true },
+    });
+    if (!parent || parent.parentServiceId) {
+      return { error: "Parent service must be a top-level service." };
+    }
   }
 
   const slug = await uniqueSlug(
@@ -136,6 +147,7 @@ export async function updateService(
   const parsed = serviceSchema.safeParse({
     name: formData.get("name"),
     categoryId: formData.get("categoryId"),
+    parentServiceId: formData.get("parentServiceId") || undefined,
     overview: formData.get("overview") || undefined,
     benefits: formData.get("benefits") || undefined,
     scope: formData.get("scope") || undefined,
@@ -146,6 +158,19 @@ export async function updateService(
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
+  }
+
+  if (parsed.data.parentServiceId) {
+    if (parsed.data.parentServiceId === id) {
+      return { error: "A service cannot be its own parent." };
+    }
+    const parent = await db.service.findUnique({
+      where: { id: parsed.data.parentServiceId },
+      select: { parentServiceId: true },
+    });
+    if (!parent || parent.parentServiceId) {
+      return { error: "Parent service must be a top-level service." };
+    }
   }
 
   const { faq, ...rest } = parsed.data;
