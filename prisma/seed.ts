@@ -9,7 +9,10 @@ import { db } from "../src/lib/db";
 import { slugify } from "../src/lib/slugify";
 import { hashPassword } from "../src/lib/password";
 
-const SERVICE_CATALOG: { category: string; services: string[] }[] = [
+const SERVICE_CATALOG: {
+  category: string;
+  services: (string | { name: string; parent: string })[];
+}[] = [
   {
     category: "Marine Consultancy",
     services: ["Vessel Operations Consultation", "Marine Advisory", "Operational Risk Assessment"],
@@ -19,8 +22,9 @@ const SERVICE_CATALOG: { category: string; services: string[] }[] = [
     services: [
       "Draft Survey",
       "Bunker Survey",
-      "Third Party Hold Inspection",
+      "Develop Vessel-Specific Draft Survey Form",
       "Vessel Condition Inspection",
+      { name: "Third Party Hold Inspection", parent: "Vessel Condition Inspection" },
       "Pre-Purchase Inspection",
       "On-Hire / Off-Hire Survey",
     ],
@@ -35,11 +39,11 @@ const SERVICE_CATALOG: { category: string; services: string[] }[] = [
   },
   {
     category: "Maritime Training",
-    services: ["Deck Officer Mentoring", "Career Development", "Competency Training"],
+    services: ["Deck Officer Mentoring", "Career Development"],
   },
   {
     category: "Remote Marine Support",
-    services: ["Online Consultation", "Document Review", "Expert Advisory"],
+    services: ["Online Consultation"],
   },
   {
     category: "Incident Support",
@@ -106,15 +110,43 @@ async function seedServiceCatalog() {
     });
     categoryCount++;
 
-    for (const [serviceOrder, service] of services.entries()) {
+    // Two passes: top-level services first (so a child can look up its
+    // parent's id), then children.
+    const topLevel = services.filter((service): service is string => typeof service === "string");
+    const children = services.filter(
+      (service): service is { name: string; parent: string } => typeof service !== "string",
+    );
+
+    for (const [serviceOrder, name] of topLevel.entries()) {
       await db.service.upsert({
-        where: { slug: slugify(service) },
-        update: { name: service, categoryId: categoryRecord.id, order: serviceOrder },
+        where: { slug: slugify(name) },
+        update: { name, categoryId: categoryRecord.id, order: serviceOrder, parentServiceId: null },
         create: {
-          name: service,
-          slug: slugify(service),
+          name,
+          slug: slugify(name),
           categoryId: categoryRecord.id,
           order: serviceOrder,
+        },
+      });
+      serviceCount++;
+    }
+
+    for (const [childOrder, { name, parent }] of children.entries()) {
+      const parentRecord = await db.service.findUniqueOrThrow({ where: { slug: slugify(parent) } });
+      await db.service.upsert({
+        where: { slug: slugify(name) },
+        update: {
+          name,
+          categoryId: categoryRecord.id,
+          order: childOrder,
+          parentServiceId: parentRecord.id,
+        },
+        create: {
+          name,
+          slug: slugify(name),
+          categoryId: categoryRecord.id,
+          order: childOrder,
+          parentServiceId: parentRecord.id,
         },
       });
       serviceCount++;
