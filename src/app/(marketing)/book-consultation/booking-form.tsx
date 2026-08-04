@@ -17,7 +17,7 @@ import { submitBookingForm, type BookingFormState } from "./actions";
 
 const initialState: BookingFormState = {};
 
-type ServiceOption = { id: string; name: string; categoryName: string };
+type ServiceOption = { id: string; name: string; categoryName: string; parentServiceId: string | null };
 
 export function BookingForm({
   services,
@@ -82,7 +82,7 @@ export function BookingForm({
           <SelectContent>
             {services.map((service) => (
               <SelectItem key={service.id} value={service.id}>
-                {service.categoryName} — {service.name}
+                {service.parentServiceId ? `↳ ${service.name}` : `${service.categoryName} — ${service.name}`}
               </SelectItem>
             ))}
           </SelectContent>

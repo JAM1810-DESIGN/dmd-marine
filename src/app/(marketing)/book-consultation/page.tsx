@@ -22,6 +22,12 @@ export default async function BookConsultationPage({
     include: { category: true },
   });
 
+  const topLevel = services.filter((service) => !service.parentServiceId);
+  const orderedServices = topLevel.flatMap((parent) => [
+    parent,
+    ...services.filter((service) => service.parentServiceId === parent.id),
+  ]);
+
   const defaultService = serviceSlug
     ? services.find((service) => service.slug === serviceSlug)
     : undefined;
@@ -41,10 +47,11 @@ export default async function BookConsultationPage({
 
       <div className="mt-10">
         <BookingForm
-          services={services.map((service) => ({
+          services={orderedServices.map((service) => ({
             id: service.id,
             name: service.name,
             categoryName: service.category.name,
+            parentServiceId: service.parentServiceId,
           }))}
           defaultServiceId={defaultService?.id}
           attachmentsEnabled={isStorageConfigured}
