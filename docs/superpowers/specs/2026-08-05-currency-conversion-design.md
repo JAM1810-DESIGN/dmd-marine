@@ -12,12 +12,14 @@ Currency → Consultants → Documents & Forms → Projects required-forms.
 No Currency module exists in this codebase today. All monetary fields
 (`Invoice.totalAmount`, `Expense.amount`, `Budget.amount`, `Payment.amount`,
 etc.) are plain `Decimal` columns with no currency field at all. Display
-formatting is duplicated across 8 files
-(`invoices-table.tsx`, `expenses-table.tsx`, `budgets-table.tsx`,
-`payments-table.tsx`, `finance-charts.tsx`, `reports/page.tsx`,
-`statements/page.tsx`, `invoices/[id]/page.tsx`), each with its own local
-`formatCurrency()` hardcoded to `en-US`/`USD` — mislabeled, since this is a
-Philippine company and the values are really PHP.
+formatting is duplicated across 10 files
+(`finance/page.tsx`, `invoices-table.tsx`, `expenses-table.tsx`,
+`budgets-table.tsx`, `payments-table.tsx`, `invoices/[id]/page.tsx`,
+`invoices/[id]/payments-list.tsx`, `statements/page.tsx`,
+`invoice-form-dialog.tsx`, `finance-charts.tsx`), plus `reports/page.tsx`
+(structurally different — see section 5), each with its own local
+`formatCurrency()`/`currency()` hardcoded to `en-US`/`USD` — mislabeled,
+since this is a Philippine company and the values are really PHP.
 
 Confirmed with user:
 - Currency selector affects real Finance dashboard displays (not a separate
@@ -125,7 +127,7 @@ This adds one small toolbar row above every Finance page. No existing page's
 `<h1>`/header markup is touched — the layout wraps `children`, it doesn't
 replace anything.
 
-## 5. Replacing the 8 duplicated `formatCurrency` call sites
+## 5. Replacing the duplicated `formatCurrency` call sites
 
 New `src/components/shared/currency-amount.tsx` (client component):
 
@@ -137,17 +139,49 @@ export function CurrencyAmount({ amountPhp }: { amountPhp: number }) {
 }
 ```
 
-Each of the 8 files' local `formatCurrency(value)` call sites become
-`<CurrencyAmount amountPhp={value} />`. The parent pages
-(`finance/page.tsx`, `invoices-table.tsx`, etc.) stay Server Components where
-they are today — only the leaf value display becomes a client component,
-consistent with "smallest unit that needs to be a Client Component." The
-local `formatCurrency` function definitions are deleted from all 8 files.
+**9 files with a drop-in local `formatCurrency`/local-number call site**
+(`finance/page.tsx`, `invoices-table.tsx`, `expenses-table.tsx`,
+`budgets-table.tsx`, `payments-table.tsx`, `invoices/[id]/page.tsx`,
+`invoices/[id]/payments-list.tsx`, `statements/page.tsx`, and
+`invoice-form-dialog.tsx` — confirmed with the user that the invoice
+create/edit dialog's live subtotal/tax/total preview should also convert,
+for consistency with the rest of the Finance section) — their local
+`formatCurrency(value)` call sites become `<CurrencyAmount amountPhp={value} />`,
+and the local function definitions are deleted. Parent Server Components
+(`finance/page.tsx`, `invoices-table.tsx`, etc.) are untouched otherwise —
+only the leaf value display becomes a client component.
+`invoice-form-dialog.tsx` is already a Client Component, so this is a
+straightforward swap there too.
 
 `finance-charts.tsx` is already a Client Component (Recharts requires it) —
 it calls `useCurrency().format()` directly for axis ticks and tooltip values
 instead of rendering `<CurrencyAmount>` (a hook call fits Recharts'
 formatter-callback props better than a JSX leaf).
+
+**`reports/page.tsx` + `report-table.tsx`** (confirmed in scope, not deferred):
+structurally different — a Server Component builds `rows: (string | number)[][]`
+with currency values already formatted into plain strings server-side
+(`currency(d.amount)` called inline while constructing each report's rows),
+then passes `rows` to `<ReportTable>` (already a Client Component) which
+renders them generically AND uses the same array for CSV export
+(`rows.map((row) => row.map(String))`). A currency value can't be
+client-converted once it's already a formatted string, and the array mixes
+plain strings/numbers with currency values in the same shape, so the fix is
+a tagged-cell type shared between both files:
+
+```ts
+// src/components/shared/report-table.tsx
+export type ReportCell = string | number | { phpAmount: number };
+```
+
+`reports/page.tsx` replaces every `currency(value)` call with `{ phpAmount: value }`
+(the local `currency()` helper is deleted; `rows` becomes `ReportCell[][]`).
+`ReportTable` (already `"use client"`) calls `useCurrency()` and, per cell,
+renders `<CurrencyAmount amountPhp={cell.phpAmount} />` when the cell is a
+tagged object, or the raw value otherwise; `exportCsv` formats the same way
+when building the CSV string, so the exported file always matches what's on
+screen (WYSIWYG) rather than silently staying in PHP while the page shows a
+different currency.
 
 ## 6. Error handling
 
@@ -168,9 +202,15 @@ formatter-callback props better than a JSX leaf).
 - No historical/point-in-time rate tracking — always "current" rate, applied
   uniformly to old and new records alike (this is a display convenience, not
   an accounting feature).
-- No changes to invoice creation/editing forms, PDF generation, or any
-  server-side calculation — `finance-calculations.ts` continues returning raw
-  PHP numbers exactly as it does today.
+- No changes to invoice creation/editing *logic* (line item math, validation,
+  server actions) or any server-side calculation —
+  `finance-calculations.ts` continues returning raw PHP numbers exactly as it
+  does today, and `invoice-form-dialog.tsx`'s inputs still collect raw PHP
+  amounts. Only the dialog's computed subtotal/tax/total *display* converts
+  (see section 5) — the underlying values sent to `createInvoice`/`updateInvoice`
+  are unchanged PHP numbers.
+- No PDF generation exists in this project today; not introduced by this
+  module.
 
 ## Testing
 
@@ -183,5 +223,14 @@ browser checks:
 - Selection persists across a page reload (localStorage).
 - Simulate API failure (e.g. temporarily point the fetch URL at a bad host)
   → page still renders, USD/EUR use fallback rates, no crash.
-- All 8 files' old local `formatCurrency` definitions are gone; no duplicate
-  logic remains.
+- All 10 files' old local `formatCurrency`/`currency` definitions are gone;
+  no duplicate formatting logic remains anywhere in `dashboard/finance/`.
+- `reports/page.tsx`: switching currency updates every report's currency
+  columns (KPI-style single-value reports and multi-column ones like Project
+  Profitability); non-currency columns (names, counts, dates, status) are
+  untouched. Exported CSV's currency columns match whatever is currently
+  selected on screen, not always PHP.
+- `invoice-form-dialog.tsx`: switching currency updates the Subtotal/Tax/
+  Discount/Total preview; the actual line-item input fields (quantity, unit
+  price) stay as plain PHP number inputs, unconverted — confirming the
+  submitted invoice data is unaffected by the display currency.
