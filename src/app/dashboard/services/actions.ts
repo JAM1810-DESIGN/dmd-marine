@@ -164,6 +164,10 @@ export async function updateService(
     if (parsed.data.parentServiceId === id) {
       return { error: "A service cannot be its own parent." };
     }
+    const childCount = await db.service.count({ where: { parentServiceId: id } });
+    if (childCount > 0) {
+      return { error: "This service has its own sub-services and cannot become a child service." };
+    }
     const parent = await db.service.findUnique({
       where: { id: parsed.data.parentServiceId },
       select: { parentServiceId: true },
