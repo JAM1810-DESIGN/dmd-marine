@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { buildCsv, downloadCsv } from "@/lib/csv";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 import { InvoiceFormDialog } from "./invoice-form-dialog";
 
 const STATUS_OPTIONS = ["DRAFT", "SENT", "PARTIAL", "PAID", "OVERDUE", "CANCELLED"] as const;
@@ -44,9 +45,6 @@ export type InvoiceRow = {
   status: string;
 };
 
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 function formatDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
@@ -148,7 +146,7 @@ export function InvoicesTable({
                 <TableCell className="text-sm text-muted-foreground">{invoice.customerName ?? "—"}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{formatDate(invoice.issueDate)}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{formatDate(invoice.dueDate)}</TableCell>
-                <TableCell className="text-sm font-medium">{formatCurrency(invoice.totalAmount)}</TableCell>
+                <TableCell className="text-sm font-medium"><CurrencyAmount amountPhp={invoice.totalAmount} /></TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANT[invoice.status] ?? "outline"}>{invoice.status}</Badge>
                 </TableCell>

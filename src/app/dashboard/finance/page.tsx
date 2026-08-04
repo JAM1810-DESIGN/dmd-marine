@@ -3,6 +3,7 @@ import { startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { AccessDenied } from "@/components/shared/access-denied";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   getRevenueTotal,
@@ -25,10 +26,6 @@ import {
 } from "./finance-charts";
 
 export const metadata: Metadata = { title: "Finance" };
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 
 export default async function FinanceDashboardPage() {
   const session = await auth();
@@ -100,7 +97,7 @@ export default async function FinanceDashboardPage() {
           <Card key={kpi.title}>
             <CardHeader>
               <CardDescription>{kpi.title}</CardDescription>
-              <CardTitle className="text-2xl font-semibold">{formatCurrency(kpi.value)}</CardTitle>
+              <CardTitle className="text-2xl font-semibold"><CurrencyAmount amountPhp={kpi.value} /></CardTitle>
               {kpi.sub && <p className="text-xs text-muted-foreground">{kpi.sub}</p>}
             </CardHeader>
           </Card>

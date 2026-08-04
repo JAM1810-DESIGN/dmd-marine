@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { notify } from "@/lib/notify";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 import { deleteBudget } from "./actions";
 import { BudgetFormDialog } from "./budget-form-dialog";
 
@@ -23,10 +24,6 @@ export type BudgetRow = {
   actualSpending: number;
   notes: string | null;
 };
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 
 export function BudgetsTable({
   budgets,
@@ -121,9 +118,15 @@ export function BudgetsTable({
                 <Progress value={Math.min(percent, 100)} />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>
-                    {formatCurrency(budget.actualSpending)} of {formatCurrency(budget.amount)} ({percent.toFixed(0)}%)
+                    <CurrencyAmount amountPhp={budget.actualSpending} /> of <CurrencyAmount amountPhp={budget.amount} /> ({percent.toFixed(0)}%)
                   </span>
-                  <span>{remaining >= 0 ? `${formatCurrency(remaining)} remaining` : `${formatCurrency(-remaining)} over`}</span>
+                  <span>
+                    {remaining >= 0 ? (
+                      <><CurrencyAmount amountPhp={remaining} /> remaining</>
+                    ) : (
+                      <><CurrencyAmount amountPhp={-remaining} /> over</>
+                    )}
+                  </span>
                 </div>
               </li>
             );

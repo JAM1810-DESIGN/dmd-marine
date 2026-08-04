@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { buildCsv, downloadCsv } from "@/lib/csv";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 
 const STATUS_OPTIONS = ["PENDING", "COMPLETED", "REFUNDED", "FAILED"] as const;
 
@@ -37,9 +38,6 @@ export type PaymentRow = {
   referenceNumber: string | null;
 };
 
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 }
@@ -83,7 +81,7 @@ export function PaymentsTable({ payments }: { payments: PaymentRow[] }) {
         <div>
           <h2 className="font-heading text-base font-semibold">Payments</h2>
           <p className="text-sm text-muted-foreground">
-            {filtered.length} payment{filtered.length === 1 ? "" : "s"} · {formatCurrency(total)} completed
+            {filtered.length} payment{filtered.length === 1 ? "" : "s"} · <CurrencyAmount amountPhp={total} /> completed
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -132,7 +130,7 @@ export function PaymentsTable({ payments }: { payments: PaymentRow[] }) {
                   </Link>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">{payment.method.replace(/_/g, " ")}</TableCell>
-                <TableCell className="text-sm font-medium">{formatCurrency(payment.amount)}</TableCell>
+                <TableCell className="text-sm font-medium"><CurrencyAmount amountPhp={payment.amount} /></TableCell>
                 <TableCell>
                   <Badge variant={payment.status === "REFUNDED" ? "destructive" : "default"}>{payment.status}</Badge>
                 </TableCell>

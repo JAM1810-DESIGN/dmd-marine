@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
 import { buildCsv, downloadCsv } from "@/lib/csv";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 import {
   approveExpense,
   rejectExpense,
@@ -64,9 +65,6 @@ export type ExpenseRow = {
   receipts: { id: string; fileName: string; url: string }[];
 };
 
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 }
@@ -211,7 +209,7 @@ export function ExpensesTable({
         <div>
           <h2 className="font-heading text-base font-semibold">Expenses</h2>
           <p className="text-sm text-muted-foreground">
-            {filtered.length} record{filtered.length === 1 ? "" : "s"} · {formatCurrency(total)}
+            {filtered.length} record{filtered.length === 1 ? "" : "s"} · <CurrencyAmount amountPhp={total} />
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -281,7 +279,7 @@ export function ExpensesTable({
                   {expense.description}
                   {expense.vendorName && <span className="block text-xs">{expense.vendorName}</span>}
                 </TableCell>
-                <TableCell className="text-sm font-medium">{formatCurrency(expense.amount + expense.taxAmount)}</TableCell>
+                <TableCell className="text-sm font-medium"><CurrencyAmount amountPhp={expense.amount + expense.taxAmount} /></TableCell>
                 <TableCell>
                   <ReceiptCell expenseId={expense.id} receipts={expense.receipts} storageConfigured={storageConfigured} />
                 </TableCell>
