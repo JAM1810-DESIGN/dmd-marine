@@ -32,7 +32,13 @@ export type ConsultantRow = ConsultantRecord & { isActive: boolean };
 
 type SortBy = "name" | "rank";
 
-export function ConsultantsTable({ consultants }: { consultants: ConsultantRow[] }) {
+export function ConsultantsTable({
+  consultants,
+  currentUserId,
+}: {
+  consultants: ConsultantRow[];
+  currentUserId: string;
+}) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("name");
   const [isPending, startTransition] = useTransition();
@@ -107,10 +113,15 @@ export function ConsultantsTable({ consultants }: { consultants: ConsultantRow[]
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((consultant) => (
+            {filtered.map((consultant) => {
+              const isSelf = consultant.id === currentUserId;
+              return (
               <TableRow key={consultant.id}>
                 <TableCell>
-                  <div className="font-medium text-foreground">{consultant.name}</div>
+                  <div className="font-medium text-foreground">
+                    {consultant.name}
+                    {isSelf && <span className="ml-1 text-xs text-muted-foreground">(you)</span>}
+                  </div>
                   <div className="text-xs text-muted-foreground">{consultant.email}</div>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
@@ -138,7 +149,9 @@ export function ConsultantsTable({ consultants }: { consultants: ConsultantRow[]
                         </Button>
                       }
                     />
-                    {consultant.isActive ? (
+                    {isSelf ? (
+                      <Badge variant="outline">You</Badge>
+                    ) : consultant.isActive ? (
                       <ConfirmDialog
                         trigger={
                           <Button variant="ghost" size="icon-sm" aria-label="Delete consultant">
@@ -173,7 +186,8 @@ export function ConsultantsTable({ consultants }: { consultants: ConsultantRow[]
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
           </TableBody>
         </Table>
       )}

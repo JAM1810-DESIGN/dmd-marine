@@ -36,6 +36,7 @@ export default async function ConsultantsPage() {
           phone: consultant.phone,
           isActive: consultant.isActive,
         }))}
+        currentUserId={session.user.id}
       />
     </div>
   );

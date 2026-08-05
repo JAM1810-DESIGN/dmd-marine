@@ -30,22 +30,35 @@ export function ConfirmDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string>();
 
   function handleConfirm() {
+    setError(undefined);
     startTransition(async () => {
-      await onConfirm();
-      setOpen(false);
+      try {
+        await onConfirm();
+        setOpen(false);
+      } catch {
+        setError("Something went wrong. Please try again.");
+      }
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) setError(undefined);
+      }}
+    >
       <DialogTrigger render={trigger} />
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        {error && <p className="text-sm font-medium text-destructive">{error}</p>}
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
           <Button variant={variant} disabled={isPending} onClick={handleConfirm}>

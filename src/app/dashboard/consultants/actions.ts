@@ -81,6 +81,8 @@ export async function updateConsultant(
     return { error: "A user with this email already exists." };
   }
 
+  const before = await db.user.findUniqueOrThrow({ where: { id } });
+
   await db.user.update({ where: { id }, data: parsed.data });
 
   await logAudit({
@@ -88,6 +90,7 @@ export async function updateConsultant(
     action: "CONSULTANT_UPDATED",
     entityType: "User",
     entityId: id,
+    metadata: { emailBefore: before.email, emailAfter: parsed.data.email },
   });
 
   revalidatePath("/dashboard/consultants");

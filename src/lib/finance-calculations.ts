@@ -259,7 +259,7 @@ export async function getBookingProfitability(range: DateRange) {
 }
 
 export async function getConsultantPerformance(range: DateRange) {
-  const consultants = await db.user.findMany({ where: { isActive: true } });
+  const consultants = await db.user.findMany();
 
   const results = await Promise.all(
     consultants.map(async (consultant) => {
