@@ -55,3 +55,13 @@ export function useCurrency(): CurrencyContextValue {
   }
   return context;
 }
+
+/**
+ * Like `useCurrency`, but returns `undefined` instead of throwing when
+ * there's no `CurrencyProvider` ancestor. For shared components (e.g.
+ * `ReportTable`) that are rendered both inside and outside the finance
+ * section of the app.
+ */
+export function useCurrencyOptional(): CurrencyContextValue | undefined {
+  return useContext(CurrencyContext);
+}

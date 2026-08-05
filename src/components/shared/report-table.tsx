@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { buildCsv, downloadCsv } from "@/lib/csv";
-import { useCurrency } from "./currency-provider";
+import { useCurrencyOptional } from "./currency-provider";
 
 export type ReportCell = string | number | { phpAmount: number };
 
@@ -30,10 +30,13 @@ export function ReportTable({
   rows: ReportCell[][];
   filename: string;
 }) {
-  const { format } = useCurrency();
+  const currency = useCurrencyOptional();
+
+  const formatCell = (cell: ReportCell) =>
+    isPhpAmount(cell) ? (currency ? currency.format(cell.phpAmount) : String(cell.phpAmount)) : cell;
 
   function exportCsv() {
-    const stringRows = rows.map((row) => row.map((cell) => (isPhpAmount(cell) ? format(cell.phpAmount) : String(cell))));
+    const stringRows = rows.map((row) => row.map((cell) => String(formatCell(cell))));
     downloadCsv(filename, buildCsv(columns, stringRows));
   }
 
@@ -63,7 +66,7 @@ export function ReportTable({
               <TableRow key={i}>
                 {row.map((cell, j) => (
                   <TableCell key={j} className={j === 0 ? "font-medium text-foreground" : "text-sm"}>
-                    {isPhpAmount(cell) ? format(cell.phpAmount) : cell}
+                    {formatCell(cell)}
                   </TableCell>
                 ))}
               </TableRow>
