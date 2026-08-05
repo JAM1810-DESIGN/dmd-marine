@@ -154,16 +154,16 @@ enum FinancialStatementType {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model User {
-  id           String  @id @default(cuid())
-  name         String
-  email        String  @unique
-  passwordHash String
-  role         Role    @default(STAFF)
-  isActive     Boolean @default(true)
-  image        String?
-  rank         String?
+  id               String  @id @default(cuid())
+  name             String
+  email            String  @unique
+  passwordHash     String
+  role             Role    @default(STAFF)
+  isActive         Boolean @default(true)
+  image            String?
+  rank             String?
   vesselExperience String?
-  phone        String?
+  phone            String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
