@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 import { notify } from "@/lib/notify";
 import { createInvoice, updateInvoice } from "./actions";
 
@@ -41,10 +42,6 @@ type InvoiceRecord = {
   discountAmount: number;
   items: { description: string; serviceId: string | null; quantity: number; unitPrice: number; taxRate: number }[];
 };
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 
 export function InvoiceFormDialog({
   open,
@@ -268,10 +265,10 @@ export function InvoiceFormDialog({
           </div>
 
           <div className="flex flex-col items-end gap-1 rounded-lg bg-secondary/40 p-3 text-sm">
-            <div className="flex w-48 justify-between"><span>Subtotal</span><span>{formatCurrency(subtotal)}</span></div>
-            <div className="flex w-48 justify-between"><span>Tax</span><span>{formatCurrency(taxTotal)}</span></div>
-            <div className="flex w-48 justify-between"><span>Discount</span><span>-{formatCurrency(discountAmount)}</span></div>
-            <div className="flex w-48 justify-between font-semibold"><span>Total</span><span>{formatCurrency(total)}</span></div>
+            <div className="flex w-48 justify-between"><span>Subtotal</span><span><CurrencyAmount amountPhp={subtotal} /></span></div>
+            <div className="flex w-48 justify-between"><span>Tax</span><span><CurrencyAmount amountPhp={taxTotal} /></span></div>
+            <div className="flex w-48 justify-between"><span>Discount</span><span>-<CurrencyAmount amountPhp={discountAmount} /></span></div>
+            <div className="flex w-48 justify-between font-semibold"><span>Total</span><span><CurrencyAmount amountPhp={total} /></span></div>
           </div>
 
           {error && <p className="text-sm font-medium text-destructive">{error}</p>}

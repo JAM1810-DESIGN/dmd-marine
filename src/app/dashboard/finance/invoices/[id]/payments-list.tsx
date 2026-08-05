@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 import { notify } from "@/lib/notify";
 import { refundPayment } from "../actions";
 
@@ -22,10 +23,6 @@ type PaymentRow = {
   status: string;
   referenceNumber: string | null;
 };
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 
 export function PaymentsList({ payments, canManage }: { payments: PaymentRow[]; canManage: boolean }) {
   const [isPending, startTransition] = useTransition();
@@ -52,7 +49,7 @@ export function PaymentsList({ payments, canManage }: { payments: PaymentRow[]; 
             <TableCell className="text-sm">{new Date(payment.paymentDate).toLocaleDateString("en-US")}</TableCell>
             <TableCell className="text-sm">{payment.method.replace(/_/g, " ")}</TableCell>
             <TableCell className="text-sm text-muted-foreground">{payment.referenceNumber ?? "—"}</TableCell>
-            <TableCell className="text-sm font-medium">{formatCurrency(payment.amount)}</TableCell>
+            <TableCell className="text-sm font-medium"><CurrencyAmount amountPhp={payment.amount} /></TableCell>
             <TableCell>
               <Badge variant={payment.status === "REFUNDED" ? "destructive" : "default"}>{payment.status}</Badge>
             </TableCell>

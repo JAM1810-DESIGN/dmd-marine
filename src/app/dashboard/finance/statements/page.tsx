@@ -9,6 +9,7 @@ import {
 } from "date-fns";
 import { auth } from "@/auth";
 import { AccessDenied } from "@/components/shared/access-denied";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 import {
   getRevenueTotal,
   getExpenseTotal,
@@ -22,15 +23,11 @@ import { SaveSnapshotButton } from "./save-snapshot-button";
 
 export const metadata: Metadata = { title: "Financial Statements" };
 
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
-
 function Row({ label, value, bold }: { label: string; value: number; bold?: boolean }) {
   return (
     <div className={`flex justify-between border-b border-border/60 py-2 text-sm ${bold ? "font-semibold" : ""}`}>
       <span>{label}</span>
-      <span>{formatCurrency(value)}</span>
+      <span><CurrencyAmount amountPhp={value} /></span>
     </div>
   );
 }

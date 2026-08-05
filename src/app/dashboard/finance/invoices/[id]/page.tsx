@@ -7,14 +7,12 @@ import { db } from "@/lib/db";
 import { getSiteSettings } from "@/lib/site-settings";
 import { AccessDenied } from "@/components/shared/access-denied";
 import { Badge } from "@/components/ui/badge";
+import { CurrencyAmount } from "@/components/shared/currency-amount";
 import { InvoiceActions } from "./invoice-actions";
 import { PaymentsList } from "./payments-list";
 
 export const metadata: Metadata = { title: "Invoice" };
 
-function formatCurrency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 function formatDate(date: Date | null) {
   if (!date) return "—";
   return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -112,21 +110,21 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               <tr key={item.id} className="border-b border-border/60">
                 <td className="py-2">{item.description}</td>
                 <td className="py-2 text-right">{Number(item.quantity)}</td>
-                <td className="py-2 text-right">{formatCurrency(Number(item.unitPrice))}</td>
+                <td className="py-2 text-right"><CurrencyAmount amountPhp={Number(item.unitPrice)} /></td>
                 <td className="py-2 text-right">{Number(item.taxRate)}%</td>
-                <td className="py-2 text-right">{formatCurrency(Number(item.lineTotal))}</td>
+                <td className="py-2 text-right"><CurrencyAmount amountPhp={Number(item.lineTotal)} /></td>
               </tr>
             ))}
           </tbody>
         </table>
 
         <div className="mt-4 flex flex-col items-end gap-1 text-sm">
-          <div className="flex w-56 justify-between"><span>Subtotal</span><span>{formatCurrency(Number(invoice.subtotal))}</span></div>
-          <div className="flex w-56 justify-between"><span>Tax</span><span>{formatCurrency(Number(invoice.taxAmount))}</span></div>
-          <div className="flex w-56 justify-between"><span>Discount</span><span>-{formatCurrency(Number(invoice.discountAmount))}</span></div>
-          <div className="flex w-56 justify-between font-semibold"><span>Total</span><span>{formatCurrency(Number(invoice.totalAmount))}</span></div>
-          <div className="flex w-56 justify-between text-muted-foreground"><span>Paid</span><span>{formatCurrency(paidTotal)}</span></div>
-          <div className="flex w-56 justify-between font-semibold text-navy"><span>Balance Due</span><span>{formatCurrency(balanceDue)}</span></div>
+          <div className="flex w-56 justify-between"><span>Subtotal</span><span><CurrencyAmount amountPhp={Number(invoice.subtotal)} /></span></div>
+          <div className="flex w-56 justify-between"><span>Tax</span><span><CurrencyAmount amountPhp={Number(invoice.taxAmount)} /></span></div>
+          <div className="flex w-56 justify-between"><span>Discount</span><span>-<CurrencyAmount amountPhp={Number(invoice.discountAmount)} /></span></div>
+          <div className="flex w-56 justify-between font-semibold"><span>Total</span><span><CurrencyAmount amountPhp={Number(invoice.totalAmount)} /></span></div>
+          <div className="flex w-56 justify-between text-muted-foreground"><span>Paid</span><span><CurrencyAmount amountPhp={paidTotal} /></span></div>
+          <div className="flex w-56 justify-between font-semibold text-navy"><span>Balance Due</span><span><CurrencyAmount amountPhp={balanceDue} /></span></div>
         </div>
 
         {invoice.paymentTerms && (
