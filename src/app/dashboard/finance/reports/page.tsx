@@ -17,13 +17,10 @@ import {
   type DateRange,
 } from "@/lib/finance-calculations";
 import { ReportSelector } from "./report-selector";
-import { ReportTable } from "@/components/shared/report-table";
+import { ReportTable, type ReportCell } from "@/components/shared/report-table";
 
 export const metadata: Metadata = { title: "Finance Reports" };
 
-function currency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
 function dateStr(date: Date | null) {
   return date ? date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—";
 }
@@ -52,63 +49,63 @@ export default async function ReportsPage({
 
   let title = "";
   let columns: string[] = [];
-  let rows: (string | number)[][] = [];
+  let rows: ReportCell[][] = [];
 
   switch (report) {
     case "revenue-by-service": {
       title = "Revenue by Service";
       columns = ["Service", "Revenue"];
       const data = await getRevenueByService(range);
-      rows = data.map((d) => [d.name, currency(d.amount)]);
+      rows = data.map((d) => [d.name, { phpAmount: d.amount }]);
       break;
     }
     case "revenue-by-customer": {
       title = "Revenue by Customer";
       columns = ["Customer", "Revenue"];
       const data = await getRevenueByCustomer(range);
-      rows = data.map((d) => [d.name, currency(d.amount)]);
+      rows = data.map((d) => [d.name, { phpAmount: d.amount }]);
       break;
     }
     case "revenue-by-branch": {
       title = "Revenue by Branch";
       columns = ["Branch", "Revenue"];
       const data = await getRevenueByBranch(range);
-      rows = data.map((d) => [d.name, currency(d.amount)]);
+      rows = data.map((d) => [d.name, { phpAmount: d.amount }]);
       break;
     }
     case "expenses-by-category": {
       title = "Expenses by Category";
       columns = ["Category", "Amount"];
       const data = await getExpenseByCategory(range);
-      rows = data.map((d) => [d.name, currency(d.amount)]);
+      rows = data.map((d) => [d.name, { phpAmount: d.amount }]);
       break;
     }
     case "expenses-by-vendor": {
       title = "Expenses by Vendor";
       columns = ["Vendor", "Amount"];
       const data = await getExpenseByVendor(range);
-      rows = data.map((d) => [d.name, currency(d.amount)]);
+      rows = data.map((d) => [d.name, { phpAmount: d.amount }]);
       break;
     }
     case "project-profitability": {
       title = "Project Profitability";
       columns = ["Project", "Revenue", "Expenses", "Profit"];
       const data = await getProjectProfitability(range);
-      rows = data.map((d) => [d.name, currency(d.revenue), currency(d.expense), currency(d.profit)]);
+      rows = data.map((d) => [d.name, { phpAmount: d.revenue }, { phpAmount: d.expense }, { phpAmount: d.profit }]);
       break;
     }
     case "booking-profitability": {
       title = "Booking Profitability";
       columns = ["Customer", "Revenue", "Expenses", "Profit"];
       const data = await getBookingProfitability(range);
-      rows = data.map((d) => [d.name, currency(d.revenue), currency(d.expense), currency(d.profit)]);
+      rows = data.map((d) => [d.name, { phpAmount: d.revenue }, { phpAmount: d.expense }, { phpAmount: d.profit }]);
       break;
     }
     case "consultant-performance": {
       title = "Consultant Performance";
       columns = ["Consultant", "Projects", "Completed", "Revenue"];
       const data = await getConsultantPerformance(range);
-      rows = data.map((d) => [d.name, d.projectCount, d.completedCount, currency(d.revenue)]);
+      rows = data.map((d) => [d.name, d.projectCount, d.completedCount, { phpAmount: d.revenue }]);
       break;
     }
     case "outstanding-invoices": {
@@ -119,7 +116,7 @@ export default async function ReportsPage({
         include: { customer: true },
         orderBy: { dueDate: "asc" },
       });
-      rows = invoices.map((i) => [i.invoiceNumber, i.customer?.name ?? "—", dateStr(i.dueDate), currency(Number(i.totalAmount)), i.status]);
+      rows = invoices.map((i) => [i.invoiceNumber, i.customer?.name ?? "—", dateStr(i.dueDate), { phpAmount: Number(i.totalAmount) }, i.status]);
       break;
     }
     case "paid-invoices": {
@@ -130,21 +127,21 @@ export default async function ReportsPage({
         include: { customer: true },
         orderBy: { issueDate: "desc" },
       });
-      rows = invoices.map((i) => [i.invoiceNumber, i.customer?.name ?? "—", dateStr(i.issueDate), currency(Number(i.totalAmount))]);
+      rows = invoices.map((i) => [i.invoiceNumber, i.customer?.name ?? "—", dateStr(i.issueDate), { phpAmount: Number(i.totalAmount) }]);
       break;
     }
     case "monthly-summary": {
       title = "Monthly Financial Summary (last 12 months)";
       columns = ["Month", "Revenue", "Expenses", "Net"];
       const data = await getMonthlySeries(12);
-      rows = data.map((d) => [d.label, currency(d.revenue), currency(d.expenses), currency(d.revenue - d.expenses)]);
+      rows = data.map((d) => [d.label, { phpAmount: d.revenue }, { phpAmount: d.expenses }, { phpAmount: d.revenue - d.expenses }]);
       break;
     }
     case "annual-summary": {
       title = "Annual Financial Summary (last 5 years)";
       columns = ["Year", "Revenue", "Expenses", "Net"];
       const data = await getAnnualSeries(5);
-      rows = data.map((d) => [d.label, currency(d.revenue), currency(d.expenses), currency(d.revenue - d.expenses)]);
+      rows = data.map((d) => [d.label, { phpAmount: d.revenue }, { phpAmount: d.expenses }, { phpAmount: d.revenue - d.expenses }]);
       break;
     }
   }
