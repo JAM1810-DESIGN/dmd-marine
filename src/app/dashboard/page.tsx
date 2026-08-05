@@ -37,7 +37,7 @@ const LIVE_MODULES = [
 const UPCOMING_MODULES: { title: string; phase: string }[] = [];
 
 function currency(value: number) {
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+  return value.toLocaleString("en-PH", { style: "currency", currency: "PHP" });
 }
 
 export default async function DashboardPage() {

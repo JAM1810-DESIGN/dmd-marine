@@ -25,18 +25,27 @@ export function CurrencyProvider({
   const [currency, setCurrencyState] = useState<CurrencyCode>("PHP");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (isCurrencyCode(stored)) {
-      // One-time, mount-only sync from localStorage (empty deps array, runs
-      // once, sets state at most once) — no cascading/looping render risk.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCurrencyState(stored);
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (isCurrencyCode(stored)) {
+        // One-time, mount-only sync from localStorage (empty deps array, runs
+        // once, sets state at most once) — no cascading/looping render risk.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCurrencyState(stored);
+      }
+    } catch {
+      // localStorage may be unavailable (privacy mode, sandboxed iframe, etc.)
+      // Fall back to the default currency state.
     }
   }, []);
 
   function setCurrency(next: CurrencyCode) {
     setCurrencyState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      // Ignore storage failures; in-memory state still updates.
+    }
   }
 
   const value: CurrencyContextValue = {

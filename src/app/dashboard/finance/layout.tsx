@@ -8,7 +8,7 @@ export default async function FinanceLayout({ children }: { children: React.Reac
 
   return (
     <CurrencyProvider initialRates={rates}>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-end print:hidden">
         <CurrencySelector />
       </div>
       {children}

@@ -63,7 +63,7 @@ export async function createExpense(
     data: {
       type: "EXPENSE_PENDING_APPROVAL",
       title: "Expense pending approval",
-      message: `${expenseNumber} (${rest.amount.toLocaleString("en-US", { style: "currency", currency: "USD" })}) is awaiting approval.`,
+      message: `${expenseNumber} (${rest.amount.toLocaleString("en-PH", { style: "currency", currency: "PHP" })}) is awaiting approval.`,
       link: "/dashboard/finance/expenses",
     },
   });
