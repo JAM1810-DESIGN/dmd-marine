@@ -63,15 +63,19 @@ export function DashboardTopbar({
 
       <div className="flex-1" />
 
-      <ThemeToggle />
-      <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+      <div className="flex items-center gap-1">
+        <ThemeToggle />
+        <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+      </div>
+
+      <div className="h-6 w-px bg-border" />
 
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <button className="flex items-center gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-muted">
-              <Avatar className="size-8">
-                <AvatarFallback className="bg-primary text-xs text-primary-foreground">
+            <button className="flex items-center gap-3 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-muted">
+              <Avatar className="size-9">
+                <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
                   {initials(user.name)}
                 </AvatarFallback>
               </Avatar>

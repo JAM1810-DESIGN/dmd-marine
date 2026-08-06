@@ -1,4 +1,4 @@
-import { SidebarNav } from "@/components/shared/sidebar";
+import { CollapsibleSidebar } from "@/components/shared/collapsible-sidebar";
 import { DashboardTopbar } from "@/components/shared/dashboard-topbar";
 import { AnimatedSky } from "@/components/shared/animated-sky";
 import type { NotificationItem } from "@/components/shared/notification-bell";
@@ -17,11 +17,7 @@ export function DashboardLayout({
   return (
     <div className="flex min-h-screen">
       <AnimatedSky variant="subtle" />
-      <aside className="hidden w-64 shrink-0 print:hidden md:block">
-        <div className="fixed h-screen w-64">
-          <SidebarNav />
-        </div>
-      </aside>
+      <CollapsibleSidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="print:hidden">

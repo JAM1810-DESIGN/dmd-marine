@@ -27,6 +27,7 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
   enabled: boolean;
   children?: { href: string; label: string }[];
+  groupStart?: string;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -56,20 +57,33 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/dashboard/finance/settings", label: "Settings" },
     ],
   },
-  { href: "/dashboard/reports", label: "Reports", icon: BarChart3, enabled: true },
+  { href: "/dashboard/reports", label: "Reports", icon: BarChart3, enabled: true, groupStart: "System" },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, enabled: true },
 ];
 
-export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+export function SidebarNav({
+  onNavigate,
+  collapsed = false,
+}: {
+  onNavigate?: () => void;
+  collapsed?: boolean;
+}) {
   const pathname = usePathname();
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
-      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-        <LogoMark className="size-6 text-sidebar-primary" aria-hidden />
-        <span className="font-heading text-sm font-semibold tracking-tight">
-          DMD Marine
-        </span>
+      <div
+        className={cn(
+          "flex h-16 items-center gap-2 border-b border-sidebar-border",
+          collapsed ? "justify-center px-2" : "px-4",
+        )}
+      >
+        <LogoMark className="size-6 shrink-0 text-sidebar-primary" aria-hidden />
+        {!collapsed && (
+          <span className="font-heading text-sm font-semibold tracking-tight">
+            DMD Marine
+          </span>
+        )}
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
@@ -77,23 +91,44 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           const isActive = pathname === item.href;
           const Icon = item.icon;
 
+          const groupDivider = item.groupStart && (
+            <div
+              key={`${item.href}-group`}
+              className={cn("mt-3 mb-1 border-t border-sidebar-border pt-3", collapsed && "mx-1")}
+            >
+              {!collapsed && (
+                <p className="px-3 pb-1 text-[10px] font-semibold tracking-wider text-sidebar-foreground/40 uppercase">
+                  {item.groupStart}
+                </p>
+              )}
+            </div>
+          );
+
           if (!item.enabled) {
             return (
-              <div
-                key={item.href}
-                className="flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/40"
-                aria-disabled
-              >
-                <span className="flex items-center gap-3">
-                  <Icon className="size-4" />
-                  {item.label}
-                </span>
-                <Badge
-                  variant="outline"
-                  className="border-sidebar-border text-[10px] text-sidebar-foreground/40"
+              <div key={item.href}>
+                {groupDivider}
+                <div
+                  title={collapsed ? `${item.label} (Soon)` : undefined}
+                  className={cn(
+                    "flex cursor-not-allowed items-center rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/40",
+                    collapsed ? "justify-center px-0" : "justify-between",
+                  )}
+                  aria-disabled
                 >
-                  Soon
-                </Badge>
+                  <span className="flex items-center gap-3">
+                    <Icon className="size-4 shrink-0" />
+                    {!collapsed && item.label}
+                  </span>
+                  {!collapsed && (
+                    <Badge
+                      variant="outline"
+                      className="border-sidebar-border text-[10px] text-sidebar-foreground/40"
+                    >
+                      Soon
+                    </Badge>
+                  )}
+                </div>
               </div>
             );
           }
@@ -102,22 +137,25 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             const isSectionActive = pathname.startsWith(item.href);
             return (
               <div key={item.href}>
+                {groupDivider}
                 <Link
                   href={item.href}
                   onClick={onNavigate}
+                  title={collapsed ? item.label : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
+                    "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors duration-200",
+                    collapsed ? "justify-center px-0" : "px-3",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground"
                       : isSectionActive
                         ? "text-sidebar-accent-foreground"
                         : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                 >
-                  <Icon className="size-4" />
-                  {item.label}
+                  <Icon className="size-4 shrink-0" />
+                  {!collapsed && item.label}
                 </Link>
-                {isSectionActive && (
+                {!collapsed && isSectionActive && (
                   <div className="mt-1 ml-4 flex flex-col space-y-0.5 border-l border-sidebar-border pl-3">
                     {item.children.map((child) => {
                       const childActive = pathname === child.href;
@@ -144,20 +182,24 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           }
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              )}
-            >
-              <Icon className="size-4" />
-              {item.label}
-            </Link>
+            <div key={item.href}>
+              {groupDivider}
+              <Link
+                href={item.href}
+                onClick={onNavigate}
+                title={collapsed ? item.label : undefined}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors",
+                  collapsed ? "justify-center px-0" : "px-3",
+                  isActive
+                    ? "bg-sidebar-accent font-semibold text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                )}
+              >
+                <Icon className="size-4 shrink-0" />
+                {!collapsed && item.label}
+              </Link>
+            </div>
           );
         })}
       </nav>

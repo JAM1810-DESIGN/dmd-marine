@@ -13,31 +13,47 @@ import {
   FileClock,
   AlertTriangle,
   Wallet,
+  Wrench,
+  Calendar,
+  Megaphone,
+  BarChart3,
+  Settings,
+  ArrowRight,
+  Plus,
 } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getRevenueTotal, getExpenseTotal, getCashFlow } from "@/lib/finance-calculations";
 import { Card, CardHeader, CardTitle, CardDescription, CardAction } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/shared/stat-card";
+import { LiveClock } from "@/components/shared/live-clock";
 
 const LIVE_MODULES = [
-  { title: "Bookings", href: "/dashboard/bookings" },
-  { title: "Customer CRM", href: "/dashboard/customers" },
-  { title: "Service Management", href: "/dashboard/services" },
-  { title: "Projects", href: "/dashboard/projects" },
-  { title: "Calendar", href: "/dashboard/calendar" },
-  { title: "Messages", href: "/dashboard/messages" },
-  { title: "Facebook", href: "/dashboard/facebook" },
-  { title: "Finance", href: "/dashboard/finance" },
-  { title: "Reports & Analytics", href: "/dashboard/reports" },
-  { title: "Settings", href: "/dashboard/settings" },
+  { title: "Bookings", href: "/dashboard/bookings", description: "Incoming requests and scheduling", icon: CalendarClock },
+  { title: "Customer CRM", href: "/dashboard/customers", description: "Client profiles and history", icon: Users },
+  { title: "Service Management", href: "/dashboard/services", description: "Catalog and service offerings", icon: Wrench },
+  { title: "Projects", href: "/dashboard/projects", description: "Active and completed engagements", icon: FolderKanban },
+  { title: "Calendar", href: "/dashboard/calendar", description: "Team schedule at a glance", icon: Calendar },
+  { title: "Messages", href: "/dashboard/messages", description: "Internal team conversations", icon: MessageSquare },
+  { title: "Facebook", href: "/dashboard/facebook", description: "Lead capture and inbox sync", icon: Megaphone },
+  { title: "Finance", href: "/dashboard/finance", description: "Revenue, expenses, and invoices", icon: Wallet },
+  { title: "Reports & Analytics", href: "/dashboard/reports", description: "Performance across the business", icon: BarChart3 },
+  { title: "Settings", href: "/dashboard/settings", description: "Workspace and account preferences", icon: Settings },
 ];
 
 const UPCOMING_MODULES: { title: string; phase: string }[] = [];
 
 function currency(value: number) {
   return value.toLocaleString("en-PH", { style: "currency", currency: "PHP" });
+}
+
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 export default async function DashboardPage() {
@@ -60,12 +76,60 @@ export default async function DashboardPage() {
     ]);
 
   const kpis = [
-    { title: "New Inquiries", value: newInquiries, icon: Inbox, href: "/dashboard/bookings", tone: "primary" as const },
-    { title: "Upcoming Bookings", value: upcomingBookings, icon: CalendarClock, href: "/dashboard/bookings", tone: "accent" as const },
-    { title: "Active Projects", value: activeProjects, icon: FolderKanban, href: "/dashboard/projects", tone: "primary" as const },
-    { title: "Completed Projects", value: completedProjects, icon: CheckCircle2, href: "/dashboard/projects", tone: "accent" as const },
-    { title: "Customers", value: customerCount, icon: Users, href: "/dashboard/customers", tone: "primary" as const },
-    { title: "Unread Messages", value: unreadMessages, icon: MessageSquare, href: "/dashboard/messages", tone: "accent" as const },
+    {
+      title: "New Inquiries",
+      value: newInquiries,
+      icon: Inbox,
+      href: "/dashboard/bookings",
+      tone: "info" as const,
+      subtitle: "Awaiting review",
+      emptyLabel: "No new inquiries",
+    },
+    {
+      title: "Upcoming Bookings",
+      value: upcomingBookings,
+      icon: CalendarClock,
+      href: "/dashboard/bookings",
+      tone: "primary" as const,
+      subtitle: "From today onward",
+      emptyLabel: "Nothing scheduled",
+    },
+    {
+      title: "Active Projects",
+      value: activeProjects,
+      icon: FolderKanban,
+      href: "/dashboard/projects",
+      tone: "primary" as const,
+      subtitle: "In progress",
+      emptyLabel: "No active projects",
+    },
+    {
+      title: "Completed Projects",
+      value: completedProjects,
+      icon: CheckCircle2,
+      href: "/dashboard/projects",
+      tone: "success" as const,
+      subtitle: "All time",
+      emptyLabel: "None completed yet",
+    },
+    {
+      title: "Customers",
+      value: customerCount,
+      icon: Users,
+      href: "/dashboard/customers",
+      tone: "primary" as const,
+      subtitle: "In your CRM",
+      emptyLabel: "No customers yet",
+    },
+    {
+      title: "Unread Messages",
+      value: unreadMessages,
+      icon: MessageSquare,
+      href: "/dashboard/messages",
+      tone: "info" as const,
+      subtitle: "Waiting on a reply",
+      emptyLabel: "Inbox zero",
+    },
   ];
 
   const canViewFinance =
@@ -99,15 +163,30 @@ export default async function DashboardPage() {
     : null;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-foreground">
-          Welcome back, {session?.user?.name}
-        </h1>
-        <p className="text-sm text-muted-foreground">Signed in as {session?.user?.email}</p>
+    <div className="flex flex-col gap-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/[0.06] via-card to-card p-6 ring-1 ring-foreground/[0.06] sm:p-8">
+        <div className="pointer-events-none absolute -top-24 right-0 size-64 rounded-full bg-primary/[0.05] blur-3xl" />
+        <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-sm font-medium text-primary">{greeting()}</p>
+            <h1 className="mt-1 font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              {session?.user?.name}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-x-1">
+              <LiveClock />
+            </div>
+          </div>
+          <Link
+            href="/dashboard/bookings"
+            className={buttonVariants({ className: "self-start sm:self-end" })}
+          >
+            <Plus className="size-4" />
+            New Booking
+          </Link>
+        </div>
       </div>
 
-      <div className="dash-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="dash-stagger grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {kpis.map((kpi) => (
           <StatCard
             key={kpi.title}
@@ -116,21 +195,23 @@ export default async function DashboardPage() {
             value={kpi.value}
             href={kpi.href}
             tone={kpi.tone}
+            subtitle={kpi.subtitle}
+            emptyLabel={kpi.emptyLabel}
           />
         ))}
       </div>
 
       {financeWidgets && (
         <div>
-          <h2 className="mb-3 font-heading text-lg font-semibold tracking-tight text-foreground">Finance Snapshot</h2>
-          <div className="dash-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="mb-4 font-heading text-lg font-semibold tracking-tight text-foreground">Finance Snapshot</h2>
+          <div className="dash-stagger grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { title: "Today's Revenue", value: currency(financeWidgets.todayRevenue), icon: DollarSign, tone: "primary" as const },
-              { title: "Today's Expenses", value: currency(financeWidgets.todayExpenses), icon: Receipt, tone: "accent" as const },
-              { title: "Monthly Profit", value: currency(financeWidgets.monthlyProfit), icon: TrendingUp, tone: "primary" as const },
-              { title: "Pending Invoices", value: financeWidgets.pendingInvoices, icon: FileClock, tone: "accent" as const },
-              { title: "Overdue Invoices", value: financeWidgets.overdueInvoices, icon: AlertTriangle, tone: "accent" as const },
-              { title: "Cash Flow (this month)", value: currency(financeWidgets.cashFlow), icon: Wallet, tone: "primary" as const },
+              { title: "Today's Revenue", value: currency(financeWidgets.todayRevenue), icon: DollarSign, tone: "accent" as const, subtitle: "So far today" },
+              { title: "Today's Expenses", value: currency(financeWidgets.todayExpenses), icon: Receipt, tone: "primary" as const, subtitle: "So far today" },
+              { title: "Monthly Profit", value: currency(financeWidgets.monthlyProfit), icon: TrendingUp, tone: "accent" as const, subtitle: "This month" },
+              { title: "Pending Invoices", value: financeWidgets.pendingInvoices, icon: FileClock, tone: "info" as const, subtitle: "Awaiting payment", emptyLabel: "All caught up" },
+              { title: "Overdue Invoices", value: financeWidgets.overdueInvoices, icon: AlertTriangle, tone: "primary" as const, subtitle: "Needs follow-up", emptyLabel: "Nothing overdue" },
+              { title: "Cash Flow (this month)", value: currency(financeWidgets.cashFlow), icon: Wallet, tone: "accent" as const, subtitle: "Net this month" },
             ].map((widget) => (
               <StatCard
                 key={widget.title}
@@ -139,6 +220,8 @@ export default async function DashboardPage() {
                 value={widget.value}
                 href="/dashboard/finance"
                 tone={widget.tone}
+                subtitle={widget.subtitle}
+                emptyLabel={"emptyLabel" in widget ? widget.emptyLabel : undefined}
               />
             ))}
           </div>
@@ -146,18 +229,28 @@ export default async function DashboardPage() {
       )}
 
       <div>
-        <h2 className="mb-3 font-heading text-lg font-semibold tracking-tight text-foreground">Modules</h2>
-        <div className="dash-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {LIVE_MODULES.map((module) => (
-            <Link key={module.title} href={module.href}>
-              <Card interactive className="h-full">
-                <CardHeader>
-                  <CardTitle className="text-base">{module.title}</CardTitle>
-                  <CardDescription>Open module</CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
+        <h2 className="mb-4 font-heading text-lg font-semibold tracking-tight text-foreground">Modules</h2>
+        <div className="dash-stagger grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {LIVE_MODULES.map((module) => {
+            const ModuleIcon = module.icon;
+            return (
+              <Link key={module.title} href={module.href} className="block h-full">
+                <Card interactive className="group h-full justify-between">
+                  <CardHeader>
+                    <div className="mb-1 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <ModuleIcon className="size-5" aria-hidden />
+                    </div>
+                    <CardTitle className="text-base">{module.title}</CardTitle>
+                    <CardDescription>{module.description}</CardDescription>
+                  </CardHeader>
+                  <div className="flex items-center gap-1 px-(--card-spacing) text-sm font-medium text-primary">
+                    Open Module
+                    <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+                  </div>
+                </Card>
+              </Link>
+            );
+          })}
           {UPCOMING_MODULES.map((module) => (
             <Card key={module.title} className="opacity-70">
               <CardHeader>
