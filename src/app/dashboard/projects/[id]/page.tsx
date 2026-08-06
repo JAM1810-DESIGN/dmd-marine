@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { EditProjectButton } from "./edit-project-button";
 import { DocumentsSection } from "./documents-section";
 import { SchedulesSection } from "./schedules-section";
+import { RequiredFormsSection } from "./required-forms-section";
 
 export const metadata: Metadata = { title: "Project" };
 
@@ -24,7 +25,7 @@ export default async function ProjectDetailPage({
     session?.user.role === "MANAGER" ||
     session?.user.role === "STAFF";
 
-  const [project, customers, vessels, consultants] = await Promise.all([
+  const [project, customers, vessels, consultants, forms] = await Promise.all([
     db.project.findUnique({
       where: { id },
       include: {
@@ -35,6 +36,7 @@ export default async function ProjectDetailPage({
         booking: true,
         documents: { orderBy: { createdAt: "desc" } },
         schedules: { orderBy: { startAt: "asc" }, include: { consultant: true } },
+        requiredForms: { orderBy: { order: "asc" }, include: { companyDocument: true } },
       },
     }),
     db.customer.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -43,6 +45,11 @@ export default async function ProjectDetailPage({
       where: { isActive: true },
       orderBy: { name: "asc" },
       select: { id: true, name: true },
+    }),
+    db.companyDocument.findMany({
+      where: { category: "FORM" },
+      orderBy: { title: "asc" },
+      select: { id: true, title: true },
     }),
   ]);
 
@@ -117,6 +124,21 @@ export default async function ProjectDetailPage({
           startAt: schedule.startAt.toISOString(),
           endAt: schedule.endAt.toISOString(),
           consultantName: schedule.consultant.name,
+        }))}
+      />
+
+      <RequiredFormsSection
+        projectId={project.id}
+        canManage={canManage}
+        availableForms={forms}
+        requiredForms={project.requiredForms.map((form) => ({
+          id: form.id,
+          companyDocumentId: form.companyDocumentId,
+          title: form.companyDocument.title,
+          url: form.companyDocument.url,
+          required: form.required,
+          completed: form.completed,
+          order: form.order,
         }))}
       />
 
