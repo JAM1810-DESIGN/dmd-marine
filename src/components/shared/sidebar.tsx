@@ -15,6 +15,7 @@ import {
   Wallet,
   BarChart3,
   Settings,
+  FileText,
 } from "lucide-react";
 import { LogoMark } from "@/components/shared/logo-mark";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarClock, enabled: true },
   { href: "/dashboard/customers", label: "Customers", icon: Users, enabled: true },
   { href: "/dashboard/consultants", label: "Consultants", icon: UserCog, enabled: true },
+  { href: "/dashboard/documents", label: "Documents & Forms", icon: FileText, enabled: true },
   { href: "/dashboard/services", label: "Services", icon: Wrench, enabled: true },
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban, enabled: true },
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, enabled: true },
