@@ -6,10 +6,10 @@ import { CountUp } from "@/components/shared/count-up";
 import { cn } from "@/lib/utils";
 
 const TONE_CHIP_CLASSES = {
-  primary: "bg-gradient-to-br from-primary/15 to-primary/5 text-primary",
-  accent: "bg-gradient-to-br from-accent/15 to-accent/5 text-accent",
-  info: "bg-gradient-to-br from-info/15 to-info/5 text-info",
-  success: "bg-gradient-to-br from-success/15 to-success/5 text-success",
+  primary: "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-primary/25",
+  accent: "bg-gradient-to-br from-accent to-accent/80 text-accent-foreground shadow-accent/25",
+  info: "bg-gradient-to-br from-info to-info/80 text-info-foreground shadow-info/25",
+  success: "bg-gradient-to-br from-success to-success/80 text-white shadow-success/25",
 } as const;
 
 const TONE_TEXT_CLASSES = {
@@ -20,10 +20,10 @@ const TONE_TEXT_CLASSES = {
 } as const;
 
 const TONE_CHIP_DARK_CLASSES = {
-  primary: "bg-white/15 text-sidebar-primary",
-  accent: "bg-white/15 text-sidebar-primary",
-  info: "bg-white/15 text-sidebar-primary",
-  success: "bg-white/15 text-sidebar-primary",
+  primary: "bg-sidebar-primary/20 text-sidebar-primary",
+  accent: "bg-sidebar-primary/20 text-sidebar-primary",
+  info: "bg-[#60a5fa]/20 text-[#60a5fa]",
+  success: "bg-[#4ade80]/20 text-[#4ade80]",
 } as const;
 
 export function StatCard({
@@ -78,6 +78,7 @@ export function StatCard({
         <div
           className={cn(
             "flex size-11 shrink-0 items-center justify-center rounded-xl",
+            !dark && "shadow-lg",
             dark ? TONE_CHIP_DARK_CLASSES[tone] : TONE_CHIP_CLASSES[tone],
           )}
         >
