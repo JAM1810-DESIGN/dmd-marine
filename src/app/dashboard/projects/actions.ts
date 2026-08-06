@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
+import { copyServiceRequiredFormsToProject } from "@/lib/required-forms";
 import { isStorageConfigured, uploadFile } from "@/lib/storage";
 import { projectSchema } from "@/lib/validations/project";
 import type { ProjectStatus } from "@/generated/prisma/enums";
@@ -45,7 +46,7 @@ export async function createProject(
   const { startDate, endDate, ...rest } = parsed.data;
   const companyId = await resolveCompanyId(rest.customerId);
 
-  await db.project.create({
+  const project = await db.project.create({
     data: {
       ...rest,
       companyId,
@@ -53,6 +54,10 @@ export async function createProject(
       endDate: endDate ? new Date(endDate) : undefined,
     },
   });
+
+  if (project.serviceId) {
+    await copyServiceRequiredFormsToProject(project.id, project.serviceId);
+  }
 
   revalidatePath("/dashboard/projects");
   return { success: true };
@@ -123,6 +128,8 @@ export async function createProjectFromBooking(
       status: "NEW",
     },
   });
+
+  await copyServiceRequiredFormsToProject(project.id, booking.serviceId);
 
   revalidatePath("/dashboard/projects");
   revalidatePath("/dashboard/bookings");
