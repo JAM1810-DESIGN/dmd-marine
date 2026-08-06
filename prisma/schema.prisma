@@ -317,14 +317,15 @@ model Service {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  category          ServiceCategory @relation(fields: [categoryId], references: [id])
-  parent            Service?        @relation("ServiceHierarchy", fields: [parentServiceId], references: [id], onDelete: SetNull)
-  children          Service[]       @relation("ServiceHierarchy")
-  defaultConsultant User?           @relation("ServiceDefaultConsultant", fields: [defaultConsultantId], references: [id], onDelete: SetNull)
+  category          ServiceCategory       @relation(fields: [categoryId], references: [id])
+  parent            Service?              @relation("ServiceHierarchy", fields: [parentServiceId], references: [id], onDelete: SetNull)
+  children          Service[]             @relation("ServiceHierarchy")
+  defaultConsultant User?                 @relation("ServiceDefaultConsultant", fields: [defaultConsultantId], references: [id], onDelete: SetNull)
   bookings          Booking[]
   projects          Project[]
   invoices          Invoice[]
   invoiceItems      InvoiceItem[]
+  requiredForms     ServiceRequiredForm[]
 
   @@index([categoryId])
   @@index([parentServiceId])
@@ -425,17 +426,18 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  customer   Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  company    Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  vessel     Vessel?    @relation(fields: [vesselId], references: [id], onDelete: SetNull)
-  booking    Booking?   @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  service    Service?   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-  consultant User       @relation("ProjectConsultant", fields: [consultantId], references: [id])
-  branch     Branch?    @relation(fields: [branchId], references: [id], onDelete: SetNull)
-  documents  Document[]
-  schedules  Schedule[]
-  expenses   Expense[]
-  invoices   Invoice[]
+  customer      Customer?             @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  company       Company?              @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  vessel        Vessel?               @relation(fields: [vesselId], references: [id], onDelete: SetNull)
+  booking       Booking?              @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  service       Service?              @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  consultant    User                  @relation("ProjectConsultant", fields: [consultantId], references: [id])
+  branch        Branch?               @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  documents     Document[]
+  schedules     Schedule[]
+  expenses      Expense[]
+  invoices      Invoice[]
+  requiredForms ProjectRequiredForm[]
 
   @@index([status])
   @@index([customerId])
@@ -487,10 +489,44 @@ model CompanyDocument {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  uploadedBy User? @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  uploadedBy         User?                 @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  serviceAssignments ServiceRequiredForm[]
+  projectAssignments ProjectRequiredForm[]
 
   @@index([category])
   @@map("company_documents")
+}
+
+model ServiceRequiredForm {
+  id                String  @id @default(cuid())
+  serviceId         String
+  companyDocumentId String
+  required          Boolean @default(true)
+  order             Int     @default(0)
+
+  service         Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  companyDocument CompanyDocument @relation(fields: [companyDocumentId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, companyDocumentId])
+  @@index([serviceId])
+  @@map("service_required_forms")
+}
+
+model ProjectRequiredForm {
+  id                String    @id @default(cuid())
+  projectId         String
+  companyDocumentId String
+  required          Boolean   @default(true)
+  order             Int       @default(0)
+  completed         Boolean   @default(false)
+  completedAt       DateTime?
+
+  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  companyDocument CompanyDocument @relation(fields: [companyDocumentId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, companyDocumentId])
+  @@index([projectId])
+  @@map("project_required_forms")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
