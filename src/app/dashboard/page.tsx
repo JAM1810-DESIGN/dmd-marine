@@ -60,12 +60,12 @@ export default async function DashboardPage() {
     ]);
 
   const kpis = [
-    { title: "New Inquiries", value: newInquiries, icon: Inbox, href: "/dashboard/bookings" },
-    { title: "Upcoming Bookings", value: upcomingBookings, icon: CalendarClock, href: "/dashboard/bookings" },
-    { title: "Active Projects", value: activeProjects, icon: FolderKanban, href: "/dashboard/projects" },
-    { title: "Completed Projects", value: completedProjects, icon: CheckCircle2, href: "/dashboard/projects" },
-    { title: "Customers", value: customerCount, icon: Users, href: "/dashboard/customers" },
-    { title: "Unread Messages", value: unreadMessages, icon: MessageSquare, href: "/dashboard/messages" },
+    { title: "New Inquiries", value: newInquiries, icon: Inbox, href: "/dashboard/bookings", tone: "primary" as const },
+    { title: "Upcoming Bookings", value: upcomingBookings, icon: CalendarClock, href: "/dashboard/bookings", tone: "accent" as const },
+    { title: "Active Projects", value: activeProjects, icon: FolderKanban, href: "/dashboard/projects", tone: "warning" as const },
+    { title: "Completed Projects", value: completedProjects, icon: CheckCircle2, href: "/dashboard/projects", tone: "success" as const },
+    { title: "Customers", value: customerCount, icon: Users, href: "/dashboard/customers", tone: "primary" as const },
+    { title: "Unread Messages", value: unreadMessages, icon: MessageSquare, href: "/dashboard/messages", tone: "accent" as const },
   ];
 
   const canViewFinance =
@@ -109,7 +109,14 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kpis.map((kpi) => (
-          <StatCard key={kpi.title} icon={kpi.icon} label={kpi.title} value={kpi.value} href={kpi.href} />
+          <StatCard
+            key={kpi.title}
+            icon={kpi.icon}
+            label={kpi.title}
+            value={kpi.value}
+            href={kpi.href}
+            tone={kpi.tone}
+          />
         ))}
       </div>
 
@@ -118,12 +125,12 @@ export default async function DashboardPage() {
           <h2 className="mb-3 font-heading text-base font-semibold text-foreground">Finance Snapshot</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { title: "Today's Revenue", value: currency(financeWidgets.todayRevenue), icon: DollarSign },
-              { title: "Today's Expenses", value: currency(financeWidgets.todayExpenses), icon: Receipt },
-              { title: "Monthly Profit", value: currency(financeWidgets.monthlyProfit), icon: TrendingUp },
-              { title: "Pending Invoices", value: financeWidgets.pendingInvoices, icon: FileClock },
-              { title: "Overdue Invoices", value: financeWidgets.overdueInvoices, icon: AlertTriangle },
-              { title: "Cash Flow (this month)", value: currency(financeWidgets.cashFlow), icon: Wallet },
+              { title: "Today's Revenue", value: currency(financeWidgets.todayRevenue), icon: DollarSign, tone: "success" as const },
+              { title: "Today's Expenses", value: currency(financeWidgets.todayExpenses), icon: Receipt, tone: "warning" as const },
+              { title: "Monthly Profit", value: currency(financeWidgets.monthlyProfit), icon: TrendingUp, tone: "primary" as const },
+              { title: "Pending Invoices", value: financeWidgets.pendingInvoices, icon: FileClock, tone: "accent" as const },
+              { title: "Overdue Invoices", value: financeWidgets.overdueInvoices, icon: AlertTriangle, tone: "warning" as const },
+              { title: "Cash Flow (this month)", value: currency(financeWidgets.cashFlow), icon: Wallet, tone: "primary" as const },
             ].map((widget) => (
               <StatCard
                 key={widget.title}
@@ -131,6 +138,7 @@ export default async function DashboardPage() {
                 label={widget.title}
                 value={widget.value}
                 href="/dashboard/finance"
+                tone={widget.tone}
               />
             ))}
           </div>
