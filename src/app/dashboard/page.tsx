@@ -13,37 +13,14 @@ import {
   FileClock,
   AlertTriangle,
   Wallet,
-  Wrench,
-  Calendar,
-  Megaphone,
-  BarChart3,
-  Settings,
-  ArrowRight,
   Plus,
 } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getRevenueTotal, getExpenseTotal, getCashFlow } from "@/lib/finance-calculations";
-import { Card, CardHeader, CardTitle, CardDescription, CardAction } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/shared/stat-card";
 import { LiveClock } from "@/components/shared/live-clock";
-
-const LIVE_MODULES = [
-  { title: "Bookings", href: "/dashboard/bookings", description: "Incoming requests and scheduling", icon: CalendarClock },
-  { title: "Customer CRM", href: "/dashboard/customers", description: "Client profiles and history", icon: Users },
-  { title: "Service Management", href: "/dashboard/services", description: "Catalog and service offerings", icon: Wrench },
-  { title: "Projects", href: "/dashboard/projects", description: "Active and completed engagements", icon: FolderKanban },
-  { title: "Calendar", href: "/dashboard/calendar", description: "Team schedule at a glance", icon: Calendar },
-  { title: "Messages", href: "/dashboard/messages", description: "Internal team conversations", icon: MessageSquare },
-  { title: "Facebook", href: "/dashboard/facebook", description: "Lead capture and inbox sync", icon: Megaphone },
-  { title: "Finance", href: "/dashboard/finance", description: "Revenue, expenses, and invoices", icon: Wallet },
-  { title: "Reports & Analytics", href: "/dashboard/reports", description: "Performance across the business", icon: BarChart3 },
-  { title: "Settings", href: "/dashboard/settings", description: "Workspace and account preferences", icon: Settings },
-];
-
-const UPCOMING_MODULES: { title: string; phase: string }[] = [];
 
 function currency(value: number) {
   return value.toLocaleString("en-PH", { style: "currency", currency: "PHP" });
@@ -227,43 +204,6 @@ export default async function DashboardPage() {
           </div>
         </div>
       )}
-
-      <div>
-        <h2 className="mb-4 font-heading text-lg font-semibold tracking-tight text-foreground">Modules</h2>
-        <div className="dash-stagger grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {LIVE_MODULES.map((module) => {
-            const ModuleIcon = module.icon;
-            return (
-              <Link key={module.title} href={module.href} className="block h-full">
-                <Card interactive className="group h-full justify-between">
-                  <CardHeader>
-                    <div className="mb-1 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <ModuleIcon className="size-5" aria-hidden />
-                    </div>
-                    <CardTitle className="text-base">{module.title}</CardTitle>
-                    <CardDescription>{module.description}</CardDescription>
-                  </CardHeader>
-                  <div className="flex items-center gap-1 px-(--card-spacing) text-sm font-medium text-primary">
-                    Open Module
-                    <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-                  </div>
-                </Card>
-              </Link>
-            );
-          })}
-          {UPCOMING_MODULES.map((module) => (
-            <Card key={module.title} className="opacity-70">
-              <CardHeader>
-                <CardTitle className="text-base">{module.title}</CardTitle>
-                <CardDescription>Not yet available</CardDescription>
-                <CardAction>
-                  <Badge variant="outline">{module.phase}</Badge>
-                </CardAction>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
