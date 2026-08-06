@@ -169,3 +169,78 @@ export async function uploadProjectDocument(
   revalidatePath(`/dashboard/projects/${projectId}`);
   return { success: true };
 }
+
+// ── Required Forms ──────────────────────────────────────────────────────────
+
+export async function addProjectRequiredForm(projectId: string, companyDocumentId: string) {
+  await requireRole(...PROJECT_ROLES);
+
+  const maxOrder = await db.projectRequiredForm.aggregate({
+    where: { projectId },
+    _max: { order: true },
+  });
+
+  await db.projectRequiredForm.create({
+    data: {
+      projectId,
+      companyDocumentId,
+      order: (maxOrder._max.order ?? -1) + 1,
+    },
+  });
+
+  revalidatePath(`/dashboard/projects/${projectId}`);
+}
+
+export async function removeProjectRequiredForm(projectId: string, id: string) {
+  await requireRole(...PROJECT_ROLES);
+  await db.projectRequiredForm.delete({ where: { id } });
+  revalidatePath(`/dashboard/projects/${projectId}`);
+}
+
+export async function toggleProjectRequiredFormRequired(
+  projectId: string,
+  id: string,
+  required: boolean,
+) {
+  await requireRole(...PROJECT_ROLES);
+  await db.projectRequiredForm.update({ where: { id }, data: { required } });
+  revalidatePath(`/dashboard/projects/${projectId}`);
+}
+
+export async function toggleProjectRequiredFormCompleted(
+  projectId: string,
+  id: string,
+  completed: boolean,
+) {
+  await requireRole(...PROJECT_ROLES);
+  await db.projectRequiredForm.update({
+    where: { id },
+    data: { completed, completedAt: completed ? new Date() : null },
+  });
+  revalidatePath(`/dashboard/projects/${projectId}`);
+}
+
+export async function reorderProjectRequiredForm(
+  projectId: string,
+  id: string,
+  direction: "up" | "down",
+) {
+  await requireRole(...PROJECT_ROLES);
+
+  const current = await db.projectRequiredForm.findUniqueOrThrow({ where: { id } });
+  const neighbor = await db.projectRequiredForm.findFirst({
+    where: {
+      projectId: current.projectId,
+      order: direction === "up" ? { lt: current.order } : { gt: current.order },
+    },
+    orderBy: { order: direction === "up" ? "desc" : "asc" },
+  });
+  if (!neighbor) return;
+
+  await db.$transaction([
+    db.projectRequiredForm.update({ where: { id: current.id }, data: { order: neighbor.order } }),
+    db.projectRequiredForm.update({ where: { id: neighbor.id }, data: { order: current.order } }),
+  ]);
+
+  revalidatePath(`/dashboard/projects/${projectId}`);
+}
