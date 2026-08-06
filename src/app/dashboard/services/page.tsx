@@ -11,14 +11,18 @@ export default async function ServiceManagementPage() {
   const session = await auth();
   const canManage = session?.user.role === "ADMIN" || session?.user.role === "MANAGER";
 
-  const [categories, services, consultants, requests] = await Promise.all([
+  const [categories, services, consultants, requests, forms] = await Promise.all([
     db.serviceCategory.findMany({
       orderBy: { order: "asc" },
       include: { _count: { select: { services: true } } },
     }),
     db.service.findMany({
       orderBy: { order: "asc" },
-      include: { category: true, defaultConsultant: true },
+      include: {
+        category: true,
+        defaultConsultant: true,
+        requiredForms: { include: { companyDocument: true }, orderBy: { order: "asc" } },
+      },
     }),
     db.user.findMany({
       where: { isActive: true },
@@ -29,6 +33,11 @@ export default async function ServiceManagementPage() {
       orderBy: { createdAt: "desc" },
       take: 20,
       include: { service: true },
+    }),
+    db.companyDocument.findMany({
+      where: { category: "FORM" },
+      orderBy: { title: "asc" },
+      select: { id: true, title: true },
     }),
   ]);
 
@@ -58,6 +67,7 @@ export default async function ServiceManagementPage() {
         canManage={canManage}
         categories={categories.map((category) => ({ id: category.id, name: category.name }))}
         consultants={consultants}
+        availableForms={forms}
         services={services.map((service) => ({
           id: service.id,
           name: service.name,
@@ -74,6 +84,13 @@ export default async function ServiceManagementPage() {
           order: service.order,
           isActive: service.isActive,
           faq: service.faq,
+          requiredForms: service.requiredForms.map((form) => ({
+            id: form.id,
+            companyDocumentId: form.companyDocumentId,
+            title: form.companyDocument.title,
+            required: form.required,
+            order: form.order,
+          })),
         }))}
       />
 

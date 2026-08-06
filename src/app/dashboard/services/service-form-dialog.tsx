@@ -22,6 +22,7 @@ import {
 import { notify } from "@/lib/notify";
 import { isFaqArray, type FaqItem } from "@/lib/faq";
 import { createService, updateService } from "./actions";
+import { RequiredFormsSection, type RequiredFormRow } from "./required-forms-section";
 
 type ServiceRecord = {
   id: string;
@@ -35,6 +36,7 @@ type ServiceRecord = {
   defaultConsultantId: string | null;
   order: number;
   faq: unknown;
+  requiredForms: RequiredFormRow[];
 };
 
 export function ServiceFormDialog({
@@ -44,6 +46,7 @@ export function ServiceFormDialog({
   categories,
   consultants,
   topLevelServices,
+  availableForms,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -51,6 +54,7 @@ export function ServiceFormDialog({
   categories: { id: string; name: string }[];
   consultants: { id: string; name: string }[];
   topLevelServices: { id: string; name: string }[];
+  availableForms: { id: string; title: string }[];
 }) {
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
@@ -217,6 +221,14 @@ export function ServiceFormDialog({
             ))}
           </div>
           <input type="hidden" name="faq" value={JSON.stringify(faqItems)} readOnly />
+
+          {service && (
+            <RequiredFormsSection
+              serviceId={service.id}
+              requiredForms={service.requiredForms}
+              availableForms={availableForms}
+            />
+          )}
 
           {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 

@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { notify } from "@/lib/notify";
 import { toggleServiceActive } from "./actions";
 import { ServiceFormDialog } from "./service-form-dialog";
+import { type RequiredFormRow } from "./required-forms-section";
 
 type ServiceRow = {
   id: string;
@@ -33,6 +34,7 @@ type ServiceRow = {
   order: number;
   isActive: boolean;
   faq: unknown;
+  requiredForms: RequiredFormRow[];
 };
 
 function ActiveToggle({ id, isActive }: { id: string; isActive: boolean }) {
@@ -105,11 +107,13 @@ export function ServicesTable({
   categories,
   consultants,
   canManage,
+  availableForms,
 }: {
   services: ServiceRow[];
   categories: { id: string; name: string }[];
   consultants: { id: string; name: string }[];
   canManage: boolean;
+  availableForms: { id: string; title: string }[];
 }) {
   const [dialog, setDialog] = useState<{ open: boolean; service?: ServiceRow }>({
     open: false,
@@ -183,6 +187,7 @@ export function ServicesTable({
         topLevelServices={topLevel
           .filter((service) => service.isActive)
           .map((service) => ({ id: service.id, name: service.name }))}
+        availableForms={availableForms}
       />
     </div>
   );
