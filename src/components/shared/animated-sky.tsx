@@ -58,7 +58,7 @@ export function AnimatedSky({ variant = "full" }: { variant?: "full" | "subtle" 
       aria-hidden="true"
       className={cn(
         "sky-parallax pointer-events-none fixed inset-0 -z-10 overflow-hidden",
-        subtle ? "opacity-40" : "opacity-100"
+        subtle ? "opacity-35" : "opacity-100"
       )}
     >
       {/* Toned teal wash — light mode */}

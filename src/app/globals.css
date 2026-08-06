@@ -74,40 +74,40 @@
 }
 
 :root {
-  --background: #f4f8f8;
-  --foreground: #0d2b30;
+  --background: #f8f7f4;
+  --foreground: #0b2545;
   --card: #ffffff;
-  --card-foreground: #0d2b30;
+  --card-foreground: #0b2545;
   --popover: #ffffff;
-  --popover-foreground: #0d2b30;
-  --primary: #0d9488;
+  --popover-foreground: #0b2545;
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
-  --secondary: #e7f3f2;
-  --secondary-foreground: #0d2b30;
-  --muted: #eef3f2;
-  --muted-foreground: #5c7a7d;
-  --accent: #6d5ce6;
+  --secondary: #f2f0ea;
+  --secondary-foreground: #0b2545;
+  --muted: #f0efe9;
+  --muted-foreground: #4f6180;
+  --accent: #1e3a8a;
   --accent-foreground: #ffffff;
   --destructive: #e63946;
-  --success: #2ecc71;
-  --warning: #f4b400;
-  --border: #d9e6e5;
-  --input: #d9e6e5;
-  --ring: #0d9488;
-  --chart-1: #0d9488;
-  --chart-2: #7b6ef6;
+  --success: #15803d;
+  --warning: #b45309;
+  --border: #dde6f5;
+  --input: #dde6f5;
+  --ring: #2563eb;
+  --chart-1: #2563eb;
+  --chart-2: #1e3a8a;
   --chart-3: #c94040;
-  --chart-4: #0a6b60;
+  --chart-4: #1d4ed8;
   --chart-5: #b8860b;
   --radius: 0.625rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #436164;
-  --sidebar-primary: #0d9488;
+  --sidebar-foreground: #0b2545;
+  --sidebar-primary: #2563eb;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e7f5f3;
-  --sidebar-accent-foreground: #0d9488;
-  --sidebar-border: #eef2f2;
-  --sidebar-ring: #0d9488;
+  --sidebar-accent: #e6eefc;
+  --sidebar-accent-foreground: #1e3a8a;
+  --sidebar-border: #e6ecf7;
+  --sidebar-ring: #2563eb;
 }
 
 .dark {
@@ -239,6 +239,68 @@
    moments — not a default Card variant, not used in the dashboard. */
 .glass-panel {
   @apply bg-card/60 ring-1 ring-foreground/10 backdrop-blur-md;
+}
+
+/* Staggered entrance for dashboard KPI/stat grids — each child fades and
+   lifts in with an incrementing delay. Fully disabled under
+   prefers-reduced-motion, matching the pattern above. */
+@keyframes dash-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dash-stagger > * {
+  animation: dash-fade-in-up 0.4s ease-out both;
+}
+
+.dash-stagger > *:nth-child(2) {
+  animation-delay: 60ms;
+}
+.dash-stagger > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+.dash-stagger > *:nth-child(4) {
+  animation-delay: 180ms;
+}
+.dash-stagger > *:nth-child(5) {
+  animation-delay: 240ms;
+}
+.dash-stagger > *:nth-child(6) {
+  animation-delay: 300ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-stagger > * {
+    animation: none;
+  }
+}
+
+/* Soft pulsing ring behind the notification bell's unread badge. */
+@keyframes notif-pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.notif-ping {
+  animation: notif-pulse-ring 1.6s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notif-ping {
+    animation: none;
+  }
 }
 
 /* Native browser cross-page fade transition for App Router navigations.

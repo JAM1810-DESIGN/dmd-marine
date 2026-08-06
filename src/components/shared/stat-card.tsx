@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CountUp } from "@/components/shared/count-up";
 import { cn } from "@/lib/utils";
 
 const TONE_CHIP_CLASSES = {
@@ -8,6 +9,13 @@ const TONE_CHIP_CLASSES = {
   accent: "bg-accent/10 text-accent",
   warning: "bg-warning/10 text-warning",
   success: "bg-success/10 text-success",
+} as const;
+
+const TONE_TEXT_CLASSES = {
+  primary: "text-primary",
+  accent: "text-accent",
+  warning: "text-warning",
+  success: "text-success",
 } as const;
 
 export function StatCard({
@@ -36,7 +44,9 @@ export function StatCard({
         </div>
       </CardHeader>
       <div className="px-(--card-spacing)">
-        <CardTitle className="text-2xl">{value}</CardTitle>
+        <CardTitle className={cn("text-2xl", TONE_TEXT_CLASSES[tone])}>
+          {typeof value === "number" ? <CountUp value={value} /> : value}
+        </CardTitle>
         {trend && (
           <p
             className={cn(

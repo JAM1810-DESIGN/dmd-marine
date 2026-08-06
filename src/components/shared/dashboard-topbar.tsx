@@ -44,7 +44,7 @@ export function DashboardTopbar({
   unreadCount: number;
 }) {
   return (
-    <header className="flex h-16 items-center justify-between gap-4 border-b border-border bg-background px-4 sm:px-6">
+    <header className="flex h-16 items-center justify-between gap-4 border-b border-border/60 bg-background px-4 shadow-sm sm:px-6">
       <Sheet>
         <SheetTrigger
           render={
