@@ -193,3 +193,57 @@ export async function toggleServiceActive(id: string, isActive: boolean) {
   await db.service.update({ where: { id }, data: { isActive } });
   revalidatePath("/dashboard/services");
 }
+
+// ── Required Forms ──────────────────────────────────────────────────────────
+
+export async function addServiceRequiredForm(serviceId: string, companyDocumentId: string) {
+  await requireRole("ADMIN", "MANAGER");
+
+  const maxOrder = await db.serviceRequiredForm.aggregate({
+    where: { serviceId },
+    _max: { order: true },
+  });
+
+  await db.serviceRequiredForm.create({
+    data: {
+      serviceId,
+      companyDocumentId,
+      order: (maxOrder._max.order ?? -1) + 1,
+    },
+  });
+
+  revalidatePath("/dashboard/services");
+}
+
+export async function removeServiceRequiredForm(id: string) {
+  await requireRole("ADMIN", "MANAGER");
+  await db.serviceRequiredForm.delete({ where: { id } });
+  revalidatePath("/dashboard/services");
+}
+
+export async function toggleServiceRequiredFormRequired(id: string, required: boolean) {
+  await requireRole("ADMIN", "MANAGER");
+  await db.serviceRequiredForm.update({ where: { id }, data: { required } });
+  revalidatePath("/dashboard/services");
+}
+
+export async function reorderServiceRequiredForm(id: string, direction: "up" | "down") {
+  await requireRole("ADMIN", "MANAGER");
+
+  const current = await db.serviceRequiredForm.findUniqueOrThrow({ where: { id } });
+  const neighbor = await db.serviceRequiredForm.findFirst({
+    where: {
+      serviceId: current.serviceId,
+      order: direction === "up" ? { lt: current.order } : { gt: current.order },
+    },
+    orderBy: { order: direction === "up" ? "desc" : "asc" },
+  });
+  if (!neighbor) return;
+
+  await db.$transaction([
+    db.serviceRequiredForm.update({ where: { id: current.id }, data: { order: neighbor.order } }),
+    db.serviceRequiredForm.update({ where: { id: neighbor.id }, data: { order: current.order } }),
+  ]);
+
+  revalidatePath("/dashboard/services");
+}
