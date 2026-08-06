@@ -1,7 +1,8 @@
 "use client";
 
-import { Menu, LogOut, User as UserIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Menu, LogOut, Plus, User as UserIcon } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,6 +17,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { SidebarNav } from "@/components/shared/sidebar";
 import { NotificationBell, type NotificationItem } from "@/components/shared/notification-bell";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { LiveClock } from "@/components/shared/live-clock";
 import { signOutAction } from "@/app/dashboard/actions";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -32,6 +34,13 @@ function initials(name: string) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+}
+
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 export function DashboardTopbar({
@@ -61,7 +70,22 @@ export function DashboardTopbar({
         </SheetContent>
       </Sheet>
 
+      <div className="hidden min-w-0 flex-col sm:flex">
+        <span className="truncate text-sm font-medium text-foreground">
+          {greeting()}, {user.name}
+        </span>
+        <LiveClock />
+      </div>
+
       <div className="flex-1" />
+
+      <Link
+        href="/dashboard/bookings"
+        className={buttonVariants({ size: "sm", className: "hidden sm:inline-flex" })}
+      >
+        <Plus className="size-4" />
+        New Booking
+      </Link>
 
       <div className="flex items-center gap-1">
         <ThemeToggle />

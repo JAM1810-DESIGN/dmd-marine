@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
 import {
   Inbox,
@@ -13,24 +12,14 @@ import {
   FileClock,
   AlertTriangle,
   Wallet,
-  Plus,
 } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getRevenueTotal, getExpenseTotal, getCashFlow } from "@/lib/finance-calculations";
-import { buttonVariants } from "@/components/ui/button";
 import { StatCard } from "@/components/shared/stat-card";
-import { LiveClock } from "@/components/shared/live-clock";
 
 function currency(value: number) {
   return value.toLocaleString("en-PH", { style: "currency", currency: "PHP" });
-}
-
-function greeting() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
 }
 
 export default async function DashboardPage() {
@@ -141,28 +130,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/[0.06] via-card to-card p-6 ring-1 ring-foreground/[0.06] sm:p-8">
-        <div className="pointer-events-none absolute -top-24 right-0 size-64 rounded-full bg-primary/[0.05] blur-3xl" />
-        <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-sm font-medium text-primary">{greeting()}</p>
-            <h1 className="mt-1 font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              {session?.user?.name}
-            </h1>
-            <div className="mt-2 flex flex-wrap items-center gap-x-1">
-              <LiveClock />
-            </div>
-          </div>
-          <Link
-            href="/dashboard/bookings"
-            className={buttonVariants({ className: "self-start sm:self-end" })}
-          >
-            <Plus className="size-4" />
-            New Booking
-          </Link>
-        </div>
-      </div>
-
       <div className="relative">
         <div className="pointer-events-none absolute -top-10 left-[8%] size-56 rounded-full bg-primary/[0.08] blur-3xl" />
         <div className="pointer-events-none absolute top-10 right-[5%] size-48 rounded-full bg-accent/[0.10] blur-3xl" />

@@ -28,7 +28,7 @@ export function LiveClock() {
   if (!now) return null;
 
   return (
-    <p className="text-sm text-muted-foreground">
+    <p className="truncate text-xs text-muted-foreground">
       {now.toLocaleDateString("en-US", DATE_FORMAT)}
       <span className="mx-1.5 text-muted-foreground/40">·</span>
       {now.toLocaleTimeString("en-US", TIME_FORMAT)}
