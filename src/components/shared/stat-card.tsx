@@ -19,6 +19,13 @@ const TONE_TEXT_CLASSES = {
   success: "text-success",
 } as const;
 
+const TONE_CHIP_DARK_CLASSES = {
+  primary: "bg-white/15 text-sidebar-primary",
+  accent: "bg-white/15 text-sidebar-primary",
+  info: "bg-white/15 text-sidebar-primary",
+  success: "bg-white/15 text-sidebar-primary",
+} as const;
+
 export function StatCard({
   icon: Icon,
   label,
@@ -28,6 +35,7 @@ export function StatCard({
   emptyLabel,
   trend,
   tone = "primary",
+  dark = false,
   className,
 }: {
   icon: ComponentType<{ className?: string }>;
@@ -38,21 +46,39 @@ export function StatCard({
   emptyLabel?: string;
   trend?: { direction: "up" | "down"; label: string };
   tone?: keyof typeof TONE_CHIP_CLASSES;
+  dark?: boolean;
   className?: string;
 }) {
   const isZero = typeof value === "number" && value === 0;
 
   const content = (
-    <Card interactive={!!href} className={cn("group gap-3", className)}>
+    <Card
+      interactive={!!href}
+      className={cn(
+        "group gap-3",
+        dark
+          ? "border-white/15 bg-white/10 shadow-none ring-white/15 backdrop-blur-md"
+          : "bg-card/85 backdrop-blur-sm",
+        className,
+      )}
+    >
       <CardHeader className="flex-row items-start justify-between">
         <div className="space-y-0.5">
-          <CardDescription className="font-medium text-foreground/70">{label}</CardDescription>
-          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+          <CardDescription
+            className={cn("font-medium", dark ? "text-white/70" : "text-foreground/70")}
+          >
+            {label}
+          </CardDescription>
+          {subtitle && (
+            <p className={cn("text-xs", dark ? "text-white/50" : "text-muted-foreground")}>
+              {subtitle}
+            </p>
+          )}
         </div>
         <div
           className={cn(
             "flex size-11 shrink-0 items-center justify-center rounded-xl",
-            TONE_CHIP_CLASSES[tone],
+            dark ? TONE_CHIP_DARK_CLASSES[tone] : TONE_CHIP_CLASSES[tone],
           )}
         >
           <Icon className="size-5" aria-hidden />
@@ -60,11 +86,18 @@ export function StatCard({
       </CardHeader>
       <div className="flex items-end justify-between px-(--card-spacing)">
         <div>
-          <CardTitle className={cn("text-[1.75rem] tabular-nums", TONE_TEXT_CLASSES[tone])}>
+          <CardTitle
+            className={cn(
+              "text-[1.75rem] tabular-nums",
+              dark ? "text-white" : TONE_TEXT_CLASSES[tone],
+            )}
+          >
             {typeof value === "number" ? <CountUp value={value} /> : value}
           </CardTitle>
           {isZero && emptyLabel ? (
-            <p className="mt-1 text-xs text-muted-foreground">{emptyLabel}</p>
+            <p className={cn("mt-1 text-xs", dark ? "text-white/50" : "text-muted-foreground")}>
+              {emptyLabel}
+            </p>
           ) : (
             trend && (
               <p
@@ -79,7 +112,14 @@ export function StatCard({
           )}
         </div>
         {href && (
-          <ArrowRight className="mb-1 size-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+          <ArrowRight
+            className={cn(
+              "mb-1 size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5",
+              dark
+                ? "text-white/40 group-hover:text-white/70"
+                : "text-muted-foreground/50 group-hover:text-muted-foreground",
+            )}
+          />
         )}
       </div>
     </Card>

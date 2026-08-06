@@ -163,25 +163,33 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="dash-stagger grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {kpis.map((kpi) => (
-          <StatCard
-            key={kpi.title}
-            icon={kpi.icon}
-            label={kpi.title}
-            value={kpi.value}
-            href={kpi.href}
-            tone={kpi.tone}
-            subtitle={kpi.subtitle}
-            emptyLabel={kpi.emptyLabel}
-          />
-        ))}
+      <div className="relative">
+        <div className="pointer-events-none absolute -top-10 left-[8%] size-56 rounded-full bg-primary/[0.08] blur-3xl" />
+        <div className="pointer-events-none absolute top-10 right-[5%] size-48 rounded-full bg-accent/[0.10] blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-[40%] size-40 rounded-full bg-info/[0.08] blur-3xl" />
+        <div className="dash-stagger relative grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {kpis.map((kpi) => (
+            <StatCard
+              key={kpi.title}
+              icon={kpi.icon}
+              label={kpi.title}
+              value={kpi.value}
+              href={kpi.href}
+              tone={kpi.tone}
+              subtitle={kpi.subtitle}
+              emptyLabel={kpi.emptyLabel}
+            />
+          ))}
+        </div>
       </div>
 
       {financeWidgets && (
-        <div>
-          <h2 className="mb-4 font-heading text-lg font-semibold tracking-tight text-foreground">Finance Snapshot</h2>
-          <div className="dash-stagger grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-[#0b2545] p-6 sm:p-8">
+          <div className="pointer-events-none absolute -bottom-16 right-[10%] size-64 rounded-full bg-sidebar-primary/[0.12] blur-3xl" />
+          <h2 className="relative mb-4 font-heading text-lg font-semibold tracking-tight text-white">
+            Finance Snapshot
+          </h2>
+          <div className="dash-stagger relative grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { title: "Today's Revenue", value: currency(financeWidgets.todayRevenue), icon: DollarSign, tone: "accent" as const, subtitle: "So far today" },
               { title: "Today's Expenses", value: currency(financeWidgets.todayExpenses), icon: Receipt, tone: "primary" as const, subtitle: "So far today" },
@@ -199,6 +207,7 @@ export default async function DashboardPage() {
                 tone={widget.tone}
                 subtitle={widget.subtitle}
                 emptyLabel={"emptyLabel" in widget ? widget.emptyLabel : undefined}
+                dark
               />
             ))}
           </div>
