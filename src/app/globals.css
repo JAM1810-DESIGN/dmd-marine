@@ -247,6 +247,17 @@
   @apply bg-card/60 ring-1 ring-foreground/10 backdrop-blur-md;
 }
 
+/* Hides the scrollbar on an otherwise-scrollable element (dashboard app
+   shell). Scrolling itself is untouched — only the visual track/thumb. */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Staggered entrance for dashboard KPI/stat grids — each child fades and
    lifts in with an incrementing delay. Fully disabled under
    prefers-reduced-motion, matching the pattern above. */

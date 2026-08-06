@@ -15,7 +15,7 @@ export function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden print:h-auto print:overflow-visible">
       <AnimatedSky variant="subtle" />
       <CollapsibleSidebar />
 
@@ -23,7 +23,7 @@ export function DashboardLayout({
         <div className="print:hidden">
           <DashboardTopbar user={user} notifications={notifications} unreadCount={unreadCount} />
         </div>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 print:p-0">
+        <main className="scrollbar-hide flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 print:overflow-visible print:p-0">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
