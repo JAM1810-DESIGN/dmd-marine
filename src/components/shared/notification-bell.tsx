@@ -15,15 +15,59 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { markNotificationRead, markAllNotificationsRead } from "@/app/dashboard/notifications-actions";
+import { cn } from "@/lib/utils";
+import type { NotificationType } from "@/generated/prisma/enums";
 
 export type NotificationItem = {
   id: string;
+  type: NotificationType;
   title: string;
   message: string;
   link: string | null;
   isRead: boolean;
   createdAt: string;
 };
+
+const URGENCY_RANK = { critical: 2, warning: 1, normal: 0 } as const;
+type Urgency = keyof typeof URGENCY_RANK;
+
+const TYPE_URGENCY: Record<NotificationType, Urgency> = {
+  INVOICE_OVERDUE: "critical",
+  EXPENSE_PENDING_APPROVAL: "critical",
+  APPOINTMENT_REMINDER: "warning",
+  NEW_INQUIRY: "normal",
+  NEW_BOOKING: "normal",
+  FACEBOOK_MESSAGE: "normal",
+  OTHER: "normal",
+};
+
+const URGENCY_DOT_CLASSES: Record<Urgency, string> = {
+  critical: "bg-destructive",
+  warning: "bg-warning",
+  normal: "bg-primary",
+};
+
+const URGENCY_BADGE_CLASSES: Record<Urgency, string> = {
+  critical: "bg-destructive text-white",
+  warning: "bg-warning text-white",
+  normal: "bg-primary text-primary-foreground",
+};
+
+const URGENCY_RING_CLASSES: Record<Urgency, string> = {
+  critical: "bg-destructive/60",
+  warning: "bg-warning/60",
+  normal: "bg-primary/60",
+};
+
+function highestUrgency(notifications: NotificationItem[]): Urgency {
+  let worst: Urgency = "normal";
+  for (const n of notifications) {
+    if (n.isRead) continue;
+    const urgency = TYPE_URGENCY[n.type] ?? "normal";
+    if (URGENCY_RANK[urgency] > URGENCY_RANK[worst]) worst = urgency;
+  }
+  return worst;
+}
 
 export function NotificationBell({
   notifications,
@@ -34,6 +78,7 @@ export function NotificationBell({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const urgency = highestUrgency(notifications);
 
   function handleSelect(notification: NotificationItem) {
     if (!notification.isRead) {
@@ -61,10 +106,18 @@ export function NotificationBell({
             {unreadCount > 0 && (
               <>
                 <span
-                  className="notif-ping absolute -right-1 -top-1 size-5 rounded-full bg-primary/60"
+                  className={cn(
+                    "notif-ping absolute -right-1 -top-1 size-5 rounded-full",
+                    URGENCY_RING_CLASSES[urgency],
+                  )}
                   aria-hidden
                 />
-                <Badge className="absolute -right-1 -top-1 h-5 min-w-5 justify-center rounded-full px-1 text-[10px]">
+                <Badge
+                  className={cn(
+                    "absolute -right-1 -top-1 h-5 min-w-5 justify-center rounded-full px-1 text-[10px]",
+                    URGENCY_BADGE_CLASSES[urgency],
+                  )}
+                >
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </Badge>
               </>
@@ -98,7 +151,14 @@ export function NotificationBell({
                 className="flex-col items-start gap-0.5 whitespace-normal py-2"
               >
                 <div className="flex items-center gap-2">
-                  {!n.isRead && <span className="size-1.5 shrink-0 rounded-full bg-primary" />}
+                  {!n.isRead && (
+                    <span
+                      className={cn(
+                        "size-1.5 shrink-0 rounded-full",
+                        URGENCY_DOT_CLASSES[TYPE_URGENCY[n.type] ?? "normal"],
+                      )}
+                    />
+                  )}
                   <span className="text-sm font-medium text-foreground">{n.title}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">{n.message}</p>
