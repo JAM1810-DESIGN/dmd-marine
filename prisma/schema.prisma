@@ -168,20 +168,21 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  defaultForServices  Service[]            @relation("ServiceDefaultConsultant")
-  assignedBookings    Booking[]            @relation("BookingConsultant")
-  assignedProjects    Project[]            @relation("ProjectConsultant")
-  schedules           Schedule[]
-  contactHistory      ContactHistory[]
-  documentsUploaded   Document[]
-  notifications       Notification[]
-  messagesSent        Message[]            @relation("MessagesSent")
-  messagesReceived    Message[]            @relation("MessagesReceived")
-  expensesCreated     Expense[]            @relation("ExpensesCreated")
-  expensesApproved    Expense[]            @relation("ExpensesApproved")
-  financialStatements FinancialStatement[]
-  blogPosts           BlogPost[]
-  auditLogs           AuditLog[]
+  defaultForServices       Service[]            @relation("ServiceDefaultConsultant")
+  assignedBookings         Booking[]            @relation("BookingConsultant")
+  assignedProjects         Project[]            @relation("ProjectConsultant")
+  schedules                Schedule[]
+  contactHistory           ContactHistory[]
+  documentsUploaded        Document[]
+  companyDocumentsUploaded CompanyDocument[]
+  notifications            Notification[]
+  messagesSent             Message[]            @relation("MessagesSent")
+  messagesReceived         Message[]            @relation("MessagesReceived")
+  expensesCreated          Expense[]            @relation("ExpensesCreated")
+  expensesApproved         Expense[]            @relation("ExpensesApproved")
+  financialStatements      FinancialStatement[]
+  blogPosts                BlogPost[]
+  auditLogs                AuditLog[]
 
   @@map("users")
 }
@@ -465,6 +466,31 @@ model Document {
   @@index([projectId])
   @@index([expenseId])
   @@map("documents")
+}
+
+enum CompanyDocumentCategory {
+  DOCUMENT
+  FORM
+}
+
+model CompanyDocument {
+  id           String                  @id @default(cuid())
+  title        String
+  category     CompanyDocumentCategory
+  description  String?
+  fileName     String
+  url          String
+  mimeType     String?
+  sizeBytes    Int?
+  uploadedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  uploadedBy User? @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([category])
+  @@map("company_documents")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
