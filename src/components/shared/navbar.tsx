@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Menu } from "lucide-react";
-import { LogoMark } from "@/components/shared/logo-mark";
+import { LogoLockup } from "@/components/shared/logo-image";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import {
@@ -29,11 +29,8 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 text-foreground">
-          <LogoMark className="size-6 text-primary" aria-hidden />
-          <span className="font-heading text-base font-semibold tracking-tight">
-            DMD Marine
-          </span>
+        <Link href="/" className="flex items-center text-foreground">
+          <LogoLockup iconSize={44} themed />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

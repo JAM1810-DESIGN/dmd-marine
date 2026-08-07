@@ -17,7 +17,7 @@ import {
   Settings,
   FileText,
 } from "lucide-react";
-import { LogoMark } from "@/components/shared/logo-mark";
+import { LogoImage, LogoLockup } from "@/components/shared/logo-image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -78,11 +78,10 @@ export function SidebarNav({
           collapsed ? "justify-center px-2" : "px-4",
         )}
       >
-        <LogoMark className="size-6 shrink-0 text-sidebar-primary" aria-hidden />
-        {!collapsed && (
-          <span className="font-heading text-sm font-semibold tracking-tight">
-            DMD Marine
-          </span>
+        {collapsed ? (
+          <LogoImage size={28} light />
+        ) : (
+          <LogoLockup iconSize={40} light />
         )}
       </div>
 
