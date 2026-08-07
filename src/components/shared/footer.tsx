@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Mail, Phone, MapPin } from "lucide-react";
-import { LogoMark } from "@/components/shared/logo-mark";
+import { LogoLockup } from "@/components/shared/logo-image";
 import { getSiteSettings } from "@/lib/site-settings";
 
 const FOOTER_LINKS = [
@@ -20,12 +20,7 @@ export async function Footer() {
     <footer className="border-t border-border bg-muted">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
         <div>
-          <div className="flex items-center gap-2 text-foreground">
-            <LogoMark className="size-6 text-primary" aria-hidden />
-            <span className="font-heading text-base font-semibold tracking-tight">
-              {settings.companyName}
-            </span>
-          </div>
+          <LogoLockup iconSize={40} themed />
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
             Independent Marine Expertise for Vessel Operations, Cargo Assurance,
             Compliance, and Maritime Professional Development.
