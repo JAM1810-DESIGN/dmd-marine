@@ -30,36 +30,40 @@ export async function createConsultant(
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
   }
 
-  const existing = await db.user.findUnique({ where: { email: parsed.data.email } });
-  if (existing) {
-    return { error: "A user with this email already exists." };
+  try {
+    const existing = await db.user.findUnique({ where: { email: parsed.data.email } });
+    if (existing) {
+      return { error: "A user with this email already exists." };
+    }
+
+    const passwordHash = await hashPassword(parsed.data.password);
+    const user = await db.user.create({
+      data: {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        passwordHash,
+        role: "STAFF",
+        rank: parsed.data.rank,
+        vesselExperience: parsed.data.vesselExperience,
+        phone: parsed.data.phone,
+        address: parsed.data.address,
+        baseLocation: parsed.data.baseLocation,
+      },
+    });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "CONSULTANT_CREATED",
+      entityType: "User",
+      entityId: user.id,
+      metadata: { email: user.email },
+    });
+
+    revalidatePath("/dashboard/consultants");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't save the consultant. Try again." };
   }
-
-  const passwordHash = await hashPassword(parsed.data.password);
-  const user = await db.user.create({
-    data: {
-      name: parsed.data.name,
-      email: parsed.data.email,
-      passwordHash,
-      role: "STAFF",
-      rank: parsed.data.rank,
-      vesselExperience: parsed.data.vesselExperience,
-      phone: parsed.data.phone,
-      address: parsed.data.address,
-      baseLocation: parsed.data.baseLocation,
-    },
-  });
-
-  await logAudit({
-    userId: session.user.id,
-    action: "CONSULTANT_CREATED",
-    entityType: "User",
-    entityId: user.id,
-    metadata: { email: user.email },
-  });
-
-  revalidatePath("/dashboard/consultants");
-  return { success: true };
 }
 
 export async function updateConsultant(
@@ -82,25 +86,29 @@ export async function updateConsultant(
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
   }
 
-  const existing = await db.user.findUnique({ where: { email: parsed.data.email } });
-  if (existing && existing.id !== id) {
-    return { error: "A user with this email already exists." };
+  try {
+    const existing = await db.user.findUnique({ where: { email: parsed.data.email } });
+    if (existing && existing.id !== id) {
+      return { error: "A user with this email already exists." };
+    }
+
+    const before = await db.user.findUniqueOrThrow({ where: { id } });
+
+    await db.user.update({ where: { id }, data: parsed.data });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "CONSULTANT_UPDATED",
+      entityType: "User",
+      entityId: id,
+      metadata: { emailBefore: before.email, emailAfter: parsed.data.email },
+    });
+
+    revalidatePath("/dashboard/consultants");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't save the consultant. Try again." };
   }
-
-  const before = await db.user.findUniqueOrThrow({ where: { id } });
-
-  await db.user.update({ where: { id }, data: parsed.data });
-
-  await logAudit({
-    userId: session.user.id,
-    action: "CONSULTANT_UPDATED",
-    entityType: "User",
-    entityId: id,
-    metadata: { emailBefore: before.email, emailAfter: parsed.data.email },
-  });
-
-  revalidatePath("/dashboard/consultants");
-  return { success: true };
 }
 
 export async function deactivateConsultant(id: string): Promise<void> {
