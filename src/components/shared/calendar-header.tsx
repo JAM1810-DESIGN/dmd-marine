@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-export type CalendarViewMode = "month" | "week" | "day";
+export type CalendarViewMode = "month" | "week" | "day" | "agenda";
 
 export function CalendarHeader({
   view,
@@ -16,6 +16,7 @@ export function CalendarHeader({
   onNext,
   onToday,
   onDateSelect,
+  modes = ["day", "week", "month"],
 }: {
   view: CalendarViewMode;
   onViewChange: (view: CalendarViewMode) => void;
@@ -24,6 +25,7 @@ export function CalendarHeader({
   onNext: () => void;
   onToday: () => void;
   onDateSelect: (date: Date) => void;
+  modes?: CalendarViewMode[];
 }) {
   const label =
     view === "month"
@@ -60,7 +62,7 @@ export function CalendarHeader({
       </div>
 
       <div className="flex gap-1 rounded-lg bg-secondary/60 p-1">
-        {(["day", "week", "month"] as const).map((mode) => (
+        {modes.map((mode) => (
           <Button
             key={mode}
             variant={view === mode ? "default" : "ghost"}

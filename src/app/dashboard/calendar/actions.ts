@@ -49,6 +49,67 @@ export async function createScheduleForBooking(
   return { success: true };
 }
 
+export async function createSchedule(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireRole(...SCHEDULE_ROLES);
+
+  const parsed = parseSchedule(formData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
+  }
+
+  const { startAt, endAt, ...rest } = parsed.data;
+  try {
+    await db.schedule.create({
+      data: { ...rest, startAt: new Date(startAt), endAt: new Date(endAt) },
+    });
+  } catch {
+    return { error: "Couldn't save the event. Try again." };
+  }
+
+  revalidatePath("/dashboard/calendar");
+  return { success: true };
+}
+
+export async function updateSchedule(
+  id: string,
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireRole(...SCHEDULE_ROLES);
+
+  const parsed = parseSchedule(formData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
+  }
+
+  const { startAt, endAt, ...rest } = parsed.data;
+  try {
+    await db.schedule.update({
+      where: { id },
+      data: { ...rest, startAt: new Date(startAt), endAt: new Date(endAt) },
+    });
+  } catch {
+    return { error: "Couldn't update the event. Try again." };
+  }
+
+  revalidatePath("/dashboard/calendar");
+  return { success: true };
+}
+
+export async function deleteSchedule(id: string): Promise<ActionState> {
+  try {
+    await requireRole(...SCHEDULE_ROLES);
+    await db.schedule.delete({ where: { id } });
+    revalidatePath("/dashboard/calendar");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't delete the event. Try again." };
+  }
+}
+
 export async function createScheduleForProject(
   projectId: string,
   _prevState: ActionState,
