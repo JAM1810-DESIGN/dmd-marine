@@ -16,11 +16,13 @@ export default async function MessagesPage() {
     db.message.findMany({
       where: { toUserId: userId, channel: "INTERNAL" },
       orderBy: { createdAt: "desc" },
+      take: 200,
       include: { fromUser: true },
     }),
     db.message.findMany({
       where: { fromUserId: userId, channel: "INTERNAL" },
       orderBy: { createdAt: "desc" },
+      take: 200,
       include: { toUser: true },
     }),
     db.user.findMany({
@@ -56,6 +58,7 @@ export default async function MessagesPage() {
           isRead: message.isRead,
           createdAt: message.createdAt.toISOString(),
           counterpartName: message.fromUser?.name ?? "Unknown",
+          counterpartId: message.fromUserId,
         }))}
         sent={sentMessages.map((message) => ({
           id: message.id,
@@ -64,6 +67,7 @@ export default async function MessagesPage() {
           isRead: message.isRead,
           createdAt: message.createdAt.toISOString(),
           counterpartName: message.toUser?.name ?? "Unknown",
+          counterpartId: message.toUserId,
         }))}
       />
     </div>
