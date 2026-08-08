@@ -27,7 +27,7 @@ export default async function BookingsPage({
   const params = parseBookingListParams(await searchParams);
   const where = buildBookingWhere(params);
 
-  const [total, pageBookings, calendarSource, consultants] = await Promise.all([
+  const [total, pageBookings, calendarSource, boardSource, consultants] = await Promise.all([
     db.booking.count({ where }),
     db.booking.findMany({
       where,
@@ -48,6 +48,24 @@ export default async function BookingsPage({
         service: { select: { name: true } },
       },
     }),
+    // Board shows every booking grouped by status, independent of table paging.
+    db.booking.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 500,
+      select: {
+        id: true,
+        customerName: true,
+        companyName: true,
+        vesselName: true,
+        port: true,
+        status: true,
+        preferredDate: true,
+        preferredTime: true,
+        assignedConsultantId: true,
+        service: { select: { name: true } },
+        assignedConsultant: { select: { name: true } },
+      },
+    }),
     db.user.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
@@ -62,6 +80,20 @@ export default async function BookingsPage({
     status: booking.status,
     preferredDate: booking.preferredDate!.toISOString(),
     preferredTime: booking.preferredTime,
+  }));
+
+  const boardBookings = boardSource.map((booking) => ({
+    id: booking.id,
+    serviceName: booking.service.name,
+    customerName: booking.customerName,
+    companyName: booking.companyName,
+    vesselName: booking.vesselName,
+    port: booking.port,
+    status: booking.status,
+    preferredDate: booking.preferredDate ? booking.preferredDate.toISOString() : null,
+    preferredTime: booking.preferredTime,
+    assignedConsultantId: booking.assignedConsultantId,
+    consultantName: booking.assignedConsultant?.name ?? null,
   }));
 
   const tableBookings = pageBookings.map((booking) => ({
@@ -91,6 +123,7 @@ export default async function BookingsPage({
       <BookingCalendar bookings={calendarBookings} />
       <BookingsTable
         bookings={tableBookings}
+        boardBookings={boardBookings}
         consultants={consultants}
         canManage={canManage}
         canManageFinance={canManageFinance}

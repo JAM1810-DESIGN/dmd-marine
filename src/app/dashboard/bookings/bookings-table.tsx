@@ -12,6 +12,10 @@ import {
   Receipt,
   ChevronLeft,
   ChevronRight,
+  List,
+  LayoutGrid,
+  Anchor,
+  MapPin,
 } from "lucide-react";
 import {
   Table,
@@ -32,6 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
+import { cn } from "@/lib/utils";
 import { buildCsv, downloadCsv } from "@/lib/csv";
 import {
   updateBookingStatus,
@@ -261,8 +266,100 @@ function GenerateInvoiceButton({ id }: { id: string }) {
   );
 }
 
+export type BoardBooking = {
+  id: string;
+  serviceName: string;
+  customerName: string;
+  companyName: string | null;
+  vesselName: string | null;
+  port: string | null;
+  status: string;
+  preferredDate: string | null;
+  preferredTime: string | null;
+  assignedConsultantId: string | null;
+  consultantName: string | null;
+};
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function preferredFlag(booking: BoardBooking) {
+  if (!booking.preferredDate) return { label: "No date", className: "text-muted-foreground" };
+  const date = new Date(booking.preferredDate);
+  const label = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const days = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  if (days >= 0 && days <= 7) return { label: `Wants ${label}`, className: "text-amber-600 dark:text-amber-400" };
+  return { label: `Wants ${label}`, className: "text-muted-foreground" };
+}
+
+function BoardCard({
+  booking,
+  canManage,
+  onOpen,
+}: {
+  booking: BoardBooking;
+  canManage: boolean;
+  onOpen: () => void;
+}) {
+  const flag = preferredFlag(booking);
+  return (
+    <div className="flex flex-col gap-2 rounded-lg bg-card p-3 ring-1 ring-foreground/10">
+      <button type="button" onClick={onOpen} className="text-left text-sm font-medium text-foreground hover:text-ocean hover:underline">
+        {booking.serviceName}
+      </button>
+      <p className="text-xs text-muted-foreground">
+        {booking.customerName}
+        {booking.companyName ? ` · ${booking.companyName}` : ""}
+      </p>
+      {(booking.vesselName || booking.port) && (
+        <div className="flex flex-wrap gap-1.5">
+          {booking.vesselName && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary/60 px-2 py-0.5 text-[11px] text-muted-foreground">
+              <Anchor className="size-3" />
+              {booking.vesselName}
+            </span>
+          )}
+          {booking.port && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary/60 px-2 py-0.5 text-[11px] text-muted-foreground">
+              <MapPin className="size-3" />
+              {booking.port}
+            </span>
+          )}
+        </div>
+      )}
+      <div className="flex items-center justify-between pt-0.5">
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          {booking.consultantName ? (
+            <>
+              <span className="flex size-5 items-center justify-center rounded-full bg-accent/15 text-[9px] font-medium text-accent">
+                {initials(booking.consultantName)}
+              </span>
+              {booking.consultantName}
+            </>
+          ) : (
+            "Unassigned"
+          )}
+        </span>
+        <span className={cn("text-xs", flag.className)}>{flag.label}</span>
+      </div>
+      {canManage && (
+        <div className="pt-1">
+          <StatusSelect id={booking.id} status={booking.status} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function BookingsTable({
   bookings,
+  boardBookings,
   consultants,
   canManage,
   canManageFinance,
@@ -271,6 +368,7 @@ export function BookingsTable({
   params,
 }: {
   bookings: BookingRow[];
+  boardBookings: BoardBooking[];
   consultants: { id: string; name: string }[];
   canManage: boolean;
   canManageFinance: boolean;
@@ -285,6 +383,26 @@ export function BookingsTable({
   const [searchInput, setSearchInput] = useState(params.query);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [view, setView] = useState<"table" | "board">("table");
+
+  const boardByStatus = (() => {
+    const query = searchInput.trim().toLowerCase();
+    const map = new Map<string, BoardBooking[]>();
+    for (const status of STATUS_OPTIONS) map.set(status, []);
+    for (const booking of boardBookings) {
+      if (
+        query &&
+        !booking.customerName.toLowerCase().includes(query) &&
+        !booking.serviceName.toLowerCase().includes(query) &&
+        !(booking.vesselName ?? "").toLowerCase().includes(query) &&
+        !(booking.companyName ?? "").toLowerCase().includes(query)
+      ) {
+        continue;
+      }
+      map.get(booking.status)?.push(booking);
+    }
+    return map;
+  })();
 
   function updateParams(next: Record<string, string | null>, resetPage = true) {
     const sp = new URLSearchParams(searchParams.toString());
@@ -385,10 +503,54 @@ export function BookingsTable({
             <Download className="size-4" />
             Export CSV
           </Button>
+          <div className="flex items-center rounded-md border border-border p-0.5">
+            <Button
+              variant={view === "table" ? "secondary" : "ghost"}
+              size="icon-sm"
+              aria-label="Table view"
+              aria-pressed={view === "table"}
+              onClick={() => setView("table")}
+            >
+              <List className="size-4" />
+            </Button>
+            <Button
+              variant={view === "board" ? "secondary" : "ghost"}
+              size="icon-sm"
+              aria-label="Board view"
+              aria-pressed={view === "board"}
+              onClick={() => setView("board")}
+            >
+              <LayoutGrid className="size-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {bookings.length === 0 ? (
+      {view === "board" ? (
+        <div className="overflow-x-auto p-4 pt-0">
+          <div className="grid grid-flow-col auto-cols-[230px] gap-3">
+            {STATUS_OPTIONS.map((status) => {
+              const items = boardByStatus.get(status) ?? [];
+              return (
+                <div key={status} className="flex flex-col gap-2.5 rounded-xl bg-secondary/40 p-2.5">
+                  <div className="flex items-center justify-between px-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    <span>{status.replace(/_/g, " ")}</span>
+                    <span className="rounded-full bg-card px-2 py-0.5 text-[11px]">{items.length}</span>
+                  </div>
+                  {items.map((booking) => (
+                    <BoardCard
+                      key={booking.id}
+                      booking={booking}
+                      canManage={canManage}
+                      onOpen={() => openDetail(booking.id)}
+                    />
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : bookings.length === 0 ? (
         <EmptyState
           className="border-none"
           title="No bookings match your filters"
