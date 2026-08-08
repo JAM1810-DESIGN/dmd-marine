@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Pencil, Plus } from "lucide-react";
 import {
   Table,
@@ -77,7 +78,18 @@ export function CompaniesTable({
                 <TableCell className="text-sm text-muted-foreground">
                   {[company.city, company.country].filter(Boolean).join(", ") || "—"}
                 </TableCell>
-                <TableCell>{company.customerCount}</TableCell>
+                <TableCell>
+                  {company.customerCount > 0 ? (
+                    <Link
+                      href={`/dashboard/customers?company=${company.id}`}
+                      className="text-foreground hover:underline"
+                    >
+                      {company.customerCount}
+                    </Link>
+                  ) : (
+                    company.customerCount
+                  )}
+                </TableCell>
                 <TableCell>
                   {canManage && (
                     <CompanyFormDialog

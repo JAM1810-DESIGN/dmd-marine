@@ -9,10 +9,51 @@ import {
   vesselSchema,
   contactHistorySchema,
 } from "@/lib/validations/crm";
+import {
+  buildCustomerWhere,
+  buildCustomerOrderBy,
+  type CustomerListParams,
+} from "./query";
 
 export type ActionState = { error?: string; success?: boolean };
 
 const CRM_ROLES = ["ADMIN", "MANAGER", "STAFF"] as const;
+
+export type CustomerExportRow = {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  vessels: number;
+  bookings: number;
+  createdAt: string;
+};
+
+/** Returns every customer matching the current filters (ignores pagination) for CSV export. */
+export async function exportCustomers(
+  params: CustomerListParams,
+): Promise<CustomerExportRow[]> {
+  await requireRole(...CRM_ROLES);
+
+  const customers = await db.customer.findMany({
+    where: buildCustomerWhere(params),
+    orderBy: buildCustomerOrderBy(params),
+    include: {
+      company: { select: { name: true } },
+      _count: { select: { vessels: true, bookings: true } },
+    },
+  });
+
+  return customers.map((customer) => ({
+    name: customer.name,
+    email: customer.email ?? "",
+    phone: customer.phone ?? "",
+    company: customer.company?.name ?? "",
+    vessels: customer._count.vessels,
+    bookings: customer._count.bookings,
+    createdAt: customer.createdAt.toISOString(),
+  }));
+}
 
 function emptyToUndefined(value: FormDataEntryValue | null) {
   return value && value !== "" ? String(value) : undefined;

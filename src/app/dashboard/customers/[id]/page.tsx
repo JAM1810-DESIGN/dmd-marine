@@ -1,17 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil, Wallet, Clock, CalendarCheck, FolderOpen } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatCard } from "@/components/shared/stat-card";
 import { CustomerFormDialog } from "../customer-form-dialog";
 import { VesselsSection } from "./vessels-section";
 import { ContactHistorySection } from "./contact-history-section";
 import { EmptyState } from "@/components/shared/empty-state";
 
 export const metadata: Metadata = { title: "Customer Profile" };
+
+const ACTIVE_PROJECT_STATUSES = ["NEW", "PLANNING", "SCHEDULED", "ACTIVE"] as const;
+
+const php = (amount: number) =>
+  amount.toLocaleString("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 });
+
+function shortDate(date: Date) {
+  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+}
 
 export default async function CustomerDetailPage({
   params,
@@ -25,7 +35,7 @@ export default async function CustomerDetailPage({
     session?.user.role === "MANAGER" ||
     session?.user.role === "STAFF";
 
-  const [customer, companies] = await Promise.all([
+  const [customer, companies, billedAgg, collectedAgg, activeProjectCount] = await Promise.all([
     db.customer.findUnique({
       where: { id },
       include: {
@@ -33,12 +43,27 @@ export default async function CustomerDetailPage({
         vessels: { orderBy: { createdAt: "desc" } },
         contactHistory: { orderBy: { occurredAt: "desc" }, include: { createdBy: true } },
         bookings: { orderBy: { createdAt: "desc" }, include: { service: true } },
+        projects: { orderBy: { createdAt: "desc" }, take: 8 },
+        invoices: { orderBy: { issueDate: "desc" }, take: 8 },
       },
     }),
     db.company.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    db.invoice.aggregate({
+      where: { customerId: id, status: { not: "CANCELLED" } },
+      _sum: { totalAmount: true },
+    }),
+    db.payment.aggregate({
+      where: { status: "COMPLETED", invoice: { customerId: id } },
+      _sum: { amount: true },
+    }),
+    db.project.count({ where: { customerId: id, status: { in: [...ACTIVE_PROJECT_STATUSES] } } }),
   ]);
 
   if (!customer) notFound();
+
+  const collected = Number(collectedAgg._sum.amount ?? 0);
+  const billed = Number(billedAgg._sum.totalAmount ?? 0);
+  const outstanding = Math.max(0, billed - collected);
 
   return (
     <div className="flex flex-col gap-6">
@@ -81,7 +106,94 @@ export default async function CustomerDetailPage({
         )}
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          icon={Wallet}
+          tone="success"
+          label="Lifetime revenue"
+          value={php(collected)}
+          subtitle="Payments received"
+        />
+        <StatCard
+          icon={Clock}
+          tone="accent"
+          label="Outstanding"
+          value={php(outstanding)}
+          subtitle="Billed, not yet paid"
+        />
+        <StatCard
+          icon={CalendarCheck}
+          tone="info"
+          label="Bookings"
+          value={customer.bookings.length}
+        />
+        <StatCard
+          icon={FolderOpen}
+          tone="primary"
+          label="Active projects"
+          value={activeProjectCount}
+        />
+      </div>
+
       <VesselsSection customerId={customer.id} vessels={customer.vessels} canManage={canManage} />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+          <div className="p-4">
+            <h2 className="font-heading text-base font-semibold">Projects</h2>
+            <p className="text-sm text-muted-foreground">Work delivered for this customer.</p>
+          </div>
+          {customer.projects.length === 0 ? (
+            <EmptyState className="border-none" title="No projects yet" />
+          ) : (
+            <ul className="flex flex-col divide-y divide-border">
+              {customer.projects.map((project) => (
+                <li key={project.id}>
+                  <Link
+                    href={`/dashboard/projects/${project.id}`}
+                    className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-secondary/40"
+                  >
+                    <span className="font-medium text-foreground">{project.name}</span>
+                    <Badge variant="outline">{project.status.replace(/_/g, " ")}</Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+          <div className="p-4">
+            <h2 className="font-heading text-base font-semibold">Invoices</h2>
+            <p className="text-sm text-muted-foreground">Billing history and balances.</p>
+          </div>
+          {customer.invoices.length === 0 ? (
+            <EmptyState className="border-none" title="No invoices yet" />
+          ) : (
+            <ul className="flex flex-col divide-y divide-border">
+              {customer.invoices.map((invoice) => (
+                <li key={invoice.id}>
+                  <Link
+                    href={`/dashboard/finance/invoices/${invoice.id}`}
+                    className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-secondary/40"
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">{invoice.invoiceNumber}</p>
+                      <p className="text-xs text-muted-foreground">{shortDate(invoice.issueDate)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-foreground">
+                        {php(Number(invoice.totalAmount))}
+                      </p>
+                      <Badge variant="outline">{invoice.status.replace(/_/g, " ")}</Badge>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
 
       <ContactHistorySection
         customerId={customer.id}
@@ -108,13 +220,7 @@ export default async function CustomerDetailPage({
               <li key={booking.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div>
                   <p className="font-medium text-foreground">{booking.service.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {booking.createdAt.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{shortDate(booking.createdAt)}</p>
                 </div>
                 <Badge variant="outline">{booking.status.replace(/_/g, " ")}</Badge>
               </li>
