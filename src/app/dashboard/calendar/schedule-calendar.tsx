@@ -210,14 +210,15 @@ export function ScheduleCalendar({
         {view === "agenda" && <AgendaList schedules={filtered} {...eventProps} />}
       </div>
 
-      <EventFormDialog
-        key={dialog.event?.id ?? (dialog.presetDate ? dialog.presetDate.toISOString() : "new")}
-        open={dialog.open}
-        onOpenChange={(open) => setDialog((current) => ({ ...current, open }))}
-        consultants={consultants}
-        event={dialog.event}
-        presetDate={dialog.presetDate}
-      />
+      {dialog.open && (
+        <EventFormDialog
+          open
+          onOpenChange={(open) => setDialog((current) => ({ ...current, open }))}
+          consultants={consultants}
+          event={dialog.event}
+          presetDate={dialog.presetDate}
+        />
+      )}
     </div>
   );
 }
