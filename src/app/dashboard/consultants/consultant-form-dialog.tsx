@@ -32,9 +32,16 @@ export type ConsultantRecord = {
   phone: string | null;
   address: string | null;
   baseLocations: string[];
+  availability: string;
 };
 
 const BASE_LOCATION_SLOTS = 5;
+
+export const AVAILABILITY_OPTIONS = [
+  { value: "AVAILABLE", label: "Available" },
+  { value: "NOT_AVAILABLE", label: "Not available" },
+  { value: "ONBOARD", label: "Onboard" },
+] as const;
 
 export function ConsultantFormDialog({
   trigger,
@@ -114,6 +121,21 @@ export function ConsultantFormDialog({
           <div className="grid gap-1.5">
             <Label htmlFor="phone">Phone</Label>
             <Input id="phone" name="phone" type="tel" defaultValue={consultant?.phone ?? ""} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="availability">Availability</Label>
+            <Select name="availability" defaultValue={consultant?.availability ?? "AVAILABLE"}>
+              <SelectTrigger id="availability" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {AVAILABILITY_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="address">Address</Label>

@@ -29,6 +29,11 @@ const baseLocationsField = z
     return result.slice(0, 5);
   });
 
+const availabilityField = z
+  .enum(["AVAILABLE", "NOT_AVAILABLE", "ONBOARD"])
+  .optional()
+  .transform((value) => value ?? "AVAILABLE");
+
 export const createConsultantSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email"),
@@ -38,6 +43,7 @@ export const createConsultantSchema = z.object({
   phone: nullableText,
   address: nullableText,
   baseLocations: baseLocationsField,
+  availability: availabilityField,
 });
 
 export const updateConsultantSchema = z.object({
@@ -48,6 +54,7 @@ export const updateConsultantSchema = z.object({
   phone: nullableText,
   address: nullableText,
   baseLocations: baseLocationsField,
+  availability: availabilityField,
 });
 
 export type CreateConsultantInput = z.infer<typeof createConsultantSchema>;

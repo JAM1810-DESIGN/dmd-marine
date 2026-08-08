@@ -27,6 +27,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { notify } from "@/lib/notify";
+import { cn } from "@/lib/utils";
 import { rankSortIndex, CONSULTANT_RANKS } from "@/lib/consultant-ranks";
 import { deactivateConsultant, reactivateConsultant } from "./actions";
 import { ConsultantFormDialog, type ConsultantRecord } from "./consultant-form-dialog";
@@ -40,6 +41,21 @@ export type ConsultantRow = ConsultantRecord & {
 };
 
 type SortBy = "name" | "rank" | "load" | "revenue";
+
+const AVAILABILITY_META: Record<string, { label: string; className: string }> = {
+  AVAILABLE: { label: "Available", className: "bg-success/15 text-success" },
+  NOT_AVAILABLE: { label: "Not available", className: "bg-destructive/15 text-destructive" },
+  ONBOARD: { label: "Onboard", className: "bg-ocean/15 text-ocean" },
+};
+
+function AvailabilityBadge({ availability }: { availability: string }) {
+  const meta = AVAILABILITY_META[availability] ?? { label: availability, className: "bg-secondary" };
+  return (
+    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", meta.className)}>
+      {meta.label}
+    </span>
+  );
+}
 
 const php = (amount: number) =>
   amount.toLocaleString("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 });
@@ -158,6 +174,7 @@ export function ConsultantsTable({
               <TableHead>Active load</TableHead>
               <TableHead>Completed</TableHead>
               <TableHead>Revenue</TableHead>
+              <TableHead>Availability</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-20" />
             </TableRow>
@@ -205,6 +222,9 @@ export function ConsultantsTable({
                   <TableCell className="text-sm">{consultant.completedProjects}</TableCell>
                   <TableCell className="text-sm font-medium text-foreground">
                     {php(consultant.revenue)}
+                  </TableCell>
+                  <TableCell>
+                    <AvailabilityBadge availability={consultant.availability} />
                   </TableCell>
                   <TableCell>
                     <Badge variant={consultant.isActive ? "default" : "outline"}>

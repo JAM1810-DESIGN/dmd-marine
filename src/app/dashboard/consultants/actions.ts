@@ -25,6 +25,7 @@ export async function createConsultant(
     phone: formData.get("phone") || undefined,
     address: formData.get("address") || undefined,
     baseLocations: formData.getAll("baseLocations").map(String),
+    availability: formData.get("availability") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
@@ -48,6 +49,7 @@ export async function createConsultant(
         phone: parsed.data.phone,
         address: parsed.data.address,
         baseLocations: parsed.data.baseLocations,
+        availability: parsed.data.availability,
       },
     });
 
@@ -81,6 +83,7 @@ export async function updateConsultant(
     phone: formData.get("phone") || undefined,
     address: formData.get("address") || undefined,
     baseLocations: formData.getAll("baseLocations").map(String),
+    availability: formData.get("availability") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };

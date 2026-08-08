@@ -15,6 +15,12 @@ export const metadata: Metadata = { title: "Consultant Profile" };
 const php = (amount: number) =>
   amount.toLocaleString("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 });
 
+const AVAILABILITY_LABELS: Record<string, string> = {
+  AVAILABLE: "Available",
+  NOT_AVAILABLE: "Not available",
+  ONBOARD: "Onboard",
+};
+
 function shortDate(date: Date | null) {
   return date ? date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "No date";
 }
@@ -78,6 +84,7 @@ export default async function ConsultantDetailPage({
             <Badge variant={consultant.isActive ? "default" : "outline"}>
               {consultant.isActive ? "Active" : "Inactive"}
             </Badge>
+            <Badge variant="outline">{AVAILABILITY_LABELS[consultant.availability] ?? consultant.availability}</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
             {consultant.email}

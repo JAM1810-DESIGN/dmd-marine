@@ -34,6 +34,12 @@ enum Role {
   FINANCE_OFFICER
 }
 
+enum ConsultantAvailability {
+  AVAILABLE
+  NOT_AVAILABLE
+  ONBOARD
+}
+
 enum ContactType {
   CALL
   EMAIL
@@ -165,7 +171,8 @@ model User {
   vesselExperience String?
   phone            String?
   address          String?
-  baseLocations    String[] @default([])
+  baseLocations    String[]               @default([])
+  availability     ConsultantAvailability @default(AVAILABLE)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

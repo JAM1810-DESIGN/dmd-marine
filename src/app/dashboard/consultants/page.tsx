@@ -70,6 +70,7 @@ export default async function ConsultantsPage() {
           phone: consultant.phone,
           address: consultant.address,
           baseLocations: consultant.baseLocations,
+          availability: consultant.availability,
           isActive: consultant.isActive,
           activeBookings: activeBookingsBy.get(consultant.id) ?? 0,
           activeProjects: activeProjectsBy.get(consultant.id) ?? 0,
