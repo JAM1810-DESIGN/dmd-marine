@@ -15,7 +15,11 @@ export default async function ProjectsPage() {
   const [projects, customers, vessels, consultants] = await Promise.all([
     db.project.findMany({
       orderBy: { createdAt: "desc" },
-      include: { customer: true, consultant: true },
+      include: {
+        customer: true,
+        consultant: true,
+        requiredForms: { select: { completed: true } },
+      },
     }),
     db.customer.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     db.vessel.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -64,6 +68,8 @@ export default async function ProjectsPage() {
           endDate: project.endDate ? project.endDate.toISOString() : null,
           description: project.description,
           location: project.location,
+          formsTotal: project.requiredForms.length,
+          formsCompleted: project.requiredForms.filter((form) => form.completed).length,
         }))}
       />
     </div>

@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Wallet, Receipt, TrendingUp, ListChecks } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { isStorageConfigured } from "@/lib/storage";
 import { Badge } from "@/components/ui/badge";
+import { StatCard } from "@/components/shared/stat-card";
+import { EmptyState } from "@/components/shared/empty-state";
 import { EditProjectButton } from "./edit-project-button";
 import { DocumentsSection } from "./documents-section";
 import { SchedulesSection } from "./schedules-section";
 import { RequiredFormsSection } from "./required-forms-section";
 
 export const metadata: Metadata = { title: "Project" };
+
+const php = (amount: number) =>
+  amount.toLocaleString("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 });
+
+function shortDate(date: Date) {
+  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+}
 
 export default async function ProjectDetailPage({
   params,
@@ -37,6 +46,8 @@ export default async function ProjectDetailPage({
         documents: { orderBy: { createdAt: "desc" } },
         schedules: { orderBy: { startAt: "asc" }, include: { consultant: true } },
         requiredForms: { orderBy: { order: "asc" }, include: { companyDocument: true } },
+        invoices: { orderBy: { issueDate: "desc" } },
+        expenses: { orderBy: { expenseDate: "desc" }, include: { category: { select: { name: true } } } },
       },
     }),
     db.customer.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -60,6 +71,18 @@ export default async function ProjectDetailPage({
   });
 
   if (!project) notFound();
+
+  const billed = project.invoices
+    .filter((invoice) => invoice.status !== "CANCELLED")
+    .reduce((sum, invoice) => sum + Number(invoice.totalAmount), 0);
+  const spent = project.expenses
+    .filter((expense) => expense.paymentStatus === "APPROVED" || expense.paymentStatus === "PAID")
+    .reduce((sum, expense) => sum + Number(expense.amount) + Number(expense.taxAmount), 0);
+  const margin = billed - spent;
+
+  const formsTotal = project.requiredForms.length;
+  const formsDone = project.requiredForms.filter((form) => form.completed).length;
+  const progress = formsTotal > 0 ? Math.round((formsDone / formsTotal) * 100) : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -112,6 +135,19 @@ export default async function ProjectDetailPage({
         )}
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={Wallet} tone="success" label="Revenue billed" value={php(billed)} subtitle="Non-cancelled invoices" />
+        <StatCard icon={Receipt} tone="primary" label="Expenses" value={php(spent)} subtitle="Approved or paid" />
+        <StatCard icon={TrendingUp} tone={margin >= 0 ? "accent" : "primary"} label="Margin" value={php(margin)} />
+        <StatCard
+          icon={ListChecks}
+          tone="info"
+          label="Forms progress"
+          value={progress === null ? "—" : `${progress}%`}
+          subtitle={formsTotal > 0 ? `${formsDone} of ${formsTotal} done` : "No required forms"}
+        />
+      </div>
+
       <SchedulesSection
         projectId={project.id}
         projectName={project.name}
@@ -156,6 +192,67 @@ export default async function ProjectDetailPage({
           createdAt: doc.createdAt.toISOString(),
         }))}
       />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+          <div className="p-4">
+            <h2 className="font-heading text-base font-semibold">Invoices</h2>
+            <p className="text-sm text-muted-foreground">Billing tied to this project.</p>
+          </div>
+          {project.invoices.length === 0 ? (
+            <EmptyState className="border-none" title="No invoices yet" />
+          ) : (
+            <ul className="flex flex-col divide-y divide-border">
+              {project.invoices.map((invoice) => (
+                <li key={invoice.id}>
+                  <Link
+                    href={`/dashboard/finance/invoices/${invoice.id}`}
+                    className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-secondary/40"
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">{invoice.invoiceNumber}</p>
+                      <p className="text-xs text-muted-foreground">{shortDate(invoice.issueDate)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-foreground">{php(Number(invoice.totalAmount))}</p>
+                      <Badge variant="outline">{invoice.status.replace(/_/g, " ")}</Badge>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+          <div className="p-4">
+            <h2 className="font-heading text-base font-semibold">Expenses</h2>
+            <p className="text-sm text-muted-foreground">Costs charged to this project.</p>
+          </div>
+          {project.expenses.length === 0 ? (
+            <EmptyState className="border-none" title="No expenses yet" />
+          ) : (
+            <ul className="flex flex-col divide-y divide-border">
+              {project.expenses.map((expense) => (
+                <li key={expense.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                  <div>
+                    <p className="font-medium text-foreground">{expense.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {expense.category.name} · {shortDate(expense.expenseDate)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-foreground">
+                      {php(Number(expense.amount) + Number(expense.taxAmount))}
+                    </p>
+                    <Badge variant="outline">{expense.paymentStatus.replace(/_/g, " ")}</Badge>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
