@@ -494,6 +494,7 @@ model CompanyDocument {
   url          String
   mimeType     String?
   sizeBytes    Int?
+  expiresAt    DateTime?
   uploadedById String?
 
   createdAt DateTime @default(now())

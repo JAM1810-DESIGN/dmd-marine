@@ -42,9 +42,11 @@ export default async function DashboardPage() {
   const role = session?.user.role;
   const isStaff = role === "STAFF";
   const canViewFinance = role === "ADMIN" || role === "MANAGER" || role === "FINANCE_OFFICER";
+  const canManageDocs = role === "ADMIN" || role === "MANAGER";
 
   const startOfToday = startOfDay(new Date());
   const endOfToday = endOfDay(new Date());
+  const in30Days = new Date(endOfToday.getTime() + 30 * 24 * 60 * 60 * 1000);
 
   const [
     newInquiries,
@@ -58,6 +60,7 @@ export default async function DashboardPage() {
     myAssignedBookings,
     myActiveProjects,
     todaySchedules,
+    expiringDocs,
   ] = await Promise.all([
     db.booking.count({ where: { status: "NEW" } }),
     db.booking.count({
@@ -91,6 +94,9 @@ export default async function DashboardPage() {
       orderBy: { startAt: "asc" },
       include: { consultant: { select: { name: true } } },
     }),
+    canManageDocs
+      ? db.companyDocument.count({ where: { expiresAt: { not: null, lte: in30Days } } })
+      : Promise.resolve(0),
   ]);
 
   const overdueCount = overdueAgg._count;
@@ -129,6 +135,9 @@ export default async function DashboardPage() {
   }
   if (canViewFinance && overdueCount > 0) {
     attention.push({ key: "overdue", label: `${overdueCount} overdue ${overdueCount === 1 ? "invoice" : "invoices"} · ${currency(overdueTotal)}`, href: "/dashboard/finance/invoices", icon: Receipt, tone: "text-destructive" });
+  }
+  if (canManageDocs && expiringDocs > 0) {
+    attention.push({ key: "docs", label: `${expiringDocs} ${expiringDocs === 1 ? "document expiring" : "documents expiring"} or expired`, href: "/dashboard/documents", icon: FileClock, tone: "text-accent" });
   }
 
   const financeWidgets = canViewFinance

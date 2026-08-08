@@ -12,7 +12,7 @@ export async function createCompanyDocument(
   _prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireRole("ADMIN", "MANAGER");
+  const session = await requireRole("ADMIN", "MANAGER");
 
   if (!isStorageConfigured) {
     return { error: "File storage is not configured yet." };
@@ -22,6 +22,7 @@ export async function createCompanyDocument(
     title: formData.get("title"),
     category: formData.get("category"),
     description: formData.get("description") || undefined,
+    expiresAt: formData.get("expiresAt") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
@@ -39,10 +40,12 @@ export async function createCompanyDocument(
       title: parsed.data.title,
       category: parsed.data.category,
       description: parsed.data.description,
+      expiresAt: parsed.data.expiresAt,
       fileName: uploaded.fileName,
       url: uploaded.url,
       mimeType: uploaded.mimeType,
       sizeBytes: uploaded.sizeBytes,
+      uploadedById: session.user.id,
     },
   });
 
@@ -61,6 +64,7 @@ export async function updateCompanyDocument(
     title: formData.get("title"),
     category: formData.get("category"),
     description: formData.get("description") || undefined,
+    expiresAt: formData.get("expiresAt") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
@@ -81,6 +85,7 @@ export async function updateCompanyDocument(
       title: parsed.data.title,
       category: parsed.data.category,
       description: parsed.data.description,
+      expiresAt: parsed.data.expiresAt,
       ...(uploaded
         ? {
             fileName: uploaded.fileName,

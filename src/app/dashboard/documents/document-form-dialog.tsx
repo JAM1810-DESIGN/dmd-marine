@@ -27,6 +27,7 @@ export type CompanyDocumentRecord = {
   title: string;
   category: "DOCUMENT" | "FORM";
   description: string | null;
+  expiresAt: string | null;
 };
 
 export function DocumentFormDialog({
@@ -89,6 +90,18 @@ export function DocumentFormDialog({
               defaultValue={document?.description ?? ""}
               rows={3}
             />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="expiresAt">Expiry date (optional)</Label>
+            <Input
+              id="expiresAt"
+              name="expiresAt"
+              type="date"
+              defaultValue={document?.expiresAt ? document.expiresAt.slice(0, 10) : ""}
+            />
+            <p className="text-xs text-muted-foreground">
+              For certificates and time-limited documents. Leave blank if it never expires.
+            </p>
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="file">{document ? "Replace File (optional)" : "File"}</Label>
