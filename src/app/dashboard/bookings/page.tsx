@@ -3,10 +3,20 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { BookingCalendar } from "./booking-calendar";
 import { BookingsTable } from "./bookings-table";
+import {
+  PAGE_SIZE,
+  parseBookingListParams,
+  buildBookingWhere,
+  buildBookingOrderBy,
+} from "./query";
 
 export const metadata: Metadata = { title: "Bookings" };
 
-export default async function BookingsPage() {
+export default async function BookingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await auth();
   const canManage =
     session?.user.role === "ADMIN" ||
@@ -14,10 +24,29 @@ export default async function BookingsPage() {
     session?.user.role === "STAFF";
   const canManageFinance = session?.user.role === "ADMIN" || session?.user.role === "FINANCE_OFFICER";
 
-  const [bookings, consultants] = await Promise.all([
+  const params = parseBookingListParams(await searchParams);
+  const where = buildBookingWhere(params);
+
+  const [total, pageBookings, calendarSource, consultants] = await Promise.all([
+    db.booking.count({ where }),
     db.booking.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { service: true },
+      where,
+      orderBy: buildBookingOrderBy(params),
+      include: { service: { select: { name: true } } },
+      skip: (params.page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    // Calendar shows every dated booking, independent of table paging/filters.
+    db.booking.findMany({
+      where: { preferredDate: { not: null } },
+      select: {
+        id: true,
+        customerName: true,
+        status: true,
+        preferredDate: true,
+        preferredTime: true,
+        service: { select: { name: true } },
+      },
     }),
     db.user.findMany({
       where: { isActive: true },
@@ -26,18 +55,16 @@ export default async function BookingsPage() {
     }),
   ]);
 
-  const calendarBookings = bookings
-    .filter((booking) => booking.preferredDate)
-    .map((booking) => ({
-      id: booking.id,
-      customerName: booking.customerName,
-      serviceName: booking.service.name,
-      status: booking.status,
-      preferredDate: booking.preferredDate!.toISOString(),
-      preferredTime: booking.preferredTime,
-    }));
+  const calendarBookings = calendarSource.map((booking) => ({
+    id: booking.id,
+    customerName: booking.customerName,
+    serviceName: booking.service.name,
+    status: booking.status,
+    preferredDate: booking.preferredDate!.toISOString(),
+    preferredTime: booking.preferredTime,
+  }));
 
-  const tableBookings = bookings.map((booking) => ({
+  const tableBookings = pageBookings.map((booking) => ({
     id: booking.id,
     customerName: booking.customerName,
     customerEmail: booking.customerEmail,
@@ -67,6 +94,9 @@ export default async function BookingsPage() {
         consultants={consultants}
         canManage={canManage}
         canManageFinance={canManageFinance}
+        total={total}
+        pageSize={PAGE_SIZE}
+        params={params}
       />
     </div>
   );
