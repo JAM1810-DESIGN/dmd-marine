@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { DashboardLayout } from "@/components/shared/dashboard-layout";
+import { AskAiWidget } from "@/components/shared/ask-ai-widget";
 import { refreshAppointmentReminders } from "@/lib/notifications";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
@@ -44,6 +45,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
       unreadCount={unreadCount}
     >
       {children}
+      <AskAiWidget />
     </DashboardLayout>
   );
 }
