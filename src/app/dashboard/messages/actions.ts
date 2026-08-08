@@ -57,6 +57,37 @@ export async function markAllRead(): Promise<ActionState> {
   }
 }
 
+/** Archives (hides) a message the current user sent or received. */
+export async function archiveMessage(id: string): Promise<ActionState> {
+  try {
+    const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    const result = await db.message.updateMany({
+      where: { id, OR: [{ toUserId: session.user.id }, { fromUserId: session.user.id }] },
+      data: { archivedAt: new Date() },
+    });
+    if (result.count === 0) return { error: "Message not found." };
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't archive the message. Try again." };
+  }
+}
+
+export async function unarchiveMessage(id: string): Promise<ActionState> {
+  try {
+    const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    const result = await db.message.updateMany({
+      where: { id, OR: [{ toUserId: session.user.id }, { fromUserId: session.user.id }] },
+      data: { archivedAt: null },
+    });
+    if (result.count === 0) return { error: "Message not found." };
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't restore the message. Try again." };
+  }
+}
+
 /** Deletes a message the current user sent or received. */
 export async function deleteMessage(id: string): Promise<ActionState> {
   try {

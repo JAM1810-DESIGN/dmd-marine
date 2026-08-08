@@ -6,6 +6,8 @@ const envSchema = z.object({
   NEXTAUTH_URL: z.url(),
   NEXT_PUBLIC_APP_URL: z.url(),
   NEXT_PUBLIC_APP_NAME: z.string().min(1),
+  // Optional: enables the AI draft-reply and Ask AI help features when set.
+  ANTHROPIC_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

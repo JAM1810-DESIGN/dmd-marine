@@ -12,18 +12,28 @@ export default async function MessagesPage() {
   const session = await auth();
   const userId = session!.user.id;
 
-  const [inboxMessages, sentMessages, recipients] = await Promise.all([
+  const [inboxMessages, sentMessages, archivedMessages, recipients] = await Promise.all([
     db.message.findMany({
-      where: { toUserId: userId, channel: "INTERNAL" },
+      where: { toUserId: userId, channel: "INTERNAL", archivedAt: null },
       orderBy: { createdAt: "desc" },
       take: 200,
       include: { fromUser: true },
     }),
     db.message.findMany({
-      where: { fromUserId: userId, channel: "INTERNAL" },
+      where: { fromUserId: userId, channel: "INTERNAL", archivedAt: null },
       orderBy: { createdAt: "desc" },
       take: 200,
       include: { toUser: true },
+    }),
+    db.message.findMany({
+      where: {
+        channel: "INTERNAL",
+        archivedAt: { not: null },
+        OR: [{ toUserId: userId }, { fromUserId: userId }],
+      },
+      orderBy: { archivedAt: "desc" },
+      take: 200,
+      include: { fromUser: true, toUser: true },
     }),
     db.user.findMany({
       where: { isActive: true, id: { not: userId } },
@@ -69,6 +79,18 @@ export default async function MessagesPage() {
           counterpartName: message.toUser?.name ?? "Unknown",
           counterpartId: message.toUserId,
         }))}
+        archived={archivedMessages.map((message) => {
+          const received = message.toUserId === userId;
+          return {
+            id: message.id,
+            subject: message.subject,
+            body: message.body,
+            isRead: message.isRead,
+            createdAt: message.createdAt.toISOString(),
+            counterpartName: (received ? message.fromUser?.name : message.toUser?.name) ?? "Unknown",
+            counterpartId: received ? message.fromUserId : message.toUserId,
+          };
+        })}
       />
     </div>
   );

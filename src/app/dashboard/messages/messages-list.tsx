@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { MessageSquare, Search, CheckCheck, Trash2, Sparkles, Send } from "lucide-react";
+import { MessageSquare, Search, CheckCheck, Trash2, Sparkles, Send, Archive, ArchiveRestore } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +10,17 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
-import { markMessageRead, markAllRead, deleteMessage, draftReply, sendMessage } from "./actions";
+import {
+  markMessageRead,
+  markAllRead,
+  deleteMessage,
+  archiveMessage,
+  unarchiveMessage,
+  draftReply,
+  sendMessage,
+} from "./actions";
+
+type Tab = "inbox" | "sent" | "archived";
 
 export type MessageRow = {
   id: string;
@@ -95,13 +105,22 @@ function ReplyComposer({ message }: { message: MessageRow }) {
   );
 }
 
-export function MessagesList({ inbox, sent }: { inbox: MessageRow[]; sent: MessageRow[] }) {
-  const [tab, setTab] = useState<"inbox" | "sent">("inbox");
+export function MessagesList({
+  inbox,
+  sent,
+  archived,
+}: {
+  inbox: MessageRow[];
+  sent: MessageRow[];
+  archived: MessageRow[];
+}) {
+  const [tab, setTab] = useState<Tab>("inbox");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [markPending, startMark] = useTransition();
+  const [actionPending, startAction] = useTransition();
 
-  const items = tab === "inbox" ? inbox : sent;
+  const items = tab === "inbox" ? inbox : tab === "sent" ? sent : archived;
   const unread = inbox.filter((m) => !m.isRead).length;
 
   const filtered = useMemo(() => {
@@ -124,7 +143,7 @@ export function MessagesList({ inbox, sent }: { inbox: MessageRow[]; sent: Messa
     }
   }
 
-  function switchTab(next: "inbox" | "sent") {
+  function switchTab(next: Tab) {
     setTab(next);
     setSelectedId(null);
   }
@@ -137,6 +156,9 @@ export function MessagesList({ inbox, sent }: { inbox: MessageRow[]; sent: Messa
         </Button>
         <Button variant={tab === "sent" ? "default" : "ghost"} size="sm" onClick={() => switchTab("sent")}>
           Sent
+        </Button>
+        <Button variant={tab === "archived" ? "default" : "ghost"} size="sm" onClick={() => switchTab("archived")}>
+          Archived
         </Button>
         <div className="relative ml-auto">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -172,7 +194,15 @@ export function MessagesList({ inbox, sent }: { inbox: MessageRow[]; sent: Messa
             <EmptyState
               className="border-none"
               icon={MessageSquare}
-              title={search ? "No matches" : tab === "inbox" ? "No messages yet" : "No sent messages yet"}
+              title={
+                search
+                  ? "No matches"
+                  : tab === "inbox"
+                    ? "No messages yet"
+                    : tab === "sent"
+                      ? "No sent messages yet"
+                      : "No archived messages"
+              }
               description={search ? "Try a different search." : "New messages will appear here."}
             />
           ) : (
@@ -235,6 +265,45 @@ export function MessagesList({ inbox, sent }: { inbox: MessageRow[]; sent: Messa
                 </div>
                 <div className="flex items-center gap-2">
                   {tab === "sent" && <Badge variant="outline">Sent</Badge>}
+                  {tab === "archived" ? (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Restore message"
+                      disabled={actionPending}
+                      onClick={() =>
+                        startAction(async () => {
+                          const result = await unarchiveMessage(selected.id);
+                          if (result.error) notify.error(result.error);
+                          else {
+                            notify.success("Message restored");
+                            setSelectedId(null);
+                          }
+                        })
+                      }
+                    >
+                      <ArchiveRestore className="size-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Archive message"
+                      disabled={actionPending}
+                      onClick={() =>
+                        startAction(async () => {
+                          const result = await archiveMessage(selected.id);
+                          if (result.error) notify.error(result.error);
+                          else {
+                            notify.success("Message archived");
+                            setSelectedId(null);
+                          }
+                        })
+                      }
+                    >
+                      <Archive className="size-4" />
+                    </Button>
+                  )}
                   <ConfirmDialog
                     trigger={
                       <Button variant="ghost" size="icon-sm" aria-label="Delete message">
