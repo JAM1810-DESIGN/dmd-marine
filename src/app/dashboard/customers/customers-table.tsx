@@ -15,6 +15,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CustomerFormDialog } from "./customer-form-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { buildCsv, downloadCsv } from "@/lib/csv";
@@ -215,6 +222,23 @@ export function CustomersTable({
               <LayoutGrid className="size-4" />
             </Button>
           </div>
+          <Select
+            value={params.sort}
+            onValueChange={(value) => {
+              const key = (value ?? "name") as CustomerSortKey;
+              updateParams({ sort: key, dir: key === "name" || key === "company" ? "asc" : "desc" });
+            }}
+          >
+            <SelectTrigger className="sm:w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name">Sort: Name</SelectItem>
+              <SelectItem value="company">Sort: Company</SelectItem>
+              <SelectItem value="vessels">Sort: Vessels</SelectItem>
+              <SelectItem value="bookings">Sort: Bookings</SelectItem>
+            </SelectContent>
+          </Select>
           <Button variant="outline" onClick={exportCsv}>
             <Download className="size-4" />
             Export
