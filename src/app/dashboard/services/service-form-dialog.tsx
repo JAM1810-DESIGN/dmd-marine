@@ -35,9 +35,13 @@ type ServiceRecord = {
   process: string | null;
   defaultConsultantId: string | null;
   order: number;
+  basePrice: number | null;
+  priceUnit: string | null;
   faq: unknown;
   requiredForms: RequiredFormRow[];
 };
+
+export const PRICE_UNITS = ["Fixed", "Per day", "Per hour", "Per vessel", "Per port call"] as const;
 
 export function ServiceFormDialog({
   open,
@@ -166,6 +170,37 @@ export function ServiceFormDialog({
             <div className="grid gap-1.5">
               <Label htmlFor="order">Display Order</Label>
               <Input id="order" name="order" type="number" defaultValue={service?.order ?? 0} />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor="basePrice">Base price (₱)</Label>
+              <Input
+                id="basePrice"
+                name="basePrice"
+                type="number"
+                min={0}
+                step="0.01"
+                defaultValue={service?.basePrice ?? ""}
+                placeholder="Leave blank for On request"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="priceUnit">Price unit</Label>
+              <Select name="priceUnit" defaultValue={service?.priceUnit ?? "none"}>
+                <SelectTrigger id="priceUnit" className="w-full">
+                  <SelectValue placeholder="None" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No unit</SelectItem>
+                  {PRICE_UNITS.map((unit) => (
+                    <SelectItem key={unit} value={unit}>
+                      {unit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

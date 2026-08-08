@@ -55,11 +55,24 @@ export default async function ServicesPage() {
           )}
 
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {category.services.map((service) => (
+            {category.services.map((service) => {
+              const prices = [service.basePrice, ...service.children.map((child) => child.basePrice)]
+                .filter((price): price is NonNullable<typeof price> => price != null)
+                .map((price) => Number(price));
+              const fromPrice = prices.length > 0 ? Math.min(...prices) : null;
+
+              return (
               <Card key={service.id} className="h-full transition-shadow hover:shadow-md">
                 <Link href={`/services/${service.slug}`}>
                   <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-base">{service.name}</CardTitle>
+                    <div>
+                      <CardTitle className="text-base">{service.name}</CardTitle>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {fromPrice != null
+                          ? `From ${fromPrice.toLocaleString("en-PH", { style: "currency", currency: "PHP", maximumFractionDigits: 0 })}`
+                          : "On request"}
+                      </p>
+                    </div>
                     <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
                   </CardHeader>
                 </Link>
@@ -78,7 +91,8 @@ export default async function ServicesPage() {
                   </ul>
                 )}
               </Card>
-            ))}
+              );
+            })}
           </div>
         </Section>
       ))}

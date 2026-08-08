@@ -102,6 +102,8 @@ export async function createService(
     process: formData.get("process") || undefined,
     defaultConsultantId: formData.get("defaultConsultantId") || undefined,
     order: formData.get("order") || 0,
+    basePrice: formData.get("basePrice") || undefined,
+    priceUnit: formData.get("priceUnit") || undefined,
     faq: parseFaq(formData.get("faq")),
   });
   if (!parsed.success) {
@@ -154,6 +156,8 @@ export async function updateService(
     process: formData.get("process") || undefined,
     defaultConsultantId: formData.get("defaultConsultantId") || undefined,
     order: formData.get("order") || 0,
+    basePrice: formData.get("basePrice") || undefined,
+    priceUnit: formData.get("priceUnit") || undefined,
     faq: parseFaq(formData.get("faq")),
   });
   if (!parsed.success) {
@@ -192,6 +196,31 @@ export async function toggleServiceActive(id: string, isActive: boolean) {
   await requireRole("ADMIN", "MANAGER");
   await db.service.update({ where: { id }, data: { isActive } });
   revalidatePath("/dashboard/services");
+}
+
+/** Inline price edit from the services table. Pass null to clear (On request). */
+export async function updateServicePrice(
+  id: string,
+  basePrice: number | null,
+  priceUnit: string | null,
+): Promise<ActionState> {
+  try {
+    await requireRole("ADMIN", "MANAGER");
+    if (basePrice !== null && (!Number.isFinite(basePrice) || basePrice < 0)) {
+      return { error: "Enter a valid price (0 or more)." };
+    }
+    await db.service.update({
+      where: { id },
+      data: {
+        basePrice: basePrice === null ? null : new Prisma.Decimal(basePrice),
+        priceUnit: priceUnit || null,
+      },
+    });
+    revalidatePath("/dashboard/services");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't update the price. Try again." };
+  }
 }
 
 // ── Required Forms ──────────────────────────────────────────────────────────

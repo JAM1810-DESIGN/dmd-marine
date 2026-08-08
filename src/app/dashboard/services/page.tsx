@@ -22,6 +22,7 @@ export default async function ServiceManagementPage() {
         category: true,
         defaultConsultant: true,
         requiredForms: { include: { companyDocument: true }, orderBy: { order: "asc" } },
+        _count: { select: { bookings: true } },
       },
     }),
     db.user.findMany({
@@ -82,6 +83,9 @@ export default async function ServiceManagementPage() {
           defaultConsultantId: service.defaultConsultantId,
           defaultConsultantName: service.defaultConsultant?.name ?? null,
           order: service.order,
+          basePrice: service.basePrice ? Number(service.basePrice) : null,
+          priceUnit: service.priceUnit,
+          bookingCount: service._count.bookings,
           isActive: service.isActive,
           faq: service.faq,
           requiredForms: service.requiredForms.map((form) => ({

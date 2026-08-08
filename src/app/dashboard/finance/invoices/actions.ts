@@ -269,6 +269,9 @@ export async function createInvoiceFromBooking(bookingId: string): Promise<Actio
   const booking = await db.booking.findUniqueOrThrow({ where: { id: bookingId }, include: { service: true } });
   const invoiceNumber = await nextInvoiceNumber();
 
+  // Prefill the line from the service's base price so staff don't retype it.
+  const unitPrice = booking.service.basePrice ?? new Prisma.Decimal(0);
+
   const invoice = await db.invoice.create({
     data: {
       invoiceNumber,
@@ -279,11 +282,11 @@ export async function createInvoiceFromBooking(bookingId: string): Promise<Actio
       bookingId: booking.id,
       branchId: booking.branchId,
       issueDate: new Date(),
-      subtotal: 0,
+      subtotal: unitPrice,
       taxAmount: 0,
-      totalAmount: 0,
+      totalAmount: unitPrice,
       items: {
-        create: [{ description: booking.service.name, quantity: new Prisma.Decimal(1), unitPrice: 0, taxRate: 0, lineTotal: 0 }],
+        create: [{ description: booking.service.name, quantity: new Prisma.Decimal(1), unitPrice, taxRate: 0, lineTotal: unitPrice }],
       },
     },
   });

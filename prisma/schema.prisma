@@ -319,6 +319,8 @@ model Service {
   scope               String?
   process             String?
   faq                 Json?
+  basePrice           Decimal? @db.Decimal(12, 2)
+  priceUnit           String?
   defaultConsultantId String?
   isActive            Boolean @default(true)
   order               Int     @default(0)
