@@ -5,7 +5,7 @@
  */
 
 export type LocatableConsultant = {
-  baseLocation?: string | null;
+  baseLocations?: string[] | null;
   address?: string | null;
 };
 
@@ -26,16 +26,18 @@ export function proximityScore(consultant: LocatableConsultant, location: string
   const target = location?.trim().toLowerCase();
   if (!target) return 0;
 
-  const base = consultant.baseLocation?.trim().toLowerCase() ?? "";
-  if (base && base === target) return 3;
+  const bases = (consultant.baseLocations ?? [])
+    .map((base) => base.trim().toLowerCase())
+    .filter(Boolean);
+
+  // Exact match on any base location is the strongest signal.
+  if (bases.some((base) => base === target)) return 3;
 
   const targetTokens = new Set(normalize(target));
   if (targetTokens.size === 0) return 0;
 
-  if (base) {
-    const baseTokens = normalize(base);
-    if (baseTokens.some((token) => targetTokens.has(token))) return 2;
-  }
+  // Any base location sharing a token (same port/city) with the target.
+  if (bases.some((base) => normalize(base).some((token) => targetTokens.has(token)))) return 2;
 
   const address = consultant.address?.toLowerCase() ?? "";
   if (address) {

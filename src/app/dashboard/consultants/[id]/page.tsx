@@ -85,12 +85,12 @@ export default async function ConsultantDetailPage({
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {consultant.rank && <Badge variant="outline">{consultant.rank}</Badge>}
-            {consultant.baseLocation && (
-              <Badge variant="outline">
+            {consultant.baseLocations.map((location) => (
+              <Badge key={location} variant="outline">
                 <MapPin className="mr-1 size-3" />
-                {consultant.baseLocation}
+                {location}
               </Badge>
-            )}
+            ))}
           </div>
           {consultant.address && (
             <p className="mt-2 max-w-xl text-sm text-muted-foreground">{consultant.address}</p>

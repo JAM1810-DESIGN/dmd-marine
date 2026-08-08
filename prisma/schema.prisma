@@ -165,7 +165,7 @@ model User {
   vesselExperience String?
   phone            String?
   address          String?
-  baseLocation     String?
+  baseLocations    String[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

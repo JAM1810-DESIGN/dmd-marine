@@ -22,7 +22,7 @@ export default async function ProjectsPage() {
     db.user.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, baseLocation: true, address: true },
+      select: { id: true, name: true, baseLocations: true, address: true },
     }),
   ]);
 

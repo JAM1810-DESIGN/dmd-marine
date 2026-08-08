@@ -31,8 +31,10 @@ export type ConsultantRecord = {
   vesselExperience: string | null;
   phone: string | null;
   address: string | null;
-  baseLocation: string | null;
+  baseLocations: string[];
 };
+
+const BASE_LOCATION_SLOTS = 5;
 
 export function ConsultantFormDialog({
   trigger,
@@ -124,15 +126,20 @@ export function ConsultantFormDialog({
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="baseLocation">Base location (port / city)</Label>
-            <Input
-              id="baseLocation"
-              name="baseLocation"
-              defaultValue={consultant?.baseLocation ?? ""}
-              placeholder="e.g. Aberdeen"
-            />
+            <Label>Base locations (up to 5 ports / cities)</Label>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {Array.from({ length: BASE_LOCATION_SLOTS }).map((_, index) => (
+                <Input
+                  key={index}
+                  name="baseLocations"
+                  defaultValue={consultant?.baseLocations[index] ?? ""}
+                  placeholder={`Location ${index + 1}`}
+                  aria-label={`Base location ${index + 1}`}
+                />
+              ))}
+            </div>
             <p className="text-xs text-muted-foreground">
-              Used to highlight the nearest consultant when assigning work.
+              Used to highlight the nearest consultant when assigning work. Blank boxes are ignored.
             </p>
           </div>
 

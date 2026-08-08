@@ -44,7 +44,7 @@ export default async function ProjectDetailPage({
     db.user.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, baseLocation: true, address: true },
+      select: { id: true, name: true, baseLocations: true, address: true },
     }),
     db.companyDocument.findMany({
       where: { category: "FORM" },

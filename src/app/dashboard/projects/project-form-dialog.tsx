@@ -28,7 +28,7 @@ const STATUS_OPTIONS = ["NEW", "PLANNING", "SCHEDULED", "ACTIVE", "COMPLETED", "
 export type ConsultantOption = {
   id: string;
   name: string;
-  baseLocation: string | null;
+  baseLocations: string[];
   address: string | null;
 };
 

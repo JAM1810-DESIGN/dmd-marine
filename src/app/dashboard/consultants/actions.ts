@@ -24,7 +24,7 @@ export async function createConsultant(
     vesselExperience: formData.get("vesselExperience") || undefined,
     phone: formData.get("phone") || undefined,
     address: formData.get("address") || undefined,
-    baseLocation: formData.get("baseLocation") || undefined,
+    baseLocations: formData.getAll("baseLocations").map(String),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
@@ -47,7 +47,7 @@ export async function createConsultant(
         vesselExperience: parsed.data.vesselExperience,
         phone: parsed.data.phone,
         address: parsed.data.address,
-        baseLocation: parsed.data.baseLocation,
+        baseLocations: parsed.data.baseLocations,
       },
     });
 
@@ -80,7 +80,7 @@ export async function updateConsultant(
     vesselExperience: formData.get("vesselExperience") || undefined,
     phone: formData.get("phone") || undefined,
     address: formData.get("address") || undefined,
-    baseLocation: formData.get("baseLocation") || undefined,
+    baseLocations: formData.getAll("baseLocations").map(String),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
