@@ -13,6 +13,8 @@ import {
   Image as ImageIcon,
   FileSpreadsheet,
   File as FileIcon,
+  List,
+  LayoutGrid,
 } from "lucide-react";
 import {
   Table,
@@ -54,6 +56,7 @@ export type CompanyDocumentRow = CompanyDocumentRecord & {
 
 type CategoryFilter = "ALL" | "DOCUMENT" | "FORM";
 type SortBy = "recent" | "title" | "size" | "expiry" | "usage";
+type ViewMode = "table" | "cards";
 
 const PAGE_SIZE = 10;
 const EXPIRING_DAYS = 30;
@@ -134,6 +137,92 @@ function UsageCell({ services, projects }: { services: number; projects: number 
   );
 }
 
+function DocumentActions({ doc, canManage }: { doc: CompanyDocumentRow; canManage: boolean }) {
+  const inUse = doc.serviceCount + doc.projectCount;
+  return (
+    <div className="flex items-center gap-1">
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label="View"
+        nativeButton={false}
+        render={<a href={doc.url} target="_blank" rel="noreferrer" />}
+      >
+        <Eye className="size-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Download"
+        nativeButton={false}
+        render={<a href={doc.url} download={doc.fileName} />}
+      >
+        <Download className="size-4" />
+      </Button>
+      {canManage && (
+        <>
+          <DocumentFormDialog
+            document={doc}
+            trigger={
+              <Button variant="ghost" size="icon-sm" aria-label="Edit document">
+                <Pencil className="size-4" />
+              </Button>
+            }
+          />
+          <ConfirmDialog
+            trigger={
+              <Button variant="ghost" size="icon-sm" aria-label="Delete document">
+                <Trash2 className="size-4 text-destructive" />
+              </Button>
+            }
+            title={`Delete "${doc.title}"?`}
+            description={
+              inUse > 0
+                ? `In use by ${doc.serviceCount} ${doc.serviceCount === 1 ? "service" : "services"} and ${doc.projectCount} project ${doc.projectCount === 1 ? "checklist" : "checklists"}. Deleting removes it from all of them. This can't be undone.`
+                : "This can't be undone."
+            }
+            confirmLabel="Delete"
+            variant="destructive"
+            onConfirm={async () => {
+              await deleteCompanyDocument(doc.id);
+              notify.success("Document deleted");
+            }}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+function DocumentCard({ doc, canManage }: { doc: CompanyDocumentRow; canManage: boolean }) {
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="flex items-start gap-3">
+        <FileTypeIcon mimeType={doc.mimeType} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium text-foreground">{doc.title}</p>
+          {doc.description && (
+            <p className="truncate text-xs text-muted-foreground">{doc.description}</p>
+          )}
+        </div>
+        <Badge variant="outline">{doc.category === "FORM" ? "Form" : "Document"}</Badge>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <UsageCell services={doc.serviceCount} projects={doc.projectCount} />
+        <ExpiryCell iso={doc.expiresAt} />
+      </div>
+
+      <div className="flex items-center justify-between border-t border-border pt-3">
+        <span className="truncate text-xs text-muted-foreground">
+          {doc.uploaderName ?? "Unknown"} · {formatSize(doc.sizeBytes)}
+        </span>
+        <DocumentActions doc={doc} canManage={canManage} />
+      </div>
+    </div>
+  );
+}
+
 export function DocumentsTable({
   documents,
   canManage,
@@ -147,6 +236,7 @@ export function DocumentsTable({
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("ALL");
   const [uploaderFilter, setUploaderFilter] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<SortBy>("recent");
+  const [view, setView] = useState<ViewMode>("table");
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
@@ -198,16 +288,38 @@ export function DocumentsTable({
               Company documents and downloadable forms, with usage and expiry.
             </p>
           </div>
-          {canManage && (
-            <DocumentFormDialog
-              trigger={
-                <Button size="sm">
-                  <Plus className="size-4" />
-                  New Document
-                </Button>
-              }
-            />
-          )}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center rounded-md border border-border p-0.5">
+              <Button
+                variant={view === "table" ? "secondary" : "ghost"}
+                size="icon-sm"
+                aria-label="Table view"
+                aria-pressed={view === "table"}
+                onClick={() => setView("table")}
+              >
+                <List className="size-4" />
+              </Button>
+              <Button
+                variant={view === "cards" ? "secondary" : "ghost"}
+                size="icon-sm"
+                aria-label="Card view"
+                aria-pressed={view === "cards"}
+                onClick={() => setView("cards")}
+              >
+                <LayoutGrid className="size-4" />
+              </Button>
+            </div>
+            {canManage && (
+              <DocumentFormDialog
+                trigger={
+                  <Button size="sm">
+                    <Plus className="size-4" />
+                    New Document
+                  </Button>
+                }
+              />
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -265,22 +377,27 @@ export function DocumentsTable({
         />
       ) : (
         <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Used by</TableHead>
-                <TableHead>Uploaded by</TableHead>
-                <TableHead>Expiry</TableHead>
-                <TableHead>Size</TableHead>
-                <TableHead className="w-32" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paged.map((doc) => {
-                const inUse = doc.serviceCount + doc.projectCount;
-                return (
+          {view === "cards" ? (
+            <div className="grid grid-cols-1 gap-3.5 p-4 pt-0 sm:grid-cols-2 xl:grid-cols-3">
+              {paged.map((doc) => (
+                <DocumentCard key={doc.id} doc={doc} canManage={canManage} />
+              ))}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Used by</TableHead>
+                  <TableHead>Uploaded by</TableHead>
+                  <TableHead>Expiry</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead className="w-32" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paged.map((doc) => (
                   <TableRow key={doc.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -311,64 +428,13 @@ export function DocumentsTable({
                       {formatSize(doc.sizeBytes)}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="View"
-                          nativeButton={false}
-                          render={<a href={doc.url} target="_blank" rel="noreferrer" />}
-                        >
-                          <Eye className="size-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="Download"
-                          nativeButton={false}
-                          render={<a href={doc.url} download={doc.fileName} />}
-                        >
-                          <Download className="size-4" />
-                        </Button>
-                        {canManage && (
-                          <>
-                            <DocumentFormDialog
-                              key={doc.id}
-                              document={doc}
-                              trigger={
-                                <Button variant="ghost" size="icon-sm" aria-label="Edit document">
-                                  <Pencil className="size-4" />
-                                </Button>
-                              }
-                            />
-                            <ConfirmDialog
-                              trigger={
-                                <Button variant="ghost" size="icon-sm" aria-label="Delete document">
-                                  <Trash2 className="size-4 text-destructive" />
-                                </Button>
-                              }
-                              title={`Delete "${doc.title}"?`}
-                              description={
-                                inUse > 0
-                                  ? `In use by ${doc.serviceCount} ${doc.serviceCount === 1 ? "service" : "services"} and ${doc.projectCount} project ${doc.projectCount === 1 ? "checklist" : "checklists"}. Deleting removes it from all of them. This can't be undone.`
-                                  : "This can't be undone."
-                              }
-                              confirmLabel="Delete"
-                              variant="destructive"
-                              onConfirm={async () => {
-                                await deleteCompanyDocument(doc.id);
-                                notify.success("Document deleted");
-                              }}
-                            />
-                          </>
-                        )}
-                      </div>
+                      <DocumentActions doc={doc} canManage={canManage} />
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          )}
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border p-4">
