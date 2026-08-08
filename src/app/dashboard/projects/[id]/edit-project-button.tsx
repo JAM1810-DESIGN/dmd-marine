@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProjectFormDialog } from "../project-form-dialog";
+import { ProjectFormDialog, type ConsultantOption } from "../project-form-dialog";
 
 type ProjectRecord = {
   id: string;
@@ -16,6 +16,7 @@ type ProjectRecord = {
   startDate: string | null;
   endDate: string | null;
   description: string | null;
+  location: string | null;
 };
 
 export function EditProjectButton({
@@ -29,7 +30,7 @@ export function EditProjectButton({
   customers: { id: string; name: string }[];
   vessels: { id: string; name: string }[];
   services: { id: string; name: string }[];
-  consultants: { id: string; name: string }[];
+  consultants: ConsultantOption[];
 }) {
   const [open, setOpen] = useState(false);
 

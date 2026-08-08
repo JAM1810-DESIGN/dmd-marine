@@ -14,6 +14,7 @@ export const projectSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   description: z.string().optional(),
+  location: z.string().optional(),
 });
 
 export type ProjectInput = z.infer<typeof projectSchema>;

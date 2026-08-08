@@ -23,6 +23,7 @@ function parseProject(formData: FormData) {
     startDate: formData.get("startDate") || undefined,
     endDate: formData.get("endDate") || undefined,
     description: formData.get("description") || undefined,
+    location: formData.get("location") || undefined,
   });
 }
 
@@ -126,6 +127,7 @@ export async function createProjectFromBooking(
       bookingId: booking.id,
       consultantId: booking.assignedConsultantId,
       status: "NEW",
+      location: booking.port,
     },
   });
 

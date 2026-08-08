@@ -164,6 +164,8 @@ model User {
   rank             String?
   vesselExperience String?
   phone            String?
+  address          String?
+  baseLocation     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -417,6 +419,7 @@ model Project {
   startDate    DateTime?
   endDate      DateTime?
   description  String?
+  location     String?
 
   // Public website "Projects" showcase (opt-in; off by default)
   isPublic      Boolean @default(false)

@@ -30,6 +30,8 @@ export type ConsultantRecord = {
   rank: string | null;
   vesselExperience: string | null;
   phone: string | null;
+  address: string | null;
+  baseLocation: string | null;
 };
 
 export function ConsultantFormDialog({
@@ -110,6 +112,28 @@ export function ConsultantFormDialog({
           <div className="grid gap-1.5">
             <Label htmlFor="phone">Phone</Label>
             <Input id="phone" name="phone" type="tel" defaultValue={consultant?.phone ?? ""} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="address">Address</Label>
+            <Textarea
+              id="address"
+              name="address"
+              defaultValue={consultant?.address ?? ""}
+              rows={2}
+              placeholder="Street, city, country"
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="baseLocation">Base location (port / city)</Label>
+            <Input
+              id="baseLocation"
+              name="baseLocation"
+              defaultValue={consultant?.baseLocation ?? ""}
+              placeholder="e.g. Aberdeen"
+            />
+            <p className="text-xs text-muted-foreground">
+              Used to highlight the nearest consultant when assigning work.
+            </p>
           </div>
 
           {error && <p className="text-sm font-medium text-destructive">{error}</p>}

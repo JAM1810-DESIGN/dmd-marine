@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { MapPin } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,9 +20,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
+import { rankByProximity } from "@/lib/nearest-consultant";
 import { createProject, updateProject } from "./actions";
 
 const STATUS_OPTIONS = ["NEW", "PLANNING", "SCHEDULED", "ACTIVE", "COMPLETED", "CLOSED"] as const;
+
+export type ConsultantOption = {
+  id: string;
+  name: string;
+  baseLocation: string | null;
+  address: string | null;
+};
 
 type ProjectRecord = {
   id: string;
@@ -34,6 +43,7 @@ type ProjectRecord = {
   startDate: string | null;
   endDate: string | null;
   description: string | null;
+  location: string | null;
 };
 
 export function ProjectFormDialog({
@@ -51,10 +61,17 @@ export function ProjectFormDialog({
   customers: { id: string; name: string }[];
   vessels: { id: string; name: string }[];
   services: { id: string; name: string }[];
-  consultants: { id: string; name: string }[];
+  consultants: ConsultantOption[];
 }) {
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const [location, setLocation] = useState(project?.location ?? "");
+
+  const rankedConsultants = useMemo(
+    () => rankByProximity(consultants, location),
+    [consultants, location],
+  );
+  const hasNearest = location.trim().length > 0 && rankedConsultants.some((c) => c.isNearest);
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -144,14 +161,41 @@ export function ProjectFormDialog({
                   <SelectValue placeholder="Select a consultant" />
                 </SelectTrigger>
                 <SelectContent>
-                  {consultants.map((consultant) => (
+                  {rankedConsultants.map((consultant) => (
                     <SelectItem key={consultant.id} value={consultant.id}>
-                      {consultant.name}
+                      <span className="flex w-full items-center justify-between gap-2">
+                        <span>{consultant.name}</span>
+                        {consultant.isNearest && (
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-ocean/15 px-1.5 py-0.5 text-[11px] font-medium text-ocean">
+                            <MapPin className="size-3" />
+                            Nearest
+                          </span>
+                        )}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {hasNearest && (
+                <p className="text-xs text-muted-foreground">
+                  Consultants nearest to {location.trim()} are shown first.
+                </p>
+              )}
             </div>
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label htmlFor="location">Location / port</Label>
+            <Input
+              id="location"
+              name="location"
+              value={location}
+              onChange={(event) => setLocation(event.target.value)}
+              placeholder="e.g. Aberdeen"
+            />
+            <p className="text-xs text-muted-foreground">
+              Where the work happens — used to surface the nearest consultant.
+            </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">

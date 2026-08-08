@@ -44,7 +44,7 @@ export default async function ProjectDetailPage({
     db.user.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true },
+      select: { id: true, name: true, baseLocation: true, address: true },
     }),
     db.companyDocument.findMany({
       where: { category: "FORM" },
@@ -102,6 +102,7 @@ export default async function ProjectDetailPage({
               startDate: project.startDate ? project.startDate.toISOString() : null,
               endDate: project.endDate ? project.endDate.toISOString() : null,
               description: project.description,
+              location: project.location,
             }}
             customers={customers}
             vessels={vessels}

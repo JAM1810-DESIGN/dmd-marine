@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { ArrowLeft, CalendarClock, FolderKanban, CheckCircle2, Wallet } from "lucide-react";
+import { ArrowLeft, CalendarClock, FolderKanban, CheckCircle2, Wallet, MapPin } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { AccessDenied } from "@/components/shared/access-denied";
@@ -83,10 +83,17 @@ export default async function ConsultantDetailPage({
             {consultant.email}
             {consultant.phone && ` · ${consultant.phone}`}
           </p>
-          {consultant.rank && (
-            <Badge variant="outline" className="mt-2">
-              {consultant.rank}
-            </Badge>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {consultant.rank && <Badge variant="outline">{consultant.rank}</Badge>}
+            {consultant.baseLocation && (
+              <Badge variant="outline">
+                <MapPin className="mr-1 size-3" />
+                {consultant.baseLocation}
+              </Badge>
+            )}
+          </div>
+          {consultant.address && (
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">{consultant.address}</p>
           )}
           {consultant.vesselExperience && (
             <p className="mt-3 max-w-xl text-sm text-muted-foreground">

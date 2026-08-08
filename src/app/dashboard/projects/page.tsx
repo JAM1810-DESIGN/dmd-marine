@@ -22,7 +22,7 @@ export default async function ProjectsPage() {
     db.user.findMany({
       where: { isActive: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true },
+      select: { id: true, name: true, baseLocation: true, address: true },
     }),
   ]);
 
@@ -63,6 +63,7 @@ export default async function ProjectsPage() {
           startDate: project.startDate ? project.startDate.toISOString() : null,
           endDate: project.endDate ? project.endDate.toISOString() : null,
           description: project.description,
+          location: project.location,
         }))}
       />
     </div>

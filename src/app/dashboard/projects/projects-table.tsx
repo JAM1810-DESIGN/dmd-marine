@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
 import { updateProjectStatus } from "./actions";
-import { ProjectFormDialog } from "./project-form-dialog";
+import { ProjectFormDialog, type ConsultantOption } from "./project-form-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 
 const STATUS_OPTIONS = ["NEW", "PLANNING", "SCHEDULED", "ACTIVE", "COMPLETED", "CLOSED"] as const;
@@ -41,6 +41,7 @@ export type ProjectRow = {
   startDate: string | null;
   endDate: string | null;
   description: string | null;
+  location: string | null;
 };
 
 function StatusSelect({ id, status, canManage }: { id: string; status: string; canManage: boolean }) {
@@ -87,7 +88,7 @@ export function ProjectsTable({
   customers: { id: string; name: string }[];
   vessels: { id: string; name: string }[];
   services: { id: string; name: string }[];
-  consultants: { id: string; name: string }[];
+  consultants: ConsultantOption[];
   canManage: boolean;
 }) {
   const [search, setSearch] = useState("");
