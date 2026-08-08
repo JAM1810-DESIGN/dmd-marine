@@ -46,8 +46,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { BookingDetailSheet } from "./booking-detail-sheet";
 import {
   STATUS_OPTIONS,
+  canTransition,
   type BookingListParams,
   type BookingSortKey,
+  type BookingStatusValue,
 } from "./query";
 
 export type BookingRow = {
@@ -94,7 +96,11 @@ function StatusSelect({ id, status }: { id: string; status: string }) {
       </SelectTrigger>
       <SelectContent>
         {STATUS_OPTIONS.map((option) => (
-          <SelectItem key={option} value={option}>
+          <SelectItem
+            key={option}
+            value={option}
+            disabled={!canTransition(status as BookingStatusValue, option)}
+          >
             {option.replace(/_/g, " ")}
           </SelectItem>
         ))}

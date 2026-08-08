@@ -8,7 +8,9 @@ import type { BookingStatus } from "@/generated/prisma/enums";
 import {
   buildBookingOrderBy,
   buildBookingWhere,
+  canTransition,
   type BookingListParams,
+  type BookingStatusValue,
 } from "./query";
 
 export type ActionState = { error?: string; success?: boolean };
@@ -25,6 +27,11 @@ export async function updateBookingStatus(
     const existing = await db.booking.findUnique({ where: { id }, select: { status: true } });
     if (!existing) return { error: "Booking not found." };
     if (existing.status === status) return { success: true };
+    if (!canTransition(existing.status as BookingStatusValue, status as BookingStatusValue)) {
+      return {
+        error: `Can't move from ${existing.status.replace(/_/g, " ")} to ${status.replace(/_/g, " ")}.`,
+      };
+    }
 
     await db.booking.update({ where: { id }, data: { status } });
     await logAudit({
@@ -51,7 +58,7 @@ export async function assignConsultant(
 
     const existing = await db.booking.findUnique({
       where: { id },
-      select: { assignedConsultantId: true },
+      select: { assignedConsultantId: true, customerName: true, service: { select: { name: true } } },
     });
     if (!existing) return { error: "Booking not found." };
 
@@ -64,6 +71,19 @@ export async function assignConsultant(
     }
 
     await db.booking.update({ where: { id }, data: { assignedConsultantId: consultantId } });
+
+    // Notify the newly-assigned consultant (skip self-assignment and re-assignment to the same person).
+    if (consultantId && consultantId !== existing.assignedConsultantId && consultantId !== session.user.id) {
+      await db.notification.create({
+        data: {
+          userId: consultantId,
+          type: "OTHER",
+          title: "New booking assigned",
+          message: `${existing.customerName} — ${existing.service.name}`,
+          link: "/dashboard/bookings",
+        },
+      });
+    }
     await logAudit({
       userId: session.user.id,
       action: consultantId ? "BOOKING_ASSIGNED" : "BOOKING_UNASSIGNED",

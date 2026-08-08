@@ -12,7 +12,22 @@ export const STATUS_OPTIONS = [
   "CANCELLED",
 ] as const;
 
-export type BookingStatusFilter = "ALL" | (typeof STATUS_OPTIONS)[number];
+export type BookingStatusValue = (typeof STATUS_OPTIONS)[number];
+export type BookingStatusFilter = "ALL" | BookingStatusValue;
+
+/** Allowed forward/side moves per status. Same-status is always permitted (no-op). */
+export const STATUS_TRANSITIONS: Record<BookingStatusValue, BookingStatusValue[]> = {
+  NEW: ["REVIEWING", "CANCELLED"],
+  REVIEWING: ["SCHEDULED", "CANCELLED"],
+  SCHEDULED: ["IN_PROGRESS", "REVIEWING", "CANCELLED"],
+  IN_PROGRESS: ["COMPLETED", "CANCELLED"],
+  COMPLETED: [],
+  CANCELLED: [],
+};
+
+export function canTransition(from: BookingStatusValue, to: BookingStatusValue): boolean {
+  return from === to || STATUS_TRANSITIONS[from].includes(to);
+}
 export type BookingSortKey = "date" | "customer" | "status";
 export type SortDir = "asc" | "desc";
 
