@@ -103,6 +103,10 @@ export async function composeExternalEmail(formData: FormData): Promise<ActionSt
 
   const result = await sendEmail({ to, cc, subject, text: body, attachments });
 
+  // Sending a draft clears it from the Draft folder.
+  const draftId = String(formData.get("draftId") ?? "").trim();
+  if (draftId) await db.emailDraft.deleteMany({ where: { id: draftId, userId: session.user.id } });
+
   revalidatePath("/dashboard/messages");
   if (!result.sent) {
     return { success: true, warning: `Saved, but not emailed: ${result.error ?? "email unavailable"}` };
@@ -222,6 +226,36 @@ export async function createBookingFromThread(
   } catch {
     return { error: "Couldn't create the booking. Try again." };
   }
+}
+
+/** Saves an unsent email as a draft (owned by the current user). */
+export async function saveDraft(formData: FormData): Promise<ActionState & { id?: string }> {
+  const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+  const data = {
+    to: String(formData.get("to") ?? "").trim() || null,
+    cc: String(formData.get("cc") ?? "").trim() || null,
+    subject: String(formData.get("subject") ?? "").trim() || null,
+    body: String(formData.get("body") ?? "") || null,
+  };
+  if (!data.to && !data.subject && !data.body) return { error: "Nothing to save." };
+
+  const draftId = String(formData.get("draftId") ?? "").trim();
+  if (draftId) {
+    await db.emailDraft.updateMany({ where: { id: draftId, userId: session.user.id }, data });
+    revalidatePath("/dashboard/messages");
+    return { success: true, id: draftId };
+  }
+  const draft = await db.emailDraft.create({ data: { ...data, userId: session.user.id } });
+  revalidatePath("/dashboard/messages");
+  return { success: true, id: draft.id };
+}
+
+export async function deleteDraft(id: string): Promise<ActionState> {
+  const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+  const result = await db.emailDraft.deleteMany({ where: { id, userId: session.user.id } });
+  if (result.count === 0) return { error: "Draft not found." };
+  revalidatePath("/dashboard/messages");
+  return { success: true };
 }
 
 export async function sendMessage(

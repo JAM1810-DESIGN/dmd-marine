@@ -1,23 +1,67 @@
 import type { Metadata } from "next";
-import { Plus } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { Button } from "@/components/ui/button";
-import { ComposeDialog } from "./compose-dialog";
-import { MessagesList, type Thread, type ThreadMessage } from "./messages-list";
+import { MessagesList, type Thread, type ThreadMessage, type MailFolder } from "./messages-list";
+import { DraftsPanel, type DraftRow } from "./drafts-panel";
+import type { ComposeIdentity } from "./compose-dialog";
 
 export const metadata: Metadata = { title: "Messages" };
 
-export default async function MessagesPage() {
+const FOLDERS = ["inbox", "starred", "sent", "requests", "archived", "draft"] as const;
+type Folder = (typeof FOLDERS)[number];
+
+export default async function MessagesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ folder?: string }>;
+}) {
   const session = await auth();
   const userId = session!.user.id;
 
-  const [messages, external, recipients] = await Promise.all([
+  const { folder: folderParam } = await searchParams;
+  const folder: Folder = (FOLDERS as readonly string[]).includes(folderParam ?? "")
+    ? (folderParam as Folder)
+    : "inbox";
+
+  // Draft folder is a per-user list of unsent emails — not thread-based.
+  if (folder === "draft") {
+    const [drafts, recipients, contacts, identities] = await Promise.all([
+      db.emailDraft.findMany({ where: { userId }, orderBy: { updatedAt: "desc" } }),
+      db.user.findMany({
+        where: { isActive: true, id: { not: userId } },
+        orderBy: { name: "asc" },
+        select: { id: true, name: true },
+      }),
+      db.contact.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, email: true } }),
+      db.messageIdentity.findMany({ orderBy: [{ isDefault: "desc" }, { name: "asc" }] }),
+    ]);
+
+    const composeIdentities: ComposeIdentity[] = identities.map((i) => ({
+      id: i.id,
+      name: i.name,
+      greeting: i.greeting,
+      signOff: i.signOff,
+      signatureName: i.signatureName,
+      email: i.email,
+      phone: i.phone,
+      isDefault: i.isDefault,
+    }));
+
+    const rows: DraftRow[] = drafts.map((d) => ({
+      id: d.id,
+      to: d.to,
+      cc: d.cc,
+      subject: d.subject,
+      body: d.body,
+      updatedAt: d.updatedAt.toISOString(),
+    }));
+
+    return <DraftsPanel drafts={rows} compose={{ recipients, contacts, identities: composeIdentities }} />;
+  }
+
+  const [messages, external] = await Promise.all([
     db.message.findMany({
-      where: {
-        channel: "INTERNAL",
-        OR: [{ toUserId: userId }, { fromUserId: userId }],
-      },
+      where: { channel: "INTERNAL", OR: [{ toUserId: userId }, { fromUserId: userId }] },
       orderBy: { createdAt: "asc" },
       take: 1000,
       include: { fromUser: { select: { id: true, name: true } }, toUser: { select: { id: true, name: true } } },
@@ -28,14 +72,8 @@ export default async function MessagesPage() {
       orderBy: { createdAt: "asc" },
       take: 1000,
     }),
-    db.user.findMany({
-      where: { isActive: true, id: { not: userId } },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true },
-    }),
   ]);
 
-  // Group messages into per-counterpart threads (active vs archived).
   function buildThreads(archived: boolean): Thread[] {
     const map = new Map<string, Thread>();
     for (const message of messages) {
@@ -134,27 +172,5 @@ export default async function MessagesPage() {
     b.lastAt.localeCompare(a.lastAt),
   );
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">Messages</h1>
-          <p className="text-sm text-muted-foreground">
-            Staff conversations and website requests. Confirm a request to turn it into a booking.
-          </p>
-        </div>
-        <ComposeDialog
-          recipients={recipients}
-          trigger={
-            <Button size="sm">
-              <Plus className="size-4" />
-              New Message
-            </Button>
-          }
-        />
-      </div>
-
-      <MessagesList active={active} archived={archived} />
-    </div>
-  );
+  return <MessagesList active={active} archived={archived} folder={folder as MailFolder} />;
 }

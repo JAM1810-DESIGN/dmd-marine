@@ -609,6 +609,53 @@ model Message {
   @@map("messages")
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MESSAGES CONSOLE — Contacts, reply identities, drafts
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@map("contacts")
+}
+
+model MessageIdentity {
+  id            String   @id @default(cuid())
+  name          String
+  greeting      String?
+  signOff       String?
+  signatureName String?
+  email         String?
+  phone         String?
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("message_identities")
+}
+
+model EmailDraft {
+  id        String   @id @default(cuid())
+  userId    String?
+  to        String?
+  cc        String?
+  subject   String?
+  body      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("email_drafts")
+}
+
 model Notification {
   id      String           @id @default(cuid())
   userId  String?

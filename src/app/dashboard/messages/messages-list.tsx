@@ -2,9 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
-  Inbox,
   Star,
-  Send as SendIcon,
   CalendarCheck,
   Archive,
   ArchiveRestore,
@@ -64,7 +62,7 @@ export type Thread = {
   convertedBookingId?: string | null;
 };
 
-type Folder = "inbox" | "starred" | "sent" | "requests" | "archived";
+export type MailFolder = "inbox" | "starred" | "sent" | "requests" | "archived";
 
 function initials(name: string) {
   return name
@@ -324,8 +322,15 @@ function Composer({ thread }: { thread: Thread }) {
   );
 }
 
-export function MessagesList({ active, archived }: { active: Thread[]; archived: Thread[] }) {
-  const [folder, setFolder] = useState<Folder>("inbox");
+export function MessagesList({
+  active,
+  archived,
+  folder,
+}: {
+  active: Thread[];
+  archived: Thread[];
+  folder: MailFolder;
+}) {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -345,15 +350,6 @@ export function MessagesList({ active, archived }: { active: Thread[]; archived:
     return active; // inbox
   }, [folder, active, archived]);
 
-  const counts = useMemo(
-    () => ({
-      inboxUnread: active.reduce((sum, t) => sum + t.unreadCount, 0),
-      starred: active.filter((t) => t.starred).length,
-      requests: active.filter((t) => t.external && t.requestMessageId && !t.convertedBookingId).length,
-    }),
-    [active],
-  );
-
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return folderThreads;
@@ -369,13 +365,6 @@ export function MessagesList({ active, archived }: { active: Thread[]; archived:
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [selectedId, selected?.messages.length]);
-
-  // Clear selection/checks when switching folders.
-  function switchFolder(next: Folder) {
-    setFolder(next);
-    setSelectedId(null);
-    setChecked(new Set());
-  }
 
   function openThread(thread: Thread) {
     setSelectedId(thread.counterpartId);
@@ -452,41 +441,8 @@ export function MessagesList({ active, archived }: { active: Thread[]; archived:
     setChecked(allChecked ? new Set() : new Set(filtered.map((t) => t.counterpartId)));
   }
 
-  const folders: { key: Folder; label: string; icon: typeof Inbox; badge?: number }[] = [
-    { key: "inbox", label: "Inbox", icon: Inbox, badge: counts.inboxUnread },
-    { key: "starred", label: "Starred", icon: Star, badge: counts.starred },
-    { key: "sent", label: "Sent", icon: SendIcon },
-    { key: "requests", label: "Requests", icon: CalendarCheck, badge: counts.requests },
-    { key: "archived", label: "Archived", icon: Archive },
-  ];
-
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-[160px_1fr]">
-      {/* Folder rail */}
-      <nav className="flex flex-row gap-1 overflow-x-auto sm:flex-col">
-        {folders.map(({ key, label, icon: Icon, badge }) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => switchFolder(key)}
-            className={cn(
-              "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
-              folder === key
-                ? "bg-accent/15 font-medium text-accent"
-                : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground",
-            )}
-          >
-            <Icon className="size-4 shrink-0" />
-            <span>{label}</span>
-            {badge ? (
-              <span className="ml-auto rounded-full bg-accent/20 px-1.5 text-[11px] font-medium text-accent">
-                {badge}
-              </span>
-            ) : null}
-          </button>
-        ))}
-      </nav>
-
+    <div>
       {/* Main panel */}
       <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
         {selected ? (

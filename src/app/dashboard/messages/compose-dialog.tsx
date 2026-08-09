@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Mail, Users, Paperclip, X, FileText } from "lucide-react";
+import { Mail, Users, Paperclip, X, FileText, Save } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,35 +22,62 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { notify } from "@/lib/notify";
-import { sendMessage, composeExternalEmail } from "./actions";
+import { sendMessage, composeExternalEmail, saveDraft } from "./actions";
 
 type Mode = "email" | "staff";
+
+export type ComposeContact = { id: string; name: string; email: string };
+export type ComposeIdentity = {
+  id: string;
+  name: string;
+  greeting: string | null;
+  signOff: string | null;
+  signatureName: string | null;
+  email: string | null;
+  phone: string | null;
+  isDefault: boolean;
+};
+
+export type ComposeProps = {
+  recipients: { id: string; name: string }[];
+  contacts: ComposeContact[];
+  identities: ComposeIdentity[];
+};
+
+type ComposeInitial = { to?: string; cc?: string; subject?: string; body?: string; draftId?: string };
+
+/** Builds a signature block from an identity. */
+function signatureOf(identity: ComposeIdentity): string {
+  return [identity.signOff, identity.signatureName, identity.email, identity.phone]
+    .filter((line): line is string => Boolean(line && line.trim()))
+    .join("\n");
+}
 
 export function ComposeDialog({
   trigger,
   recipients,
-}: {
-  trigger: React.ReactElement;
-  recipients: { id: string; name: string }[];
-}) {
+  contacts,
+  identities,
+  initial,
+}: ComposeProps & { trigger: React.ReactElement; initial?: ComposeInitial }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("email");
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
 
-  // Email fields
-  const [to, setTo] = useState("");
-  const [cc, setCc] = useState("");
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [to, setTo] = useState(initial?.to ?? "");
+  const [cc, setCc] = useState(initial?.cc ?? "");
+  const [subject, setSubject] = useState(initial?.subject ?? "");
+  const [body, setBody] = useState(initial?.body ?? "");
   const [files, setFiles] = useState<File[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
+  const draftId = initial?.draftId;
 
   function reset() {
-    setTo("");
-    setCc("");
-    setSubject("");
-    setBody("");
+    setTo(initial?.to ?? "");
+    setCc(initial?.cc ?? "");
+    setSubject(initial?.subject ?? "");
+    setBody(initial?.body ?? "");
     setFiles([]);
     setError(undefined);
   }
@@ -64,13 +91,30 @@ export function ComposeDialog({
     setFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function applyIdentity(id: string) {
+    const identity = identities.find((i) => i.id === id);
+    if (!identity) return;
+    const greeting = identity.greeting?.trim();
+    const signature = signatureOf(identity);
+    setBody((current) => {
+      const middle = current.trim();
+      return [greeting, "", middle, "", signature].filter((part) => part !== undefined).join("\n").replace(/\n{3,}/g, "\n\n");
+    });
+  }
+
+  function emailFormData() {
+    const fd = new FormData();
+    fd.set("to", to);
+    fd.set("cc", cc);
+    fd.set("subject", subject);
+    fd.set("body", body);
+    if (draftId) fd.set("draftId", draftId);
+    return fd;
+  }
+
   function sendEmail() {
     startTransition(async () => {
-      const fd = new FormData();
-      fd.set("to", to);
-      fd.set("cc", cc);
-      fd.set("subject", subject);
-      fd.set("body", body);
+      const fd = emailFormData();
       for (const file of files) fd.append("attachments", file);
       const result = await composeExternalEmail(fd);
       if (result.error) {
@@ -80,6 +124,18 @@ export function ComposeDialog({
       if (result.warning) notify.info(result.warning);
       else notify.success("Email sent");
       reset();
+      setOpen(false);
+    });
+  }
+
+  function storeDraft() {
+    startTransition(async () => {
+      const result = await saveDraft(emailFormData());
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      notify.success("Draft saved");
       setOpen(false);
     });
   }
@@ -108,7 +164,7 @@ export function ComposeDialog({
       <DialogTrigger render={trigger} />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>New message</DialogTitle>
+          <DialogTitle>{draftId ? "Edit draft" : "New message"}</DialogTitle>
         </DialogHeader>
 
         {/* Mode toggle */}
@@ -148,10 +204,18 @@ export function ComposeDialog({
               <Input
                 id="to"
                 type="email"
+                list="compose-contacts"
                 value={to}
                 onChange={(event) => setTo(event.target.value)}
                 placeholder="recipient@email.com"
               />
+              <datalist id="compose-contacts">
+                {contacts.map((c) => (
+                  <option key={c.id} value={c.email}>
+                    {c.name}
+                  </option>
+                ))}
+              </datalist>
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="cc">Cc (optional)</Label>
@@ -164,20 +228,31 @@ export function ComposeDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="email-subject">Subject</Label>
-              <Input
-                id="email-subject"
-                value={subject}
-                onChange={(event) => setSubject(event.target.value)}
-              />
+              <Input id="email-subject" value={subject} onChange={(event) => setSubject(event.target.value)} />
             </div>
+
+            {identities.length > 0 && (
+              <div className="grid gap-1.5">
+                <Label>Insert identity</Label>
+                <Select onValueChange={(v) => { if (typeof v === "string") applyIdentity(v); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Greeting + signature…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {identities.map((identity) => (
+                      <SelectItem key={identity.id} value={identity.id}>
+                        {identity.name}
+                        {identity.isDefault ? " (default)" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="grid gap-1.5">
               <Label htmlFor="email-body">Message</Label>
-              <Textarea
-                id="email-body"
-                rows={5}
-                value={body}
-                onChange={(event) => setBody(event.target.value)}
-              />
+              <Textarea id="email-body" rows={6} value={body} onChange={(event) => setBody(event.target.value)} />
             </div>
 
             <input ref={fileInput} type="file" multiple hidden onChange={(event) => addFiles(event.target.files)} />
@@ -205,15 +280,21 @@ export function ComposeDialog({
 
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <Button variant="ghost" size="sm" onClick={() => fileInput.current?.click()}>
                 <Paperclip className="size-4" />
                 Attach
               </Button>
-              <Button onClick={sendEmail} disabled={isPending}>
-                <Mail className="size-4" />
-                {isPending ? "Sending..." : "Send email"}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={storeDraft} disabled={isPending}>
+                  <Save className="size-4" />
+                  Save draft
+                </Button>
+                <Button onClick={sendEmail} disabled={isPending}>
+                  <Mail className="size-4" />
+                  {isPending ? "Sending..." : "Send email"}
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
