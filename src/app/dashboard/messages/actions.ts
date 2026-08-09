@@ -43,6 +43,69 @@ export async function markMessageRead(id: string) {
   revalidatePath("/dashboard/messages");
 }
 
+/** Marks every message received from a counterpart as read. */
+export async function markThreadRead(counterpartId: string): Promise<ActionState> {
+  try {
+    const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    await db.message.updateMany({
+      where: {
+        channel: "INTERNAL",
+        toUserId: session.user.id,
+        fromUserId: counterpartId,
+        isRead: false,
+      },
+      data: { isRead: true },
+    });
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't update the conversation. Try again." };
+  }
+}
+
+/** Archives (hides) an entire conversation with a counterpart. */
+export async function archiveConversation(counterpartId: string): Promise<ActionState> {
+  try {
+    const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    await db.message.updateMany({
+      where: {
+        channel: "INTERNAL",
+        archivedAt: null,
+        OR: [
+          { toUserId: session.user.id, fromUserId: counterpartId },
+          { fromUserId: session.user.id, toUserId: counterpartId },
+        ],
+      },
+      data: { archivedAt: new Date() },
+    });
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't archive the conversation. Try again." };
+  }
+}
+
+export async function unarchiveConversation(counterpartId: string): Promise<ActionState> {
+  try {
+    const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    await db.message.updateMany({
+      where: {
+        channel: "INTERNAL",
+        archivedAt: { not: null },
+        OR: [
+          { toUserId: session.user.id, fromUserId: counterpartId },
+          { fromUserId: session.user.id, toUserId: counterpartId },
+        ],
+      },
+      data: { archivedAt: null },
+    });
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't restore the conversation. Try again." };
+  }
+}
+
 export async function markAllRead(): Promise<ActionState> {
   try {
     const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
