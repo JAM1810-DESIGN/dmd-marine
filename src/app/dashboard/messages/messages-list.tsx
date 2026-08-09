@@ -15,6 +15,9 @@ import {
   ArrowLeft,
   RefreshCw,
   MailOpen,
+  Paperclip,
+  X,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,9 +133,20 @@ function Composer({ thread }: { thread: Thread }) {
   const [to, setTo] = useState(thread.externalEmail ?? "");
   const [cc, setCc] = useState("");
   const [subject, setSubject] = useState(defaultSubject);
+  const [files, setFiles] = useState<File[]>([]);
+  const fileInput = useRef<HTMLInputElement>(null);
   const [drafting, startDraft] = useTransition();
   const [sending, startSend] = useTransition();
   const [booking, startBooking] = useTransition();
+
+  function addFiles(list: FileList | null) {
+    if (!list) return;
+    setFiles((prev) => [...prev, ...Array.from(list)].slice(0, 5));
+    if (fileInput.current) fileInput.current.value = "";
+  }
+  function removeFile(index: number) {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  }
 
   const lastInbound = [...thread.messages].reverse().find((m) => !m.mine);
   const alreadyBooked = Boolean(thread.convertedBookingId);
@@ -163,20 +177,22 @@ function Composer({ thread }: { thread: Thread }) {
     if (!body.trim()) return;
     startSend(async () => {
       if (thread.external && thread.externalEmail) {
-        const result = await replyExternal({
-          threadEmail: thread.externalEmail,
-          to,
-          cc,
-          externalName: thread.counterpartName,
-          subject,
-          body,
-        });
+        const fd = new FormData();
+        fd.set("threadEmail", thread.externalEmail);
+        fd.set("to", to);
+        fd.set("cc", cc);
+        fd.set("externalName", thread.counterpartName);
+        fd.set("subject", subject);
+        fd.set("body", body);
+        for (const file of files) fd.append("attachments", file);
+        const result = await replyExternal(fd);
         if (result.error) notify.error(result.error);
         else {
           if (result.warning) notify.info(result.warning);
           else notify.success("Reply emailed");
           setBody("");
           setCc("");
+          setFiles([]);
         }
         return;
       }
@@ -240,7 +256,53 @@ function Composer({ thread }: { thread: Thread }) {
         onChange={(event) => setBody(event.target.value)}
         placeholder={thread.external ? "Write an email reply..." : "Write a message, or let AI draft one..."}
       />
+
+      {thread.external && (
+        <>
+          <input
+            ref={fileInput}
+            type="file"
+            multiple
+            hidden
+            onChange={(event) => addFiles(event.target.files)}
+          />
+          {files.length > 0 && (
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {files.map((file, index) => (
+                <li
+                  key={`${file.name}-${index}`}
+                  className="flex items-center gap-1.5 rounded-md bg-secondary/60 px-2 py-1 text-xs text-foreground"
+                >
+                  <FileText className="size-3.5 text-muted-foreground" />
+                  <span className="max-w-[10rem] truncate">{file.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(index)}
+                    className="text-muted-foreground hover:text-destructive"
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+
       <div className="mt-2 flex items-center justify-end gap-2">
+        {thread.external && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mr-auto"
+            onClick={() => fileInput.current?.click()}
+            aria-label="Attach files"
+          >
+            <Paperclip className="size-4" />
+            Attach
+          </Button>
+        )}
         {thread.external &&
           (alreadyBooked ? (
             <Badge variant="outline">

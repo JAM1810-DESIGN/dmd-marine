@@ -14,6 +14,8 @@ export const isMailConfigured = smtpConfigured || resendConfigured;
 
 export type SendResult = { sent: boolean; error?: string };
 
+export type EmailAttachment = { filename: string; content: Buffer; contentType?: string };
+
 /** Splits a comma/semicolon-separated address string into a clean list. */
 function parseAddressList(value?: string): string[] {
   if (!value) return [];
@@ -29,6 +31,7 @@ async function sendViaSmtp(params: {
   text: string;
   cc?: string;
   replyTo?: string;
+  attachments?: EmailAttachment[];
 }): Promise<SendResult> {
   const { default: nodemailer } = await import("nodemailer");
   const port = Number(smtpPort ?? 465);
@@ -46,6 +49,15 @@ async function sendViaSmtp(params: {
     subject: params.subject,
     text: params.text,
     replyTo: params.replyTo,
+    ...(params.attachments?.length
+      ? {
+          attachments: params.attachments.map((a) => ({
+            filename: a.filename,
+            content: a.content,
+            contentType: a.contentType,
+          })),
+        }
+      : {}),
   });
   return { sent: true };
 }
@@ -56,6 +68,7 @@ async function sendViaResend(params: {
   text: string;
   cc?: string;
   replyTo?: string;
+  attachments?: EmailAttachment[];
 }): Promise<SendResult> {
   const cc = parseAddressList(params.cc);
   const response = await fetch("https://api.resend.com/emails", {
@@ -71,6 +84,14 @@ async function sendViaResend(params: {
       subject: params.subject,
       text: params.text,
       ...(params.replyTo ? { reply_to: params.replyTo } : {}),
+      ...(params.attachments?.length
+        ? {
+            attachments: params.attachments.map((a) => ({
+              filename: a.filename,
+              content: a.content.toString("base64"),
+            })),
+          }
+        : {}),
     }),
   });
   if (!response.ok) return { sent: false, error: `Email send failed (${response.status}).` };
@@ -84,6 +105,7 @@ export async function sendEmail(params: {
   text: string;
   cc?: string;
   replyTo?: string;
+  attachments?: EmailAttachment[];
 }): Promise<SendResult> {
   if (!isMailConfigured) {
     return {

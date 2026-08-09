@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Mail, Users } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { Mail, Users, Paperclip, X, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -43,18 +43,36 @@ export function ComposeDialog({
   const [cc, setCc] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   function reset() {
     setTo("");
     setCc("");
     setSubject("");
     setBody("");
+    setFiles([]);
     setError(undefined);
+  }
+
+  function addFiles(list: FileList | null) {
+    if (!list) return;
+    setFiles((prev) => [...prev, ...Array.from(list)].slice(0, 5));
+    if (fileInput.current) fileInput.current.value = "";
+  }
+  function removeFile(index: number) {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
   function sendEmail() {
     startTransition(async () => {
-      const result = await composeExternalEmail({ to, cc, subject, body });
+      const fd = new FormData();
+      fd.set("to", to);
+      fd.set("cc", cc);
+      fd.set("subject", subject);
+      fd.set("body", body);
+      for (const file of files) fd.append("attachments", file);
+      const result = await composeExternalEmail(fd);
       if (result.error) {
         setError(result.error);
         return;
@@ -162,12 +180,41 @@ export function ComposeDialog({
               />
             </div>
 
+            <input ref={fileInput} type="file" multiple hidden onChange={(event) => addFiles(event.target.files)} />
+            {files.length > 0 && (
+              <ul className="flex flex-wrap gap-1.5">
+                {files.map((file, index) => (
+                  <li
+                    key={`${file.name}-${index}`}
+                    className="flex items-center gap-1.5 rounded-md bg-secondary/60 px-2 py-1 text-xs text-foreground"
+                  >
+                    <FileText className="size-3.5 text-muted-foreground" />
+                    <span className="max-w-[12rem] truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="text-muted-foreground hover:text-destructive"
+                      aria-label={`Remove ${file.name}`}
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
-            <Button onClick={sendEmail} disabled={isPending} className="self-end">
-              <Mail className="size-4" />
-              {isPending ? "Sending..." : "Send email"}
-            </Button>
+            <div className="flex items-center justify-between">
+              <Button variant="ghost" size="sm" onClick={() => fileInput.current?.click()}>
+                <Paperclip className="size-4" />
+                Attach
+              </Button>
+              <Button onClick={sendEmail} disabled={isPending}>
+                <Mail className="size-4" />
+                {isPending ? "Sending..." : "Send email"}
+              </Button>
+            </div>
           </div>
         ) : (
           <form action={sendStaff} className="flex flex-col gap-4">

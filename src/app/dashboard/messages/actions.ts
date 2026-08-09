@@ -3,39 +3,68 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
-import { sendEmail } from "@/lib/mailer";
+import { sendEmail, type EmailAttachment } from "@/lib/mailer";
 import { messageSchema } from "@/lib/validations/message";
 
 export type ActionState = { error?: string; success?: boolean; warning?: string };
 
-type ExternalReplyInput = {
-  threadEmail: string; // groups the reply into the existing conversation
-  to?: string; // actual recipient (defaults to threadEmail)
-  cc?: string;
-  externalName: string | null;
-  subject: string;
-  body: string;
-};
+const MAX_ATTACHMENTS = 5;
+const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB each
+
+/** Pulls uploaded files off a FormData into email attachments (Buffers). Returns an error string if invalid. */
+async function extractAttachments(
+  formData: FormData,
+): Promise<{ attachments: EmailAttachment[]; error?: string; names: string[] }> {
+  const files = formData
+    .getAll("attachments")
+    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+
+  if (files.length > MAX_ATTACHMENTS) {
+    return { attachments: [], names: [], error: `Attach at most ${MAX_ATTACHMENTS} files.` };
+  }
+  if (files.some((file) => file.size > MAX_ATTACHMENT_BYTES)) {
+    return { attachments: [], names: [], error: "Each attachment must be 10 MB or smaller." };
+  }
+
+  const attachments: EmailAttachment[] = [];
+  for (const file of files) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    attachments.push({ filename: file.name, content: buffer, contentType: file.type || undefined });
+  }
+  return { attachments, names: files.map((f) => f.name) };
+}
 
 /** Staff reply to an external (website/email) conversation — saved and emailed to the submitter. */
-export async function replyExternal(input: ExternalReplyInput): Promise<ActionState> {
+export async function replyExternal(formData: FormData): Promise<ActionState> {
   const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
-  if (!input.body.trim()) return { error: "Write a message first." };
-  const to = (input.to || input.threadEmail).trim();
-  const subject = input.subject.trim() || "Re: your message";
+
+  const threadEmail = String(formData.get("threadEmail") ?? "").trim();
+  const to = (String(formData.get("to") ?? "").trim() || threadEmail).trim();
+  const cc = String(formData.get("cc") ?? "").trim();
+  const externalName = (formData.get("externalName") as string) || null;
+  const subject = String(formData.get("subject") ?? "").trim() || "Re: your message";
+  const body = String(formData.get("body") ?? "");
+
+  if (!threadEmail) return { error: "Missing conversation." };
+  if (!body.trim()) return { error: "Write a message first." };
+
+  const { attachments, error, names } = await extractAttachments(formData);
+  if (error) return { error };
+
+  const savedBody = names.length ? `${body}\n\n📎 ${names.join(", ")}` : body;
 
   await db.message.create({
     data: {
       channel: "EMAIL",
       subject,
-      body: input.body,
-      externalEmail: input.threadEmail,
-      externalName: input.externalName,
+      body: savedBody,
+      externalEmail: threadEmail,
+      externalName,
       fromUserId: session.user.id,
     },
   });
 
-  const result = await sendEmail({ to, cc: input.cc, subject, text: input.body });
+  const result = await sendEmail({ to, cc, subject, text: body, attachments });
 
   revalidatePath("/dashboard/messages");
   if (!result.sent) {
@@ -45,30 +74,34 @@ export async function replyExternal(input: ExternalReplyInput): Promise<ActionSt
 }
 
 /** Starts a brand-new external email conversation from the dashboard (From: DMD Marine). */
-export async function composeExternalEmail(input: {
-  to: string;
-  cc?: string;
-  subject: string;
-  body: string;
-}): Promise<ActionState> {
+export async function composeExternalEmail(formData: FormData): Promise<ActionState> {
   const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
-  const to = input.to.trim();
+
+  const to = String(formData.get("to") ?? "").trim();
+  const cc = String(formData.get("cc") ?? "").trim();
+  const subject = String(formData.get("subject") ?? "").trim() || "(no subject)";
+  const body = String(formData.get("body") ?? "");
+
   if (!to) return { error: "Enter a recipient email." };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return { error: "Enter a valid recipient email." };
-  if (!input.body.trim()) return { error: "Write a message first." };
-  const subject = input.subject.trim() || "(no subject)";
+  if (!body.trim()) return { error: "Write a message first." };
+
+  const { attachments, error, names } = await extractAttachments(formData);
+  if (error) return { error };
+
+  const savedBody = names.length ? `${body}\n\n📎 ${names.join(", ")}` : body;
 
   await db.message.create({
     data: {
       channel: "EMAIL",
       subject,
-      body: input.body,
+      body: savedBody,
       externalEmail: to,
       fromUserId: session.user.id,
     },
   });
 
-  const result = await sendEmail({ to, cc: input.cc, subject, text: input.body });
+  const result = await sendEmail({ to, cc, subject, text: body, attachments });
 
   revalidatePath("/dashboard/messages");
   if (!result.sent) {
