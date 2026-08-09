@@ -8,32 +8,67 @@ import { messageSchema } from "@/lib/validations/message";
 
 export type ActionState = { error?: string; success?: boolean; warning?: string };
 
+type ExternalReplyInput = {
+  threadEmail: string; // groups the reply into the existing conversation
+  to?: string; // actual recipient (defaults to threadEmail)
+  cc?: string;
+  externalName: string | null;
+  subject: string;
+  body: string;
+};
+
 /** Staff reply to an external (website/email) conversation — saved and emailed to the submitter. */
-export async function replyExternal(
-  externalEmail: string,
-  externalName: string | null,
-  subject: string,
-  body: string,
-): Promise<ActionState> {
+export async function replyExternal(input: ExternalReplyInput): Promise<ActionState> {
   const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
-  if (!body.trim()) return { error: "Write a message first." };
+  if (!input.body.trim()) return { error: "Write a message first." };
+  const to = (input.to || input.threadEmail).trim();
+  const subject = input.subject.trim() || "Re: your message";
 
   await db.message.create({
     data: {
       channel: "EMAIL",
       subject,
-      body,
-      externalEmail,
-      externalName,
+      body: input.body,
+      externalEmail: input.threadEmail,
+      externalName: input.externalName,
       fromUserId: session.user.id,
     },
   });
 
-  const result = await sendEmail({
-    to: externalEmail,
-    subject: subject || "Re: your message",
-    text: body,
+  const result = await sendEmail({ to, cc: input.cc, subject, text: input.body });
+
+  revalidatePath("/dashboard/messages");
+  if (!result.sent) {
+    return { success: true, warning: `Saved, but not emailed: ${result.error ?? "email unavailable"}` };
+  }
+  return { success: true };
+}
+
+/** Starts a brand-new external email conversation from the dashboard (From: DMD Marine). */
+export async function composeExternalEmail(input: {
+  to: string;
+  cc?: string;
+  subject: string;
+  body: string;
+}): Promise<ActionState> {
+  const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+  const to = input.to.trim();
+  if (!to) return { error: "Enter a recipient email." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return { error: "Enter a valid recipient email." };
+  if (!input.body.trim()) return { error: "Write a message first." };
+  const subject = input.subject.trim() || "(no subject)";
+
+  await db.message.create({
+    data: {
+      channel: "EMAIL",
+      subject,
+      body: input.body,
+      externalEmail: to,
+      fromUserId: session.user.id,
+    },
   });
+
+  const result = await sendEmail({ to, cc: input.cc, subject, text: input.body });
 
   revalidatePath("/dashboard/messages");
   if (!result.sent) {

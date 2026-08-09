@@ -14,10 +14,20 @@ export const isMailConfigured = smtpConfigured || resendConfigured;
 
 export type SendResult = { sent: boolean; error?: string };
 
+/** Splits a comma/semicolon-separated address string into a clean list. */
+function parseAddressList(value?: string): string[] {
+  if (!value) return [];
+  return value
+    .split(/[,;]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
 async function sendViaSmtp(params: {
   to: string;
   subject: string;
   text: string;
+  cc?: string;
   replyTo?: string;
 }): Promise<SendResult> {
   const { default: nodemailer } = await import("nodemailer");
@@ -28,9 +38,11 @@ async function sendViaSmtp(params: {
     secure: port === 465,
     auth: { user: smtpUser, pass: smtpPass },
   });
+  const cc = parseAddressList(params.cc);
   await transport.sendMail({
     from: mailFrom,
     to: params.to,
+    ...(cc.length ? { cc } : {}),
     subject: params.subject,
     text: params.text,
     replyTo: params.replyTo,
@@ -42,8 +54,10 @@ async function sendViaResend(params: {
   to: string;
   subject: string;
   text: string;
+  cc?: string;
   replyTo?: string;
 }): Promise<SendResult> {
+  const cc = parseAddressList(params.cc);
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -53,6 +67,7 @@ async function sendViaResend(params: {
     body: JSON.stringify({
       from: mailFrom,
       to: [params.to],
+      ...(cc.length ? { cc } : {}),
       subject: params.subject,
       text: params.text,
       ...(params.replyTo ? { reply_to: params.replyTo } : {}),
@@ -67,6 +82,7 @@ export async function sendEmail(params: {
   to: string;
   subject: string;
   text: string;
+  cc?: string;
   replyTo?: string;
 }): Promise<SendResult> {
   if (!isMailConfigured) {

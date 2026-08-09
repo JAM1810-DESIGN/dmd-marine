@@ -102,8 +102,33 @@ function subjectAndSnippet(thread: Thread) {
   return { subject, snippet };
 }
 
+/** One row of the email header (From / To / Cc / Subject). */
+function HeaderRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-2 border-b border-border/60 py-1">
+      <span className="w-14 shrink-0 text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+      {children}
+    </div>
+  );
+}
+
 function Composer({ thread }: { thread: Thread }) {
+  const defaultSubject = () => {
+    const base = thread.messages.find((m) => m.subject && m.subject.trim())?.subject?.trim();
+    if (!base) return "Re: your message";
+    return /^re:/i.test(base) ? base : `Re: ${base}`;
+  };
+
   const [body, setBody] = useState("");
+  const [to, setTo] = useState(thread.externalEmail ?? "");
+  const [cc, setCc] = useState("");
+  const [subject, setSubject] = useState(defaultSubject);
   const [drafting, startDraft] = useTransition();
   const [sending, startSend] = useTransition();
 
@@ -125,12 +150,20 @@ function Composer({ thread }: { thread: Thread }) {
     if (!body.trim()) return;
     startSend(async () => {
       if (thread.external && thread.externalEmail) {
-        const result = await replyExternal(thread.externalEmail, thread.counterpartName, "Re: your message", body);
+        const result = await replyExternal({
+          threadEmail: thread.externalEmail,
+          to,
+          cc,
+          externalName: thread.counterpartName,
+          subject,
+          body,
+        });
         if (result.error) notify.error(result.error);
         else {
           if (result.warning) notify.info(result.warning);
           else notify.success("Reply emailed");
           setBody("");
+          setCc("");
         }
         return;
       }
@@ -149,17 +182,45 @@ function Composer({ thread }: { thread: Thread }) {
 
   return (
     <div className="border-t border-border p-3">
-      <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {thread.external ? `Reply by email to ${thread.externalEmail}` : "Reply"}
-        </span>
-        {!thread.external && (
+      {thread.external ? (
+        <div className="mb-2">
+          <HeaderRow label="From">
+            <span className="text-sm text-foreground">DMD Marine</span>
+          </HeaderRow>
+          <HeaderRow label="To">
+            <input
+              value={to}
+              onChange={(event) => setTo(event.target.value)}
+              placeholder="recipient@email.com"
+              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            />
+          </HeaderRow>
+          <HeaderRow label="Cc">
+            <input
+              value={cc}
+              onChange={(event) => setCc(event.target.value)}
+              placeholder="Add Cc (comma-separated)"
+              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            />
+          </HeaderRow>
+          <HeaderRow label="Subject">
+            <input
+              value={subject}
+              onChange={(event) => setSubject(event.target.value)}
+              placeholder="Subject"
+              className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            />
+          </HeaderRow>
+        </div>
+      ) : (
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Reply</span>
           <Button variant="outline" size="sm" onClick={aiDraft} disabled={drafting}>
             <Sparkles className="size-4" />
             {drafting ? "Drafting..." : "AI draft"}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
       <Textarea
         rows={3}
         value={body}
