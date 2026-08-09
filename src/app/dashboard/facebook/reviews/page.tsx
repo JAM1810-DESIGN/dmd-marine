@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
-import { Star } from "lucide-react";
+import { auth } from "@/auth";
+import { db } from "@/lib/db";
 import { isFacebookConfigured } from "@/lib/facebook";
-import { EmptyState } from "@/components/shared/empty-state";
+import { FacebookReviews } from "../facebook-reviews";
 
 export const metadata: Metadata = { title: "Facebook Reviews" };
 
-export default function FacebookReviewsPage() {
+export default async function FacebookReviewsPage() {
+  const session = await auth();
+  const canManage = session?.user.role === "ADMIN" || session?.user.role === "MANAGER";
+
+  const reviews = await db.facebookReview.findMany({
+    orderBy: [{ reviewedAt: "desc" }, { createdAt: "desc" }],
+    take: 200,
+  });
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -13,18 +22,17 @@ export default function FacebookReviewsPage() {
         <p className="text-sm text-muted-foreground">Recommendations and reviews left on your Page.</p>
       </div>
 
-      <div className="rounded-xl bg-card ring-1 ring-foreground/10">
-        <EmptyState
-          className="border-none"
-          icon={Star}
-          title={isFacebookConfigured ? "No reviews yet" : "Connect your Page to see reviews"}
-          description={
-            isFacebookConfigured
-              ? "Reviews and recommendations from your Page will appear here."
-              : "Connect the Page from the Connection tab, then review sync will populate this view."
-          }
-        />
-      </div>
+      <FacebookReviews
+        canManage={canManage}
+        configured={isFacebookConfigured}
+        reviews={reviews.map((review) => ({
+          id: review.id,
+          reviewerName: review.reviewerName,
+          recommendationType: review.recommendationType,
+          text: review.text,
+          reviewedAt: review.reviewedAt ? review.reviewedAt.toISOString() : null,
+        }))}
+      />
     </div>
   );
 }

@@ -11,14 +11,12 @@ export const metadata: Metadata = { title: "Facebook" };
 export default async function FacebookOverviewPage() {
   const pageName = env.NEXT_PUBLIC_APP_NAME;
 
-  const [unreadMessages, pendingRequests] = await Promise.all([
+  const [unreadMessages, pendingRequests, reviews, comments] = await Promise.all([
     db.message.count({ where: { facebookLeadId: { not: null }, isRead: false } }),
     db.facebookLead.count({ where: { status: "NEW" } }),
+    db.facebookReview.count(),
+    db.facebookComment.count({ where: { isHidden: false } }),
   ]);
-
-  // Comments and reviews require the Page connection + Graph sync (not yet stored).
-  const reviews = 0;
-  const comments = 0;
 
   const cards = [
     { label: "Unread messages", value: unreadMessages, href: "/dashboard/facebook/inbox", cta: "Open inbox", icon: MessageSquare },

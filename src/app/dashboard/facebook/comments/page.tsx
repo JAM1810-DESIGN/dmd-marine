@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
-import { MessageCircle } from "lucide-react";
+import { auth } from "@/auth";
+import { db } from "@/lib/db";
 import { isFacebookConfigured } from "@/lib/facebook";
-import { EmptyState } from "@/components/shared/empty-state";
+import { FacebookComments } from "../facebook-comments";
 
 export const metadata: Metadata = { title: "Facebook Comments" };
 
-export default function FacebookCommentsPage() {
+export default async function FacebookCommentsPage() {
+  const session = await auth();
+  const canManage = session?.user.role === "ADMIN" || session?.user.role === "MANAGER";
+
+  const comments = await db.facebookComment.findMany({
+    orderBy: [{ commentedAt: "desc" }, { createdAt: "desc" }],
+    take: 200,
+  });
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -13,18 +22,17 @@ export default function FacebookCommentsPage() {
         <p className="text-sm text-muted-foreground">Moderate comments on your Page&rsquo;s posts.</p>
       </div>
 
-      <div className="rounded-xl bg-card ring-1 ring-foreground/10">
-        <EmptyState
-          className="border-none"
-          icon={MessageCircle}
-          title={isFacebookConfigured ? "No comments yet" : "Connect your Page to see comments"}
-          description={
-            isFacebookConfigured
-              ? "New comments on your Page posts will appear here for moderation."
-              : "Connect the Page from the Connection tab, then comment sync will populate this view."
-          }
-        />
-      </div>
+      <FacebookComments
+        canManage={canManage}
+        configured={isFacebookConfigured}
+        comments={comments.map((comment) => ({
+          id: comment.id,
+          fromName: comment.fromName,
+          message: comment.message,
+          isHidden: comment.isHidden,
+          commentedAt: comment.commentedAt ? comment.commentedAt.toISOString() : null,
+        }))}
+      />
     </div>
   );
 }

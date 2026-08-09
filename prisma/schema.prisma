@@ -109,6 +109,39 @@ enum FacebookLeadStatus {
   CLOSED
 }
 
+model FacebookComment {
+  id          String    @id @default(cuid())
+  commentId   String    @unique
+  postId      String?
+  fromName    String?
+  fromId      String?
+  message     String?
+  isHidden    Boolean   @default(false)
+  commentedAt DateTime?
+  rawPayload  Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([commentedAt])
+  @@map("facebook_comments")
+}
+
+model FacebookReview {
+  id                 String    @id @default(cuid())
+  reviewKey          String    @unique
+  reviewerName       String?
+  recommendationType String?
+  text               String?
+  reviewedAt         DateTime?
+  rawPayload         Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([reviewedAt])
+  @@map("facebook_reviews")
+}
+
 enum PaymentMethod {
   CASH
   BANK_TRANSFER

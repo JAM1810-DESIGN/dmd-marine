@@ -89,6 +89,105 @@ export async function fetchLeadgenData(leadgenId: string): Promise<LeadgenFieldD
   };
 }
 
+export type RawComment = {
+  id: string;
+  postId?: string;
+  fromName?: string;
+  fromId?: string;
+  message?: string;
+  createdTime?: string;
+  raw: unknown;
+};
+
+/** Fetches recent comments across the Page's posts (page token → `me` is the Page). */
+export async function fetchPageComments(): Promise<RawComment[]> {
+  if (!isFacebookConfigured) throw new Error("Facebook is not configured yet.");
+
+  const url = `${GRAPH_BASE}/me/feed?fields=id,comments.limit(50){id,from,message,created_time}&limit=25&access_token=${pageAccessToken}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch comments: ${response.status} ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  const posts: { id: string; comments?: { data?: RawGraphComment[] } }[] = data.data ?? [];
+  const out: RawComment[] = [];
+  for (const post of posts) {
+    for (const comment of post.comments?.data ?? []) {
+      out.push({
+        id: comment.id,
+        postId: post.id,
+        fromName: comment.from?.name,
+        fromId: comment.from?.id,
+        message: comment.message,
+        createdTime: comment.created_time,
+        raw: comment,
+      });
+    }
+  }
+  return out;
+}
+
+type RawGraphComment = {
+  id: string;
+  from?: { name?: string; id?: string };
+  message?: string;
+  created_time?: string;
+};
+
+export type RawReview = {
+  key: string;
+  reviewerName?: string;
+  recommendationType?: string;
+  text?: string;
+  createdTime?: string;
+  raw: unknown;
+};
+
+/** Fetches Page ratings/recommendations. */
+export async function fetchPageReviews(): Promise<RawReview[]> {
+  if (!isFacebookConfigured) throw new Error("Facebook is not configured yet.");
+
+  const url = `${GRAPH_BASE}/me/ratings?fields=reviewer{name,id},recommendation_type,review_text,created_time,open_graph_story{id}&limit=50&access_token=${pageAccessToken}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch reviews: ${response.status} ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  const ratings: RawGraphRating[] = data.data ?? [];
+  return ratings.map((rating) => ({
+    key: rating.open_graph_story?.id ?? `${rating.reviewer?.id ?? "anon"}_${rating.created_time ?? ""}`,
+    reviewerName: rating.reviewer?.name,
+    recommendationType: rating.recommendation_type,
+    text: rating.review_text,
+    createdTime: rating.created_time,
+    raw: rating,
+  }));
+}
+
+type RawGraphRating = {
+  reviewer?: { name?: string; id?: string };
+  recommendation_type?: string;
+  review_text?: string;
+  created_time?: string;
+  open_graph_story?: { id?: string };
+};
+
+/** Hides or unhides a Page comment via the Graph API. */
+export async function setCommentHidden(commentId: string, hidden: boolean) {
+  if (!isFacebookConfigured) throw new Error("Facebook is not configured yet.");
+
+  const response = await fetch(`${GRAPH_BASE}/${commentId}?access_token=${pageAccessToken}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ is_hidden: hidden }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update comment: ${response.status} ${await response.text()}`);
+  }
+}
+
 export async function fetchMessengerProfile(psid: string): Promise<{ name?: string }> {
   if (!isFacebookConfigured) return {};
 
