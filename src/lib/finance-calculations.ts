@@ -1,5 +1,9 @@
 import { db } from "@/lib/db";
 import { Prisma } from "@/generated/prisma/client";
+import { bucketReceivables, type AgingBuckets } from "@/lib/aging";
+
+export type { AgingBuckets, AgingItem } from "@/lib/aging";
+export { bucketReceivables } from "@/lib/aging";
 
 export type DateRange = { start: Date; end: Date };
 
@@ -311,14 +315,6 @@ export async function getExpenseByCategory(range: DateRange) {
     .sort((a, b) => b.amount - a.amount);
 }
 
-export type AgingBuckets = {
-  current: number;
-  d1to30: number;
-  d31to60: number;
-  d60plus: number;
-  total: number;
-};
-
 /** Splits outstanding receivables into aging buckets by days past the due date. */
 export async function getReceivableAging(asOf: Date = new Date()): Promise<AgingBuckets> {
   const invoices = await db.invoice.findMany({
@@ -326,22 +322,15 @@ export async function getReceivableAging(asOf: Date = new Date()): Promise<Aging
     include: { payments: { where: { status: "COMPLETED" } } },
   });
 
-  const buckets: AgingBuckets = { current: 0, d1to30: 0, d31to60: 0, d60plus: 0, total: 0 };
-  for (const invoice of invoices) {
-    const paid = invoice.payments.reduce((acc, p) => acc + toNumber(p.amount), 0);
-    const outstanding = Math.max(toNumber(invoice.totalAmount) - paid, 0);
-    if (outstanding <= 0) continue;
-
-    const due = invoice.dueDate ?? invoice.issueDate;
-    const daysPast = Math.floor((asOf.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (daysPast <= 0) buckets.current += outstanding;
-    else if (daysPast <= 30) buckets.d1to30 += outstanding;
-    else if (daysPast <= 60) buckets.d31to60 += outstanding;
-    else buckets.d60plus += outstanding;
-    buckets.total += outstanding;
-  }
-  return buckets;
+  return bucketReceivables(
+    invoices.map((invoice) => ({
+      totalAmount: toNumber(invoice.totalAmount),
+      paid: invoice.payments.reduce((acc, p) => acc + toNumber(p.amount), 0),
+      dueDate: invoice.dueDate,
+      issueDate: invoice.issueDate,
+    })),
+    asOf,
+  );
 }
 
 /** Completed payments in the range, grouped by payment method. */
