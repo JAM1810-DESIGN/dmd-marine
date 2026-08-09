@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { bookingSchema } from "@/lib/validations/booking";
-import { isStorageConfigured, uploadFile } from "@/lib/storage";
+import { isStorageConfigured } from "@/lib/storage";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export type BookingFormState = { error?: string; success?: boolean };
@@ -48,38 +48,43 @@ export async function submitBookingForm(
     return { error: "Each attachment must be 10 MB or smaller." };
   }
 
-  const { preferredDate, ...rest } = parsed.data;
+  const { preferredDate, serviceId, ...rest } = parsed.data;
+  const service = await db.service.findUnique({ where: { id: serviceId }, select: { name: true } });
+  const serviceName = service?.name ?? "a consultation";
 
-  const booking = await db.booking.create({
+  // Requests land in Messages first as an external conversation. The booking is
+  // only created later, when a staff member confirms it (payload holds the data).
+  const details = [
+    rest.vesselName ? `Vessel: ${rest.vesselName}` : null,
+    rest.port ? `Port: ${rest.port}` : null,
+    rest.companyName ? `Company: ${rest.companyName}` : null,
+    rest.customerPhone ? `Phone: ${rest.customerPhone}` : null,
+    preferredDate ? `Preferred date: ${preferredDate}${rest.preferredTime ? ` ${rest.preferredTime}` : ""}` : null,
+  ].filter(Boolean);
+
+  const body = [
+    `New consultation request for ${serviceName}.`,
+    rest.message ? `\n"${rest.message}"` : "",
+    details.length ? `\n\n${details.join("\n")}` : "",
+  ].join("");
+
+  await db.message.create({
     data: {
-      ...rest,
-      preferredDate: preferredDate ? new Date(preferredDate) : undefined,
+      channel: "EMAIL",
+      subject: `Consultation request: ${serviceName}`,
+      body,
+      externalEmail: rest.customerEmail,
+      externalName: rest.customerName,
+      payload: { kind: "booking", serviceId, preferredDate: preferredDate ?? null, ...rest },
     },
-    include: { service: true },
   });
-
-  if (attachments.length > 0) {
-    const uploaded = await Promise.all(
-      attachments.map((file) => uploadFile(file, `bookings/${booking.id}`)),
-    );
-    await db.document.createMany({
-      data: uploaded.map((file) => ({
-        fileName: file.fileName,
-        url: file.url,
-        mimeType: file.mimeType,
-        sizeBytes: file.sizeBytes,
-        category: "BOOKING_ATTACHMENT",
-        bookingId: booking.id,
-      })),
-    });
-  }
 
   await db.notification.create({
     data: {
       type: "NEW_BOOKING",
-      title: "New booking request",
-      message: `${booking.customerName} requested ${booking.service.name}`,
-      link: "/dashboard/bookings",
+      title: "New consultation request",
+      message: `${rest.customerName} requested ${serviceName}`,
+      link: "/dashboard/messages",
     },
   });
 

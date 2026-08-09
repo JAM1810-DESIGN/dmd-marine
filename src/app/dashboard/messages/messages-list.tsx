@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { MessageSquare, Search, Sparkles, Send, Archive, ArchiveRestore } from "lucide-react";
+import { MessageSquare, Search, Sparkles, Send, Archive, ArchiveRestore, Mail, CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,8 +11,11 @@ import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
 import {
   markThreadRead,
+  markExternalThreadRead,
   archiveConversation,
   unarchiveConversation,
+  replyExternal,
+  confirmExternalBooking,
   draftReply,
   sendMessage,
 } from "./actions";
@@ -31,6 +34,10 @@ export type Thread = {
   messages: ThreadMessage[];
   lastAt: string;
   unreadCount: number;
+  external?: boolean;
+  externalEmail?: string;
+  requestMessageId?: string | null;
+  convertedBookingId?: string | null;
 };
 
 function initials(name: string) {
@@ -54,8 +61,8 @@ function Composer({ thread }: { thread: Thread }) {
   const lastInbound = [...thread.messages].reverse().find((m) => !m.mine);
 
   function aiDraft() {
-    if (!lastInbound) {
-      notify.error("No message to reply to yet.");
+    if (!lastInbound || thread.external) {
+      notify.error(thread.external ? "AI draft is for internal messages." : "No message to reply to yet.");
       return;
     }
     startDraft(async () => {
@@ -67,11 +74,21 @@ function Composer({ thread }: { thread: Thread }) {
 
   function send() {
     if (!body.trim()) return;
-    const formData = new FormData();
-    formData.set("toUserId", thread.counterpartId);
-    formData.set("subject", "");
-    formData.set("body", body);
     startSend(async () => {
+      if (thread.external && thread.externalEmail) {
+        const result = await replyExternal(thread.externalEmail, thread.counterpartName, "Re: your message", body);
+        if (result.error) notify.error(result.error);
+        else {
+          if (result.warning) notify.info(result.warning);
+          else notify.success("Reply emailed");
+          setBody("");
+        }
+        return;
+      }
+      const formData = new FormData();
+      formData.set("toUserId", thread.counterpartId);
+      formData.set("subject", "");
+      formData.set("body", body);
       const result = await sendMessage({}, formData);
       if (result.error) notify.error(result.error);
       else {
@@ -84,22 +101,26 @@ function Composer({ thread }: { thread: Thread }) {
   return (
     <div className="border-t border-border p-3">
       <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Reply</span>
-        <Button variant="outline" size="sm" onClick={aiDraft} disabled={drafting}>
-          <Sparkles className="size-4" />
-          {drafting ? "Drafting..." : "AI draft"}
-        </Button>
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {thread.external ? `Reply by email to ${thread.externalEmail}` : "Reply"}
+        </span>
+        {!thread.external && (
+          <Button variant="outline" size="sm" onClick={aiDraft} disabled={drafting}>
+            <Sparkles className="size-4" />
+            {drafting ? "Drafting..." : "AI draft"}
+          </Button>
+        )}
       </div>
       <Textarea
         rows={3}
         value={body}
         onChange={(event) => setBody(event.target.value)}
-        placeholder="Write a message, or let AI draft one..."
+        placeholder={thread.external ? "Write an email reply..." : "Write a message, or let AI draft one..."}
       />
       <div className="mt-2 flex justify-end">
         <Button size="sm" onClick={send} disabled={sending || !body.trim()}>
           <Send className="size-4" />
-          {sending ? "Sending..." : "Send"}
+          {sending ? "Sending..." : thread.external ? "Send email" : "Send"}
         </Button>
       </div>
     </div>
@@ -136,7 +157,8 @@ export function MessagesList({ active, archived }: { active: Thread[]; archived:
     setSelectedId(thread.counterpartId);
     if (!showArchived && thread.unreadCount > 0) {
       startTransition(() => {
-        void markThreadRead(thread.counterpartId);
+        if (thread.external && thread.externalEmail) void markExternalThreadRead(thread.externalEmail);
+        else void markThreadRead(thread.counterpartId);
       });
     }
   }
@@ -225,9 +247,38 @@ export function MessagesList({ active, archived }: { active: Thread[]; archived:
                   <span className="flex size-8 items-center justify-center rounded-full bg-accent/15 text-xs font-medium text-accent">
                     {initials(selected.counterpartName)}
                   </span>
-                  <p className="font-medium text-foreground">{selected.counterpartName}</p>
+                  <div>
+                    <p className="font-medium text-foreground">{selected.counterpartName}</p>
+                    {selected.external && (
+                      <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Mail className="size-3" />
+                        {selected.externalEmail} · Website
+                      </p>
+                    )}
+                  </div>
                 </div>
-                {showArchived ? (
+                {selected.external ? (
+                  selected.requestMessageId ? (
+                    selected.convertedBookingId ? (
+                      <Badge variant="outline">Booking created</Badge>
+                    ) : (
+                      <Button
+                        size="sm"
+                        disabled={isPending}
+                        onClick={() =>
+                          startTransition(async () => {
+                            const result = await confirmExternalBooking(selected.requestMessageId!);
+                            if (result.error) notify.error(result.error);
+                            else notify.success("Confirmed — booking created");
+                          })
+                        }
+                      >
+                        <CalendarCheck className="size-4" />
+                        Confirm booking
+                      </Button>
+                    )
+                  ) : null
+                ) : showArchived ? (
                   <Button
                     variant="ghost"
                     size="sm"

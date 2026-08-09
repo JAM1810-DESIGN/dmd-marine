@@ -588,6 +588,12 @@ model Message {
   toUserId       String?
   customerId     String?
   facebookLeadId String?
+  // External (website) conversations: the submitter's contact + original payload.
+  externalEmail  String?
+  externalName   String?
+  payload        Json?
+  // Set on the original request once a staff member confirms it into a booking.
+  bookingId      String?
   isRead         Boolean        @default(false)
   archivedAt     DateTime?
 

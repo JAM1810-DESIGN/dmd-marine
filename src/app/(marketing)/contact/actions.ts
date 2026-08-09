@@ -30,12 +30,24 @@ export async function submitContactForm(
 
   await db.contactSubmission.create({ data: parsed.data });
 
+  // Also open an external conversation in Messages so staff can reply by email.
+  await db.message.create({
+    data: {
+      channel: "EMAIL",
+      subject: parsed.data.subject || "Website inquiry",
+      body: parsed.data.message,
+      externalEmail: parsed.data.email,
+      externalName: parsed.data.name,
+      payload: { kind: "contact", phone: parsed.data.phone ?? null },
+    },
+  });
+
   await db.notification.create({
     data: {
       type: "NEW_INQUIRY",
       title: "New contact form submission",
       message: `${parsed.data.name} sent a message${parsed.data.subject ? `: ${parsed.data.subject}` : "."}`,
-      link: "/dashboard",
+      link: "/dashboard/messages",
     },
   });
 

@@ -3,9 +3,106 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
+import { sendEmail } from "@/lib/mailer";
 import { messageSchema } from "@/lib/validations/message";
 
-export type ActionState = { error?: string; success?: boolean };
+export type ActionState = { error?: string; success?: boolean; warning?: string };
+
+/** Staff reply to an external (website/email) conversation — saved and emailed to the submitter. */
+export async function replyExternal(
+  externalEmail: string,
+  externalName: string | null,
+  subject: string,
+  body: string,
+): Promise<ActionState> {
+  const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+  if (!body.trim()) return { error: "Write a message first." };
+
+  await db.message.create({
+    data: {
+      channel: "EMAIL",
+      subject,
+      body,
+      externalEmail,
+      externalName,
+      fromUserId: session.user.id,
+    },
+  });
+
+  const result = await sendEmail({
+    to: externalEmail,
+    subject: subject || "Re: your message",
+    text: body,
+  });
+
+  revalidatePath("/dashboard/messages");
+  if (!result.sent) {
+    return { success: true, warning: `Saved, but not emailed: ${result.error ?? "email unavailable"}` };
+  }
+  return { success: true };
+}
+
+/** Marks every inbound message from an external email as read. */
+export async function markExternalThreadRead(externalEmail: string): Promise<ActionState> {
+  try {
+    await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    await db.message.updateMany({
+      where: { channel: "EMAIL", externalEmail, fromUserId: null, isRead: false },
+      data: { isRead: true },
+    });
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't update the conversation. Try again." };
+  }
+}
+
+/** Confirms an external consultation request into a real Booking (from its stored payload). */
+export async function confirmExternalBooking(messageId: string): Promise<ActionState> {
+  await requireRole("ADMIN", "MANAGER", "STAFF");
+
+  const message = await db.message.findUnique({ where: { id: messageId } });
+  if (!message) return { error: "Request not found." };
+  if (message.bookingId) return { error: "Already confirmed into a booking." };
+
+  const payload = (message.payload ?? {}) as Record<string, unknown>;
+  if (payload.kind !== "booking" || typeof payload.serviceId !== "string") {
+    return { error: "This conversation isn't a booking request." };
+  }
+
+  try {
+    const booking = await db.booking.create({
+      data: {
+        serviceId: payload.serviceId,
+        customerName: (payload.customerName as string) ?? message.externalName ?? "Website request",
+        customerEmail: (payload.customerEmail as string) ?? message.externalEmail ?? "",
+        customerPhone: (payload.customerPhone as string) ?? null,
+        companyName: (payload.companyName as string) ?? null,
+        vesselName: (payload.vesselName as string) ?? null,
+        port: (payload.port as string) ?? null,
+        preferredDate: payload.preferredDate ? new Date(payload.preferredDate as string) : undefined,
+        preferredTime: (payload.preferredTime as string) ?? null,
+        message: (payload.message as string) ?? null,
+      },
+    });
+
+    await db.message.update({ where: { id: messageId }, data: { bookingId: booking.id } });
+    await db.notification.create({
+      data: {
+        type: "NEW_BOOKING",
+        title: "Request confirmed as booking",
+        message: `${booking.customerName} — ${booking.customerEmail}`,
+        link: "/dashboard/bookings",
+      },
+    });
+
+    revalidatePath("/dashboard/messages");
+    revalidatePath("/dashboard/bookings");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't create the booking. Try again." };
+  }
+}
 
 export async function sendMessage(
   _prevState: ActionState,
