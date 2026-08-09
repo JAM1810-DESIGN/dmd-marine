@@ -9,8 +9,13 @@ const envSchema = z.object({
   // Optional: enables the AI draft-reply and Ask AI help features when set.
   ANTHROPIC_API_KEY: z.string().optional(),
   // Optional: enables sending external (website) message replies by email.
-  RESEND_API_KEY: z.string().optional(),
+  // Either SMTP_* (e.g. Gmail) or RESEND_API_KEY, plus MAIL_FROM.
   MAIL_FROM: z.string().optional(),
+  RESEND_API_KEY: z.string().optional(),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
