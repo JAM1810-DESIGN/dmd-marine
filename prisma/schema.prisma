@@ -796,6 +796,7 @@ model Invoice {
   status         InvoiceStatus @default(DRAFT)
   issueDate      DateTime      @default(now())
   dueDate        DateTime?
+  lastReminderAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

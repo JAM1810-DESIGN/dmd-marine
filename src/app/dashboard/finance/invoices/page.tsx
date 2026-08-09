@@ -7,7 +7,12 @@ import { InvoicesTable } from "./invoices-table";
 
 export const metadata: Metadata = { title: "Invoices" };
 
-export default async function InvoicesPage() {
+export default async function InvoicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status } = await searchParams;
   const session = await auth();
   if (session?.user.role === "STAFF") {
     return <AccessDenied message="Invoices are restricted to Admin, Manager, and Finance Officer roles." />;
@@ -50,6 +55,7 @@ export default async function InvoicesPage() {
 
       <InvoicesTable
         canManage={canManage}
+        initialStatus={status ?? "ALL"}
         customers={customers}
         services={services}
         branches={branches}
@@ -61,6 +67,7 @@ export default async function InvoicesPage() {
           dueDate: invoice.dueDate ? invoice.dueDate.toISOString() : null,
           totalAmount: Number(invoice.totalAmount),
           status: invoice.status,
+          lastReminderAt: invoice.lastReminderAt ? invoice.lastReminderAt.toISOString() : null,
         }))}
       />
     </div>

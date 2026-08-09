@@ -6,9 +6,10 @@ import { requireRole } from "@/lib/rbac";
 import { AppError } from "@/lib/errors";
 import { invoiceSchema, paymentSchema } from "@/lib/validations/finance";
 import { logAudit } from "@/lib/audit";
+import { sendEmail } from "@/lib/mailer";
 import { Prisma } from "@/generated/prisma/client";
 
-export type ActionState = { error?: string; success?: boolean; id?: string };
+export type ActionState = { error?: string; success?: boolean; id?: string; warning?: string };
 
 const MANAGE_ROLES = ["ADMIN", "FINANCE_OFFICER"] as const;
 
@@ -261,6 +262,104 @@ export async function refreshOverdueInvoices() {
       })),
     }),
   ]);
+}
+
+function toNum(value: Prisma.Decimal | number) {
+  return typeof value === "number" ? value : Number(value);
+}
+
+/** Builds the reminder email body for an invoice with a known outstanding balance. */
+function reminderText(invoiceNumber: string, customerName: string, outstanding: number, dueDate: Date | null) {
+  const amount = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(outstanding);
+  const dueLine = dueDate
+    ? `It was due on ${dueDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}.`
+    : "";
+  return [
+    `Dear ${customerName},`,
+    "",
+    `This is a friendly reminder that invoice ${invoiceNumber} has an outstanding balance of ${amount}. ${dueLine}`.trim(),
+    "",
+    "Please arrange payment at your earliest convenience. If you've already paid, kindly disregard this message.",
+    "",
+    "Thank you,",
+    "DMD Marine",
+  ].join("\n");
+}
+
+/** Emails an overdue/outstanding reminder to the invoice's customer. */
+export async function sendInvoiceReminder(id: string): Promise<ActionState> {
+  const session = await requireRole(...MANAGE_ROLES);
+
+  const invoice = await db.invoice.findUnique({
+    where: { id },
+    include: { customer: true, payments: { where: { status: "COMPLETED" } } },
+  });
+  if (!invoice) return { error: "Invoice not found." };
+  if (!invoice.customer?.email) return { error: "No customer email on file for this invoice." };
+
+  const paid = invoice.payments.reduce((sum, p) => sum + toNum(p.amount), 0);
+  const outstanding = Math.max(toNum(invoice.totalAmount) - paid, 0);
+  if (outstanding <= 0) return { error: "This invoice has nothing outstanding." };
+
+  const result = await sendEmail({
+    to: invoice.customer.email,
+    subject: `Payment reminder — invoice ${invoice.invoiceNumber}`,
+    text: reminderText(invoice.invoiceNumber, invoice.customer.name, outstanding, invoice.dueDate),
+  });
+
+  await db.invoice.update({ where: { id }, data: { lastReminderAt: new Date() } });
+  await logAudit({
+    userId: session.user.id,
+    action: "INVOICE_REMINDER_SENT",
+    entityType: "Invoice",
+    entityId: id,
+    metadata: { to: invoice.customer.email, outstanding, emailed: result.sent },
+  });
+
+  revalidatePath("/dashboard/finance/invoices");
+  revalidatePath(`/dashboard/finance/invoices/${id}`);
+  if (!result.sent) {
+    return { success: true, warning: `Logged, but not emailed: ${result.error ?? "email unavailable"}` };
+  }
+  return { success: true };
+}
+
+export type BulkReminderState = { sent: number; skipped: number; error?: string };
+
+/** Sends reminders to every overdue invoice that has a customer email. */
+export async function remindAllOverdue(): Promise<BulkReminderState> {
+  await requireRole(...MANAGE_ROLES);
+
+  const overdue = await db.invoice.findMany({
+    where: { status: "OVERDUE" },
+    include: { customer: true, payments: { where: { status: "COMPLETED" } } },
+  });
+
+  let sent = 0;
+  let skipped = 0;
+  for (const invoice of overdue) {
+    if (!invoice.customer?.email) {
+      skipped++;
+      continue;
+    }
+    const paid = invoice.payments.reduce((sum, p) => sum + toNum(p.amount), 0);
+    const outstanding = Math.max(toNum(invoice.totalAmount) - paid, 0);
+    if (outstanding <= 0) {
+      skipped++;
+      continue;
+    }
+    const result = await sendEmail({
+      to: invoice.customer.email,
+      subject: `Payment reminder — invoice ${invoice.invoiceNumber}`,
+      text: reminderText(invoice.invoiceNumber, invoice.customer.name, outstanding, invoice.dueDate),
+    });
+    await db.invoice.update({ where: { id: invoice.id }, data: { lastReminderAt: new Date() } });
+    if (result.sent) sent++;
+    else skipped++;
+  }
+
+  revalidatePath("/dashboard/finance/invoices");
+  return { sent, skipped };
 }
 
 export async function createInvoiceFromBooking(bookingId: string): Promise<ActionState> {

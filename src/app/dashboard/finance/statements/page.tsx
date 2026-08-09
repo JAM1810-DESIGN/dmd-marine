@@ -20,6 +20,7 @@ import {
 } from "@/lib/finance-calculations";
 import { PeriodSelector } from "./period-selector";
 import { SaveSnapshotButton } from "./save-snapshot-button";
+import { PrintButton } from "./print-button";
 
 export const metadata: Metadata = { title: "Financial Statements" };
 
@@ -93,7 +94,10 @@ export default async function FinancialStatementsPage({
             Computed live from recorded income and expenses for {startStr} to {endStr}.
           </p>
         </div>
-        <PeriodSelector period={period} start={params.start ?? startStr} end={params.end ?? endStr} />
+        <div className="flex items-center gap-2">
+          <PrintButton />
+          <PeriodSelector period={period} start={params.start ?? startStr} end={params.end ?? endStr} />
+        </div>
       </div>
 
       <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">

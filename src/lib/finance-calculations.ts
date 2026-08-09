@@ -311,6 +311,53 @@ export async function getExpenseByCategory(range: DateRange) {
     .sort((a, b) => b.amount - a.amount);
 }
 
+export type AgingBuckets = {
+  current: number;
+  d1to30: number;
+  d31to60: number;
+  d60plus: number;
+  total: number;
+};
+
+/** Splits outstanding receivables into aging buckets by days past the due date. */
+export async function getReceivableAging(asOf: Date = new Date()): Promise<AgingBuckets> {
+  const invoices = await db.invoice.findMany({
+    where: { status: { in: ["SENT", "PARTIAL", "OVERDUE"] } },
+    include: { payments: { where: { status: "COMPLETED" } } },
+  });
+
+  const buckets: AgingBuckets = { current: 0, d1to30: 0, d31to60: 0, d60plus: 0, total: 0 };
+  for (const invoice of invoices) {
+    const paid = invoice.payments.reduce((acc, p) => acc + toNumber(p.amount), 0);
+    const outstanding = Math.max(toNumber(invoice.totalAmount) - paid, 0);
+    if (outstanding <= 0) continue;
+
+    const due = invoice.dueDate ?? invoice.issueDate;
+    const daysPast = Math.floor((asOf.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysPast <= 0) buckets.current += outstanding;
+    else if (daysPast <= 30) buckets.d1to30 += outstanding;
+    else if (daysPast <= 60) buckets.d31to60 += outstanding;
+    else buckets.d60plus += outstanding;
+    buckets.total += outstanding;
+  }
+  return buckets;
+}
+
+/** Completed payments in the range, grouped by payment method. */
+export async function getPaymentsByMethod(range: DateRange) {
+  const grouped = await db.payment.groupBy({
+    by: ["method"],
+    where: { status: "COMPLETED", paymentDate: { gte: range.start, lte: range.end } },
+    _sum: { amount: true },
+    _count: true,
+  });
+
+  return grouped
+    .map((g) => ({ method: g.method, amount: toNumber(g._sum.amount), count: g._count }))
+    .sort((a, b) => b.amount - a.amount);
+}
+
 export async function getMonthlySeries(monthsBack: number) {
   const now = new Date();
   const months: { label: string; start: Date; end: Date }[] = [];
