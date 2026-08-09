@@ -123,7 +123,7 @@ export function ComposeDialog({
           <div className="flex flex-col gap-3">
             <div className="grid gap-1.5">
               <Label>From</Label>
-              <Input value="DMD Marine" readOnly disabled />
+              <Input value="DMD Marine <dmdmarine2010@gmail.com>" readOnly disabled />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="to">To</Label>

@@ -185,7 +185,7 @@ function Composer({ thread }: { thread: Thread }) {
       {thread.external ? (
         <div className="mb-2">
           <HeaderRow label="From">
-            <span className="text-sm text-foreground">DMD Marine</span>
+            <span className="text-sm text-foreground">DMD Marine &lt;dmdmarine2010@gmail.com&gt;</span>
           </HeaderRow>
           <HeaderRow label="To">
             <input
