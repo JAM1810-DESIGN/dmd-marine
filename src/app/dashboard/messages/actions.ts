@@ -203,6 +203,72 @@ export async function unarchiveConversation(counterpartId: string): Promise<Acti
   }
 }
 
+/** Stars or unstars an entire internal conversation with a counterpart. */
+export async function toggleStarInternal(counterpartId: string, starred: boolean): Promise<ActionState> {
+  try {
+    const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    await db.message.updateMany({
+      where: {
+        channel: "INTERNAL",
+        OR: [
+          { toUserId: session.user.id, fromUserId: counterpartId },
+          { fromUserId: session.user.id, toUserId: counterpartId },
+        ],
+      },
+      data: { starredAt: starred ? new Date() : null },
+    });
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't update the conversation. Try again." };
+  }
+}
+
+/** Stars or unstars an entire external (website/email) conversation. */
+export async function toggleStarExternal(externalEmail: string, starred: boolean): Promise<ActionState> {
+  try {
+    await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    await db.message.updateMany({
+      where: { channel: "EMAIL", externalEmail },
+      data: { starredAt: starred ? new Date() : null },
+    });
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't update the conversation. Try again." };
+  }
+}
+
+/** Archives an external (website/email) conversation. */
+export async function archiveExternal(externalEmail: string): Promise<ActionState> {
+  try {
+    await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    await db.message.updateMany({
+      where: { channel: "EMAIL", externalEmail, archivedAt: null },
+      data: { archivedAt: new Date() },
+    });
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't archive the conversation. Try again." };
+  }
+}
+
+/** Restores an archived external conversation. */
+export async function unarchiveExternal(externalEmail: string): Promise<ActionState> {
+  try {
+    await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+    await db.message.updateMany({
+      where: { channel: "EMAIL", externalEmail, archivedAt: { not: null } },
+      data: { archivedAt: null },
+    });
+    revalidatePath("/dashboard/messages");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't restore the conversation. Try again." };
+  }
+}
+
 export async function markAllRead(): Promise<ActionState> {
   try {
     const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");

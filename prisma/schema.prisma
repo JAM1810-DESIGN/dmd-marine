@@ -596,6 +596,7 @@ model Message {
   bookingId      String?
   isRead         Boolean        @default(false)
   archivedAt     DateTime?
+  starredAt      DateTime?
 
   createdAt DateTime @default(now())
 

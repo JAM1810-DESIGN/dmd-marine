@@ -49,6 +49,7 @@ export default async function MessagesPage() {
       const entry: ThreadMessage = {
         id: message.id,
         body: message.body,
+        subject: message.subject,
         mine,
         isRead: message.isRead,
         createdAt: message.createdAt.toISOString(),
@@ -57,6 +58,7 @@ export default async function MessagesPage() {
       const existing = map.get(counterpartId);
       if (existing) {
         existing.messages.push(entry);
+        if (message.starredAt) existing.starred = true;
       } else {
         map.set(counterpartId, {
           counterpartId,
@@ -64,6 +66,7 @@ export default async function MessagesPage() {
           messages: [entry],
           lastAt: entry.createdAt,
           unreadCount: 0,
+          starred: message.starredAt !== null,
         });
       }
     }
@@ -87,6 +90,7 @@ export default async function MessagesPage() {
       const entry: ThreadMessage = {
         id: message.id,
         body: message.body,
+        subject: message.subject,
         mine,
         isRead: message.isRead,
         createdAt: message.createdAt.toISOString(),
@@ -97,6 +101,7 @@ export default async function MessagesPage() {
       const isRequest = !mine && (message.payload as { kind?: string } | null)?.kind === "booking";
       if (existing) {
         existing.messages.push(entry);
+        if (message.starredAt) existing.starred = true;
         if (isRequest) {
           existing.requestMessageId = message.id;
           existing.convertedBookingId = message.bookingId;
@@ -108,6 +113,7 @@ export default async function MessagesPage() {
           messages: [entry],
           lastAt: entry.createdAt,
           unreadCount: 0,
+          starred: message.starredAt !== null,
           external: true,
           externalEmail: email,
           requestMessageId: isRequest ? message.id : null,
