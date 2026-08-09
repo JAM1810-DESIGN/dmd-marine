@@ -51,6 +51,7 @@ export function ServiceFormDialog({
   consultants,
   topLevelServices,
   availableForms,
+  storageConfigured = true,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -59,6 +60,7 @@ export function ServiceFormDialog({
   consultants: { id: string; name: string }[];
   topLevelServices: { id: string; name: string }[];
   availableForms: { id: string; title: string }[];
+  storageConfigured?: boolean;
 }) {
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
@@ -262,6 +264,7 @@ export function ServiceFormDialog({
               serviceId={service.id}
               requiredForms={service.requiredForms}
               availableForms={availableForms}
+              storageConfigured={storageConfigured}
             />
           )}
 

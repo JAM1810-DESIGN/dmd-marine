@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { isStorageConfigured } from "@/lib/storage";
 import { CategoriesTable } from "./categories-table";
 import { ServicesTable } from "./services-table";
 import { RequestsTable } from "./requests-table";
@@ -69,6 +70,7 @@ export default async function ServiceManagementPage() {
         categories={categories.map((category) => ({ id: category.id, name: category.name }))}
         consultants={consultants}
         availableForms={forms}
+        storageConfigured={isStorageConfigured}
         services={services.map((service) => ({
           id: service.id,
           name: service.name,

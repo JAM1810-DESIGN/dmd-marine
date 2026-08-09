@@ -5,6 +5,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import { slugify } from "@/lib/slugify";
 import { requireRole } from "@/lib/rbac";
+import { uploadFile, isStorageConfigured } from "@/lib/storage";
 import { categorySchema, serviceSchema } from "@/lib/validations/service";
 
 export type ActionState = { error?: string; success?: boolean };
@@ -242,6 +243,54 @@ export async function addServiceRequiredForm(serviceId: string, companyDocumentI
   });
 
   revalidatePath("/dashboard/services");
+}
+
+/** Uploads a new form/document and attaches it to the service in one step. */
+export async function uploadServiceRequiredForm(
+  serviceId: string,
+  formData: FormData,
+): Promise<{ error?: string; success?: boolean }> {
+  const session = await requireRole("ADMIN", "MANAGER");
+
+  if (!isStorageConfigured) {
+    return { error: "File storage isn't configured (set Cloudinary env vars)." };
+  }
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { error: "Choose a file to upload." };
+  if (file.size > 10 * 1024 * 1024) return { error: "File must be 10 MB or smaller." };
+
+  const title = String(formData.get("title") ?? "").trim() || file.name;
+  const category = formData.get("category") === "DOCUMENT" ? "DOCUMENT" : "FORM";
+
+  try {
+    const uploaded = await uploadFile(file, "company-documents");
+    const doc = await db.companyDocument.create({
+      data: {
+        title,
+        category,
+        fileName: uploaded.fileName,
+        url: uploaded.url,
+        mimeType: uploaded.mimeType,
+        sizeBytes: uploaded.sizeBytes,
+        uploadedById: session.user.id,
+      },
+    });
+
+    const maxOrder = await db.serviceRequiredForm.aggregate({
+      where: { serviceId },
+      _max: { order: true },
+    });
+    await db.serviceRequiredForm.create({
+      data: { serviceId, companyDocumentId: doc.id, order: (maxOrder._max.order ?? -1) + 1 },
+    });
+
+    revalidatePath("/dashboard/services");
+    revalidatePath("/dashboard/documents");
+    return { success: true };
+  } catch {
+    return { error: "Upload failed. Try again." };
+  }
 }
 
 export async function removeServiceRequiredForm(id: string) {

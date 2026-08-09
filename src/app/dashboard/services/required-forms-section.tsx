@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { useRef, useState, useTransition } from "react";
+import { ChevronDown, ChevronUp, Plus, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -18,6 +19,7 @@ import {
   removeServiceRequiredForm,
   reorderServiceRequiredForm,
   toggleServiceRequiredFormRequired,
+  uploadServiceRequiredForm,
 } from "./actions";
 
 export type RequiredFormRow = {
@@ -32,13 +34,19 @@ export function RequiredFormsSection({
   serviceId,
   requiredForms,
   availableForms,
+  storageConfigured = true,
 }: {
   serviceId: string;
   requiredForms: RequiredFormRow[];
   availableForms: { id: string; title: string }[];
+  storageConfigured?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const [selected, setSelected] = useState<string>("");
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadCategory, setUploadCategory] = useState<"FORM" | "DOCUMENT">("FORM");
+  const [uploading, startUpload] = useTransition();
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const assignedIds = new Set(requiredForms.map((form) => form.companyDocumentId));
   const options = availableForms.filter((form) => !assignedIds.has(form.id));
@@ -69,6 +77,28 @@ export function RequiredFormsSection({
   function handleReorder(id: string, direction: "up" | "down") {
     startTransition(async () => {
       await reorderServiceRequiredForm(id, direction);
+    });
+  }
+
+  function handleUpload() {
+    const file = fileInput.current?.files?.[0];
+    if (!file) {
+      notify.error("Choose a file first.");
+      return;
+    }
+    const fd = new FormData();
+    fd.set("file", file);
+    fd.set("title", uploadTitle);
+    fd.set("category", uploadCategory);
+    startUpload(async () => {
+      const result = await uploadServiceRequiredForm(serviceId, fd);
+      if (result.error) {
+        notify.error(result.error);
+        return;
+      }
+      notify.success("Uploaded & attached");
+      setUploadTitle("");
+      if (fileInput.current) fileInput.current.value = "";
     });
   }
 
@@ -133,7 +163,7 @@ export function RequiredFormsSection({
         <div className="flex items-center gap-2">
           <Select value={selected} onValueChange={(value) => setSelected(value ?? "")}>
             <SelectTrigger size="sm" className="w-full">
-              <SelectValue placeholder="Select a form to add" />
+              <SelectValue placeholder="Select an existing form to add" />
             </SelectTrigger>
             <SelectContent>
               {options.map((form) => (
@@ -155,6 +185,47 @@ export function RequiredFormsSection({
           </Button>
         </div>
       )}
+
+      {/* Upload a brand-new form/document and attach it in one step. */}
+      <div className="mt-1 flex flex-col gap-2 rounded-lg border border-dashed border-border p-3">
+        <p className="text-xs font-medium text-muted-foreground">Upload a new form or document</p>
+        {storageConfigured ? (
+          <>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Input
+                placeholder="Title (defaults to file name)"
+                value={uploadTitle}
+                onChange={(event) => setUploadTitle(event.target.value)}
+                className="h-9"
+              />
+              <Select value={uploadCategory} onValueChange={(v) => setUploadCategory(v === "DOCUMENT" ? "DOCUMENT" : "FORM")}>
+                <SelectTrigger size="sm" className="sm:w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FORM">Form</SelectItem>
+                  <SelectItem value="DOCUMENT">Document</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                ref={fileInput}
+                type="file"
+                className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-foreground"
+              />
+              <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={handleUpload}>
+                <Upload className="size-4" />
+                {uploading ? "Uploading..." : "Upload"}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            File storage isn&apos;t configured. Set the Cloudinary env vars to upload new forms here.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

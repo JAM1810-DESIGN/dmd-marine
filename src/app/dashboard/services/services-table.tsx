@@ -192,12 +192,14 @@ export function ServicesTable({
   consultants,
   canManage,
   availableForms,
+  storageConfigured = true,
 }: {
   services: ServiceRow[];
   categories: { id: string; name: string }[];
   consultants: { id: string; name: string }[];
   canManage: boolean;
   availableForms: { id: string; title: string }[];
+  storageConfigured?: boolean;
 }) {
   const [dialog, setDialog] = useState<{ open: boolean; service?: ServiceRow }>({
     open: false,
@@ -310,6 +312,7 @@ export function ServicesTable({
           .filter((service) => service.isActive)
           .map((service) => ({ id: service.id, name: service.name }))}
         availableForms={availableForms}
+        storageConfigured={storageConfigured}
       />
     </div>
   );
