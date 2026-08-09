@@ -1,61 +1,64 @@
 import type { Metadata } from "next";
-import { auth } from "@/auth";
+import Link from "next/link";
+import { MessageSquare, CalendarPlus, Star, MessageCircle, ArrowRight } from "lucide-react";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
 import { isFacebookConfigured } from "@/lib/facebook";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FacebookInbox } from "./facebook-inbox";
+import { ConnectionBanner } from "./connection-banner";
 
 export const metadata: Metadata = { title: "Facebook" };
 
-export default async function FacebookPage() {
-  const session = await auth();
-  const canManage =
-    session?.user.role === "ADMIN" ||
-    session?.user.role === "MANAGER" ||
-    session?.user.role === "STAFF";
+export default async function FacebookOverviewPage() {
+  const pageName = env.NEXT_PUBLIC_APP_NAME;
 
-  const leads = await db.facebookLead.findMany({
-    orderBy: { updatedAt: "desc" },
-    include: { messages: { orderBy: { createdAt: "asc" }, include: { fromUser: true } } },
-  });
+  const [unreadMessages, pendingRequests] = await Promise.all([
+    db.message.count({ where: { facebookLeadId: { not: null }, isRead: false } }),
+    db.facebookLead.count({ where: { status: "NEW" } }),
+  ]);
+
+  // Comments and reviews require the Page connection + Graph sync (not yet stored).
+  const reviews = 0;
+  const comments = 0;
+
+  const cards = [
+    { label: "Unread messages", value: unreadMessages, href: "/dashboard/facebook/inbox", cta: "Open inbox", icon: MessageSquare },
+    { label: "Pending requests", value: pendingRequests, href: "/dashboard/facebook/requests", cta: "Review", icon: CalendarPlus },
+    { label: "Reviews", value: reviews, href: "/dashboard/facebook/reviews", cta: "View", icon: Star },
+    { label: "Comments", value: comments, href: "/dashboard/facebook/comments", cta: "Moderate", icon: MessageCircle },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Facebook</h1>
-        <p className="text-sm text-muted-foreground">
-          Messenger conversations and lead form submissions from your Facebook Page.
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h1 className="text-2xl font-semibold text-foreground">Facebook overview</h1>
+          <span className="text-sm font-medium text-accent">{pageName}</span>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Messenger, comments, reviews, and booking requests from {pageName}&rsquo;s Page.
         </p>
-        {!isFacebookConfigured && (
-          <Alert variant="warning" className="mt-3">
-            <AlertDescription>
-              Not connected yet — set the FACEBOOK_* environment variables to receive live
-              messages and leads. See Settings for connection status.
-            </AlertDescription>
-          </Alert>
-        )}
       </div>
 
-      <FacebookInbox
-        canManage={canManage}
-        leads={leads.map((lead) => ({
-          id: lead.id,
-          name: lead.name,
-          email: lead.email,
-          phone: lead.phone,
-          status: lead.status,
-          customerId: lead.customerId,
-          updatedAt: lead.updatedAt.toISOString(),
-          messages: lead.messages.map((message) => ({
-            id: message.id,
-            body: message.body,
-            fromUserId: message.fromUserId,
-            fromUserName: message.fromUser?.name ?? null,
-            isRead: message.isRead,
-            createdAt: message.createdAt.toISOString(),
-          })),
-        }))}
-      />
+      <ConnectionBanner configured={isFacebookConfigured} pageName={pageName} />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map((card) => (
+          <div key={card.label} className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <card.icon className="size-4" />
+              {card.label}
+            </div>
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-foreground">{card.value}</p>
+            <Link
+              href={card.href}
+              className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
+            >
+              {card.cta}
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
