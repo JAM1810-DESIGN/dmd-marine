@@ -1,3 +1,4 @@
+import Script from "next/script";
 import { getSiteSettings } from "@/lib/site-settings";
 import { env } from "@/lib/env";
 
@@ -29,8 +30,10 @@ export async function OrganizationJsonLd() {
   if (sameAs.length > 0) jsonLd.sameAs = sameAs;
 
   return (
-    <script
+    <Script
+      id="organization-jsonld"
       type="application/ld+json"
+      strategy="afterInteractive"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
   );
