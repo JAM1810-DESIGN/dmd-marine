@@ -34,6 +34,7 @@ import {
   toggleStarExternal,
   replyExternal,
   confirmExternalBooking,
+  createBookingFromThread,
   draftReply,
   sendMessage,
 } from "./actions";
@@ -131,8 +132,20 @@ function Composer({ thread }: { thread: Thread }) {
   const [subject, setSubject] = useState(defaultSubject);
   const [drafting, startDraft] = useTransition();
   const [sending, startSend] = useTransition();
+  const [booking, startBooking] = useTransition();
 
   const lastInbound = [...thread.messages].reverse().find((m) => !m.mine);
+  const alreadyBooked = Boolean(thread.convertedBookingId);
+
+  function book() {
+    startBooking(async () => {
+      const result = thread.requestMessageId
+        ? await confirmExternalBooking(thread.requestMessageId)
+        : await createBookingFromThread(thread.externalEmail ?? "", thread.counterpartName);
+      if (result.error) notify.error(result.error);
+      else notify.success("Booking created");
+    });
+  }
 
   function aiDraft() {
     if (!lastInbound || thread.external) {
@@ -227,7 +240,19 @@ function Composer({ thread }: { thread: Thread }) {
         onChange={(event) => setBody(event.target.value)}
         placeholder={thread.external ? "Write an email reply..." : "Write a message, or let AI draft one..."}
       />
-      <div className="mt-2 flex justify-end">
+      <div className="mt-2 flex items-center justify-end gap-2">
+        {thread.external &&
+          (alreadyBooked ? (
+            <Badge variant="outline">
+              <CalendarCheck className="size-3.5" />
+              Booked
+            </Badge>
+          ) : (
+            <Button variant="outline" size="sm" onClick={book} disabled={booking}>
+              <CalendarCheck className="size-4" />
+              {booking ? "Booking..." : "Booked"}
+            </Button>
+          ))}
         <Button size="sm" onClick={send} disabled={sending || !body.trim()}>
           <Send className="size-4" />
           {sending ? "Sending..." : thread.external ? "Send email" : "Send"}
@@ -436,13 +461,6 @@ export function MessagesList({ active, archived }: { active: Thread[]; archived:
                 }
               })
             }
-            onConfirmBooking={() =>
-              startTransition(async () => {
-                const result = await confirmExternalBooking(selected.requestMessageId!);
-                if (result.error) notify.error(result.error);
-                else notify.success("Confirmed — booking created");
-              })
-            }
           />
         ) : (
           <>
@@ -586,7 +604,6 @@ function ReadingPane({
   onStar,
   onArchive,
   onRestore,
-  onConfirmBooking,
 }: {
   thread: Thread;
   isArchivedFolder: boolean;
@@ -596,7 +613,6 @@ function ReadingPane({
   onStar: () => void;
   onArchive: () => void;
   onRestore: () => void;
-  onConfirmBooking: () => void;
 }) {
   const { subject } = subjectAndSnippet(thread);
   return (
@@ -628,15 +644,11 @@ function ReadingPane({
             <p className="truncate text-xs text-muted-foreground">{subject}</p>
           ) : null}
         </div>
-        {thread.external && thread.requestMessageId ? (
-          thread.convertedBookingId ? (
-            <Badge variant="outline">Booking created</Badge>
-          ) : (
-            <Button size="sm" disabled={isPending} onClick={onConfirmBooking}>
-              <CalendarCheck className="size-4" />
-              Confirm booking
-            </Button>
-          )
+        {thread.external && thread.convertedBookingId ? (
+          <Badge variant="outline">
+            <CalendarCheck className="size-3.5" />
+            Booking created
+          </Badge>
         ) : null}
         {isArchivedFolder ? (
           <Button variant="ghost" size="sm" disabled={isPending} onClick={onRestore}>

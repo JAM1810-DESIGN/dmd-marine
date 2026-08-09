@@ -139,6 +139,58 @@ export async function confirmExternalBooking(messageId: string): Promise<ActionS
   }
 }
 
+/** Creates a booking straight from an external conversation that has no stored request payload. */
+export async function createBookingFromThread(
+  externalEmail: string,
+  externalName: string | null,
+): Promise<ActionState> {
+  await requireRole("ADMIN", "MANAGER", "STAFF");
+
+  // Don't double-book: bail if any message in this thread already made a booking.
+  const existing = await db.message.findFirst({
+    where: { channel: "EMAIL", externalEmail, bookingId: { not: null } },
+    select: { bookingId: true },
+  });
+  if (existing) return { error: "This conversation already has a booking." };
+
+  const service = await db.service.findFirst({ orderBy: { createdAt: "asc" }, select: { id: true } });
+  if (!service) return { error: "No service exists yet. Add a service before booking." };
+
+  try {
+    const booking = await db.booking.create({
+      data: {
+        serviceId: service.id,
+        customerName: externalName ?? externalEmail,
+        customerEmail: externalEmail,
+      },
+    });
+
+    const latest = await db.message.findFirst({
+      where: { channel: "EMAIL", externalEmail },
+      orderBy: { createdAt: "desc" },
+      select: { id: true },
+    });
+    if (latest) {
+      await db.message.update({ where: { id: latest.id }, data: { bookingId: booking.id } });
+    }
+
+    await db.notification.create({
+      data: {
+        type: "NEW_BOOKING",
+        title: "Booking created from message",
+        message: `${booking.customerName} — ${booking.customerEmail}`,
+        link: "/dashboard/bookings",
+      },
+    });
+
+    revalidatePath("/dashboard/messages");
+    revalidatePath("/dashboard/bookings");
+    return { success: true };
+  } catch {
+    return { error: "Couldn't create the booking. Try again." };
+  }
+}
+
 export async function sendMessage(
   _prevState: ActionState,
   formData: FormData,

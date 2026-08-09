@@ -102,10 +102,8 @@ export default async function MessagesPage() {
       if (existing) {
         existing.messages.push(entry);
         if (message.starredAt) existing.starred = true;
-        if (isRequest) {
-          existing.requestMessageId = message.id;
-          existing.convertedBookingId = message.bookingId;
-        }
+        if (isRequest) existing.requestMessageId = message.id;
+        if (message.bookingId) existing.convertedBookingId = message.bookingId;
       } else {
         map.set(key, {
           counterpartId: key,
@@ -117,7 +115,7 @@ export default async function MessagesPage() {
           external: true,
           externalEmail: email,
           requestMessageId: isRequest ? message.id : null,
-          convertedBookingId: isRequest ? message.bookingId : null,
+          convertedBookingId: message.bookingId,
         });
       }
     }
