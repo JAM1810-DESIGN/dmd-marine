@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { notify } from "@/lib/notify";
+import { buildIdentityBody } from "./identity-format";
 import { sendMessage, composeExternalEmail, saveDraft } from "./actions";
 
 type Mode = "email" | "staff";
@@ -46,13 +47,6 @@ export type ComposeProps = {
 
 type ComposeInitial = { to?: string; cc?: string; subject?: string; body?: string; draftId?: string };
 
-/** Builds a signature block from an identity. */
-function signatureOf(identity: ComposeIdentity): string {
-  return [identity.signOff, identity.signatureName, identity.email, identity.phone]
-    .filter((line): line is string => Boolean(line && line.trim()))
-    .join("\n");
-}
-
 export function ComposeDialog({
   trigger,
   recipients,
@@ -65,10 +59,15 @@ export function ComposeDialog({
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
 
+  const defaultIdentity = identities.find((i) => i.isDefault) ?? identities[0];
+  // A brand-new email starts with the default identity already laid out in the
+  // body, so you see the full email before typing. Drafts keep their saved body.
+  const startingBody = initial?.body ?? (defaultIdentity ? buildIdentityBody(defaultIdentity) : "");
+
   const [to, setTo] = useState(initial?.to ?? "");
   const [cc, setCc] = useState(initial?.cc ?? "");
   const [subject, setSubject] = useState(initial?.subject ?? "");
-  const [body, setBody] = useState(initial?.body ?? "");
+  const [body, setBody] = useState(startingBody);
   const [files, setFiles] = useState<File[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
   const draftId = initial?.draftId;
@@ -77,7 +76,7 @@ export function ComposeDialog({
     setTo(initial?.to ?? "");
     setCc(initial?.cc ?? "");
     setSubject(initial?.subject ?? "");
-    setBody(initial?.body ?? "");
+    setBody(startingBody);
     setFiles([]);
     setError(undefined);
   }
@@ -93,13 +92,7 @@ export function ComposeDialog({
 
   function applyIdentity(id: string) {
     const identity = identities.find((i) => i.id === id);
-    if (!identity) return;
-    const greeting = identity.greeting?.trim();
-    const signature = signatureOf(identity);
-    setBody((current) => {
-      const middle = current.trim();
-      return [greeting, "", middle, "", signature].filter((part) => part !== undefined).join("\n").replace(/\n{3,}/g, "\n\n");
-    });
+    if (identity) setBody(buildIdentityBody(identity));
   }
 
   function emailFormData() {
@@ -162,7 +155,7 @@ export function ComposeDialog({
       }}
     >
       <DialogTrigger render={trigger} />
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{draftId ? "Edit draft" : "New message"}</DialogTitle>
         </DialogHeader>
@@ -252,7 +245,7 @@ export function ComposeDialog({
 
             <div className="grid gap-1.5">
               <Label htmlFor="email-body">Message</Label>
-              <Textarea id="email-body" rows={6} value={body} onChange={(event) => setBody(event.target.value)} />
+              <Textarea id="email-body" rows={14} value={body} onChange={(event) => setBody(event.target.value)} />
             </div>
 
             <input ref={fileInput} type="file" multiple hidden onChange={(event) => addFiles(event.target.files)} />

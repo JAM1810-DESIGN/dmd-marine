@@ -59,7 +59,7 @@ export default async function MessagesPage({
     return <DraftsPanel drafts={rows} compose={{ recipients, contacts, identities: composeIdentities }} />;
   }
 
-  const [messages, external] = await Promise.all([
+  const [messages, external, identity] = await Promise.all([
     db.message.findMany({
       where: { channel: "INTERNAL", OR: [{ toUserId: userId }, { fromUserId: userId }] },
       orderBy: { createdAt: "asc" },
@@ -72,7 +72,18 @@ export default async function MessagesPage({
       orderBy: { createdAt: "asc" },
       take: 1000,
     }),
+    db.messageIdentity.findFirst({ orderBy: [{ isDefault: "desc" }, { name: "asc" }] }),
   ]);
+
+  const defaultIdentity = identity
+    ? {
+        greeting: identity.greeting,
+        signOff: identity.signOff,
+        signatureName: identity.signatureName,
+        email: identity.email,
+        phone: identity.phone,
+      }
+    : null;
 
   function buildThreads(archived: boolean): Thread[] {
     const map = new Map<string, Thread>();
@@ -172,5 +183,12 @@ export default async function MessagesPage({
     b.lastAt.localeCompare(a.lastAt),
   );
 
-  return <MessagesList active={active} archived={archived} folder={folder as MailFolder} />;
+  return (
+    <MessagesList
+      active={active}
+      archived={archived}
+      folder={folder as MailFolder}
+      defaultIdentity={defaultIdentity}
+    />
+  );
 }

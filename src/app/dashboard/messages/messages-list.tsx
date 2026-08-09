@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
+import { buildIdentityBody, type IdentityLike } from "./identity-format";
 import {
   markThreadRead,
   markExternalThreadRead,
@@ -120,14 +121,17 @@ function HeaderRow({
   );
 }
 
-function Composer({ thread }: { thread: Thread }) {
+function Composer({ thread, defaultIdentity }: { thread: Thread; defaultIdentity: IdentityLike | null }) {
   const defaultSubject = () => {
     const base = thread.messages.find((m) => m.subject && m.subject.trim())?.subject?.trim();
     if (!base) return "Re: your message";
     return /^re:/i.test(base) ? base : `Re: ${base}`;
   };
 
-  const [body, setBody] = useState("");
+  // External replies start with the default identity laid out, so the email is
+  // visible before typing. Internal replies stay blank (AI draft fills them).
+  const emptyBody = thread.external && defaultIdentity ? buildIdentityBody(defaultIdentity) : "";
+  const [body, setBody] = useState(emptyBody);
   const [to, setTo] = useState(thread.externalEmail ?? "");
   const [cc, setCc] = useState("");
   const [subject, setSubject] = useState(defaultSubject);
@@ -188,7 +192,7 @@ function Composer({ thread }: { thread: Thread }) {
         else {
           if (result.warning) notify.info(result.warning);
           else notify.success("Reply emailed");
-          setBody("");
+          setBody(emptyBody);
           setCc("");
           setFiles([]);
         }
@@ -326,10 +330,12 @@ export function MessagesList({
   active,
   archived,
   folder,
+  defaultIdentity,
 }: {
   active: Thread[];
   archived: Thread[];
   folder: MailFolder;
+  defaultIdentity: IdentityLike | null;
 }) {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -448,6 +454,7 @@ export function MessagesList({
         {selected ? (
           <ReadingPane
             thread={selected}
+            defaultIdentity={defaultIdentity}
             isArchivedFolder={isArchivedFolder}
             isPending={isPending}
             scrollRef={scrollRef}
@@ -615,6 +622,7 @@ export function MessagesList({
 
 function ReadingPane({
   thread,
+  defaultIdentity,
   isArchivedFolder,
   isPending,
   scrollRef,
@@ -624,6 +632,7 @@ function ReadingPane({
   onRestore,
 }: {
   thread: Thread;
+  defaultIdentity: IdentityLike | null;
   isArchivedFolder: boolean;
   isPending: boolean;
   scrollRef: React.RefObject<HTMLDivElement | null>;
@@ -702,7 +711,7 @@ function ReadingPane({
           <Badge variant="outline">Archived — restore to reply</Badge>
         </div>
       ) : (
-        <Composer thread={thread} />
+        <Composer thread={thread} defaultIdentity={defaultIdentity} />
       )}
     </div>
   );
