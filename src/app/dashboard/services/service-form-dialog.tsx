@@ -69,6 +69,12 @@ export function ServiceFormDialog({
     isFaqArray(service?.faq) ? service.faq : [],
   );
 
+  // Controlled selects so choices stick (base-ui warns on uncontrolled default changes).
+  const [categoryId, setCategoryId] = useState(service?.categoryId ?? "");
+  const [parentServiceId, setParentServiceId] = useState(service?.parentServiceId ?? "none");
+  const [defaultConsultantId, setDefaultConsultantId] = useState(service?.defaultConsultantId ?? "none");
+  const [priceUnit, setPriceUnit] = useState(service?.priceUnit ?? "none");
+
   const parentOptions = topLevelServices.filter((option) => option.id !== service?.id);
 
   function handleSubmit(formData: FormData) {
@@ -103,7 +109,12 @@ export function ServiceFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="categoryId">Category</Label>
-              <Select name="categoryId" defaultValue={service?.categoryId} required>
+              <Select
+                name="categoryId"
+                value={categoryId}
+                onValueChange={(v) => { if (typeof v === "string") setCategoryId(v); }}
+                required
+              >
                 <SelectTrigger id="categoryId" className="w-full">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -120,7 +131,11 @@ export function ServiceFormDialog({
 
           <div className="grid gap-1.5">
             <Label htmlFor="parentServiceId">Parent Service</Label>
-            <Select name="parentServiceId" defaultValue={service?.parentServiceId ?? "none"}>
+            <Select
+              name="parentServiceId"
+              value={parentServiceId}
+              onValueChange={(v) => { if (typeof v === "string") setParentServiceId(v); }}
+            >
               <SelectTrigger id="parentServiceId" className="w-full">
                 <SelectValue placeholder="None (top-level service)" />
               </SelectTrigger>
@@ -155,7 +170,11 @@ export function ServiceFormDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <Label htmlFor="defaultConsultantId">Default Consultant</Label>
-              <Select name="defaultConsultantId" defaultValue={service?.defaultConsultantId ?? "none"}>
+              <Select
+                name="defaultConsultantId"
+                value={defaultConsultantId}
+                onValueChange={(v) => { if (typeof v === "string") setDefaultConsultantId(v); }}
+              >
                 <SelectTrigger id="defaultConsultantId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -190,7 +209,11 @@ export function ServiceFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="priceUnit">Price unit</Label>
-              <Select name="priceUnit" defaultValue={service?.priceUnit ?? "none"}>
+              <Select
+                name="priceUnit"
+                value={priceUnit}
+                onValueChange={(v) => { if (typeof v === "string") setPriceUnit(v); }}
+              >
                 <SelectTrigger id="priceUnit" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
