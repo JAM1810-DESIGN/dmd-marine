@@ -94,7 +94,14 @@ export default async function CustomerDetailPage({
         </div>
         {canManage && (
           <CustomerFormDialog
-            customer={customer}
+            customer={{
+              id: customer.id,
+              name: customer.name,
+              email: customer.email,
+              phone: customer.phone,
+              companyId: customer.companyId,
+              notes: customer.notes,
+            }}
             companies={companies}
             trigger={
               <Button variant="outline" size="sm">
