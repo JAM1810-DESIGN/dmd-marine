@@ -46,6 +46,14 @@ export type QuotationRecord = {
 
 type ItemState = { description: string; quantity: number; unitPrice: number };
 
+export type QuotationTemplate = {
+  title: string;
+  currency: string;
+  scope: string[];
+  conditions: string;
+  items: ItemState[];
+};
+
 function money(n: number) {
   return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -53,32 +61,36 @@ function money(n: number) {
 export function QuotationEditor({
   quotation,
   customers,
+  template,
 }: {
   quotation?: QuotationRecord;
   customers: { id: string; name: string }[];
+  template?: QuotationTemplate;
 }) {
   const router = useRouter();
   const existing = Boolean(quotation);
   const action = quotation ? updateQuotation.bind(null, quotation.id) : createQuotation;
   const [state, formAction, pending] = useActionState<ActionState, FormData>(action, {});
 
-  const [title, setTitle] = useState(quotation?.title ?? "On/Off-Hire Bunker Survey");
+  const [title, setTitle] = useState(quotation?.title ?? template?.title ?? "On/Off-Hire Bunker Survey");
   const [billTo, setBillTo] = useState(quotation?.billTo ?? "");
   const [attention, setAttention] = useState(quotation?.attention ?? "");
   const [vesselName, setVesselName] = useState(quotation?.vesselName ?? "");
   const [location, setLocation] = useState(quotation?.location ?? "Philippines – Port / Anchorage / Shipyard");
-  const [currency, setCurrency] = useState(quotation?.currency ?? "USD");
+  const [currency, setCurrency] = useState(quotation?.currency ?? template?.currency ?? "USD");
   const [quoteDate, setQuoteDate] = useState(quotation?.quoteDate.slice(0, 10) ?? new Date().toISOString().slice(0, 10));
   const [validityDays, setValidityDays] = useState(quotation?.validityDays ?? 30);
   const [paymentTerms, setPaymentTerms] = useState(quotation?.paymentTerms ?? DEFAULT_TERMS);
-  const [conditions, setConditions] = useState(quotation?.conditions ?? DEFAULT_CONDITIONS);
+  const [conditions, setConditions] = useState(quotation?.conditions ?? template?.conditions ?? DEFAULT_CONDITIONS);
   const [taxRatePercent, setTaxRatePercent] = useState(quotation?.taxRatePercent ?? 0);
   const [customerId, setCustomerId] = useState(quotation?.customerId ?? "");
-  const [scope, setScope] = useState<string[]>(quotation?.scope?.length ? quotation.scope : DEFAULT_SCOPE);
+  const [scope, setScope] = useState<string[]>(
+    quotation?.scope?.length ? quotation.scope : (template?.scope ?? DEFAULT_SCOPE),
+  );
   const [items, setItems] = useState<ItemState[]>(
     quotation?.items?.length
       ? quotation.items.map((i) => ({ description: i.description, quantity: i.quantity, unitPrice: i.unitPrice }))
-      : [{ description: "On/Off-Hire Bunker Survey – Port", quantity: 1, unitPrice: 350 }],
+      : (template?.items ?? [{ description: "On/Off-Hire Bunker Survey – Port", quantity: 1, unitPrice: 350 }]),
   );
 
   const subtotal = useMemo(() => items.reduce((s, i) => s + i.quantity * i.unitPrice, 0), [items]);
