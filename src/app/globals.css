@@ -9,9 +9,9 @@
    directly, except for deliberate one-off brand moments (e.g. text-brand-coral
    on a marketing page). */
 :root {
-  --brand-navy: #0b2545;
-  --brand-deep-sea: #003049;
-  --brand-ocean: #38f0d8;
+  --brand-navy: #12395f;
+  --brand-deep-sea: #0a2942;
+  --brand-ocean: #0f766e;
   --brand-harbor: #6fe8d4;
   --brand-seafoam: #2ec4b6;
   --brand-coral: #ff6b6b;
@@ -76,80 +76,82 @@
 }
 
 :root {
-  --background: #f7f8fa;
-  --foreground: #0b2545;
+  /* Harbor — navy primary, teal accent, slate neutrals. */
+  --background: #f5f7fa;
+  --foreground: #0f1c2e;
   --card: #ffffff;
-  --card-foreground: #0b2545;
+  --card-foreground: #0f1c2e;
   --popover: #ffffff;
-  --popover-foreground: #0b2545;
-  --primary: #163a63;
+  --popover-foreground: #0f1c2e;
+  --primary: #12395f;
   --primary-foreground: #ffffff;
-  --secondary: #f1f2f5;
-  --secondary-foreground: #0b2545;
-  --muted: #f0f1f4;
-  --muted-foreground: #56637d;
-  --accent: #8a6d1a;
+  --secondary: #edf1f6;
+  --secondary-foreground: #0f1c2e;
+  --muted: #eef2f7;
+  --muted-foreground: #5b6b7f;
+  --accent: #0f766e;
   --accent-foreground: #ffffff;
-  --info: #2f6fd6;
+  --info: #2563eb;
   --info-foreground: #ffffff;
-  --destructive: #e63946;
-  --success: #15803d;
-  --warning: #b45309;
-  --border: #e5e8ec;
-  --input: #e5e8ec;
-  --ring: #163a63;
-  --chart-1: #163a63;
-  --chart-2: #8a6d1a;
-  --chart-3: #c94040;
-  --chart-4: #2f6fd6;
-  --chart-5: #15803d;
+  --destructive: #dc2626;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --border: #e6eaf0;
+  --input: #e6eaf0;
+  --ring: #0f766e;
+  --chart-1: #12395f;
+  --chart-2: #0f766e;
+  --chart-3: #dc2626;
+  --chart-4: #2563eb;
+  --chart-5: #16a34a;
   --radius: 0.75rem;
-  --sidebar: #0b2545;
-  --sidebar-foreground: #eef1f6;
-  --sidebar-primary: #e8c766;
-  --sidebar-primary-foreground: #0b2545;
-  --sidebar-accent: #16305a;
-  --sidebar-accent-foreground: #e8c766;
-  --sidebar-border: #16305a;
-  --sidebar-ring: #e8c766;
+  --sidebar: #12395f;
+  --sidebar-foreground: #e6edf5;
+  --sidebar-primary: #2dd4bf;
+  --sidebar-primary-foreground: #04342c;
+  --sidebar-accent: #1b4a73;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1b4a73;
+  --sidebar-ring: #2dd4bf;
 }
 
 .dark {
-  --background: #051419;
-  --foreground: #eafaf8;
-  --card: #0a2530;
-  --card-foreground: #eafaf8;
-  --popover: #0a2530;
-  --popover-foreground: #eafaf8;
-  --primary: #38f0d8;
-  --primary-foreground: #051419;
-  --secondary: #0d3540;
-  --secondary-foreground: #eafaf8;
-  --muted: #0a2530;
-  --muted-foreground: #8fb0ae;
-  --accent: #7b6ef6;
-  --accent-foreground: #051419;
+  /* Harbor (dark) — slate-navy surfaces, teal accent. */
+  --background: #0b1220;
+  --foreground: #e6edf5;
+  --card: #121c2e;
+  --card-foreground: #e6edf5;
+  --popover: #121c2e;
+  --popover-foreground: #e6edf5;
+  --primary: #2e5e8c;
+  --primary-foreground: #ffffff;
+  --secondary: #1a2740;
+  --secondary-foreground: #e6edf5;
+  --muted: #121c2e;
+  --muted-foreground: #8b9aad;
+  --accent: #2dd4bf;
+  --accent-foreground: #04342c;
   --info: #60a5fa;
-  --info-foreground: #051419;
-  --destructive: #e63946;
-  --success: #2ecc71;
-  --warning: #f4b400;
+  --info-foreground: #0b1220;
+  --destructive: #f87171;
+  --success: #34d399;
+  --warning: #fbbf24;
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #7b6ef6;
-  --chart-1: #38f0d8;
-  --chart-2: #7b6ef6;
-  --chart-3: #ff6b6b;
-  --chart-4: #f4b400;
-  --chart-5: #8fd8cf;
-  --sidebar: #020d10;
-  --sidebar-foreground: #eafaf8;
-  --sidebar-primary: #38f0d8;
-  --sidebar-primary-foreground: #051419;
-  --sidebar-accent: #0a2530;
-  --sidebar-accent-foreground: #eafaf8;
+  --ring: #2dd4bf;
+  --chart-1: #4c86c4;
+  --chart-2: #2dd4bf;
+  --chart-3: #f87171;
+  --chart-4: #60a5fa;
+  --chart-5: #34d399;
+  --sidebar: #0a1524;
+  --sidebar-foreground: #e6edf5;
+  --sidebar-primary: #2dd4bf;
+  --sidebar-primary-foreground: #04342c;
+  --sidebar-accent: #12233b;
+  --sidebar-accent-foreground: #e6edf5;
   --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: #38f0d8;
+  --sidebar-ring: #2dd4bf;
 }
 
 @layer base {
