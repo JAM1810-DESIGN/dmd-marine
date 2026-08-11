@@ -145,7 +145,7 @@ export default async function CustomerDetailPage({
       <VesselsSection customerId={customer.id} vessels={customer.vessels} canManage={canManage} />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+        <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card ring-1 ring-foreground/10">
           <div className="p-4">
             <h2 className="font-heading text-base font-semibold">Projects</h2>
             <p className="text-sm text-muted-foreground">Work delivered for this customer.</p>
@@ -169,7 +169,7 @@ export default async function CustomerDetailPage({
           )}
         </div>
 
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+        <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card ring-1 ring-foreground/10">
           <div className="p-4">
             <h2 className="font-heading text-base font-semibold">Invoices</h2>
             <p className="text-sm text-muted-foreground">Billing history and balances.</p>
@@ -214,7 +214,7 @@ export default async function CustomerDetailPage({
         }))}
       />
 
-      <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card ring-1 ring-foreground/10">
         <div className="p-4">
           <h2 className="font-heading text-base font-semibold">Bookings</h2>
           <p className="text-sm text-muted-foreground">Requests linked to this customer.</p>

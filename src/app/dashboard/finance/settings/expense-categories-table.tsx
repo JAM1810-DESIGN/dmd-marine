@@ -65,7 +65,7 @@ export function ExpenseCategoriesTable({
   }
 
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+    <div className="rounded-xl border-t-[3px] border-t-neutral-400 bg-card ring-1 ring-foreground/10">
       <div className="p-4">
         <h2 className="font-heading text-base font-semibold">Expense Categories</h2>
         <p className="text-sm text-muted-foreground">

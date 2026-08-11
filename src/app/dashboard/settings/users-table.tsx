@@ -89,7 +89,7 @@ function ActiveToggle({ id, isActive, isSelf }: { id: string; isActive: boolean;
 
 export function UsersTable({ users, currentUserId }: { users: UserRow[]; currentUserId: string }) {
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+    <div className="rounded-xl border-t-[3px] border-t-neutral-400 bg-card ring-1 ring-foreground/10">
       <div className="flex items-center justify-between p-4">
         <div>
           <h2 className="font-heading text-base font-semibold">Staff Accounts</h2>

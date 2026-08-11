@@ -202,7 +202,7 @@ export function ProjectsTable({
   }, [filtered]);
 
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+    <div className="rounded-xl border-t-[3px] border-t-violet-500 bg-card ring-1 ring-foreground/10">
       <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-heading text-base font-semibold">Projects</h2>

@@ -22,7 +22,7 @@ export function ContactHistorySection({
   canManage: boolean;
 }) {
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+    <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card ring-1 ring-foreground/10">
       <div className="flex items-center justify-between p-4">
         <h2 className="font-heading text-base font-semibold">Contact History</h2>
         {canManage && (

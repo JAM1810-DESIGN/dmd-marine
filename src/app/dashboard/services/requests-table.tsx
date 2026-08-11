@@ -29,7 +29,7 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline" | "dest
 
 export function RequestsTable({ requests }: { requests: RequestRow[] }) {
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+    <div className="rounded-xl border-t-[3px] border-t-teal-500 bg-card ring-1 ring-foreground/10">
       <div className="p-4">
         <h2 className="font-heading text-base font-semibold">Recent Requests</h2>
         <p className="text-sm text-muted-foreground">

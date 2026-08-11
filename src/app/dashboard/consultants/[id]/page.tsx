@@ -119,7 +119,7 @@ export default async function ConsultantDetailPage({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+        <div className="rounded-xl border-t-[3px] border-t-teal-500 bg-card ring-1 ring-foreground/10">
           <div className="p-4">
             <h2 className="font-heading text-base font-semibold">Assigned bookings</h2>
             <p className="text-sm text-muted-foreground">Open work assigned to this consultant.</p>
@@ -143,7 +143,7 @@ export default async function ConsultantDetailPage({
           )}
         </div>
 
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+        <div className="rounded-xl border-t-[3px] border-t-teal-500 bg-card ring-1 ring-foreground/10">
           <div className="p-4">
             <h2 className="font-heading text-base font-semibold">Active projects</h2>
             <p className="text-sm text-muted-foreground">Projects currently in progress.</p>
@@ -168,7 +168,7 @@ export default async function ConsultantDetailPage({
         </div>
       </div>
 
-      <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-teal-500 bg-card ring-1 ring-foreground/10">
         <div className="p-4">
           <h2 className="font-heading text-base font-semibold">Upcoming schedule</h2>
           <p className="text-sm text-muted-foreground">Next appointments for this consultant.</p>

@@ -188,7 +188,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+        <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card ring-1 ring-foreground/10">
           <div className="flex items-center gap-2 p-4">
             <AlertTriangle className="size-4 text-accent" />
             <h2 className="font-heading text-base font-semibold">Needs attention</h2>
@@ -215,7 +215,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+        <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card ring-1 ring-foreground/10">
           <div className="flex items-center gap-2 p-4">
             <CalendarDays className="size-4 text-info" />
             <h2 className="font-heading text-base font-semibold">Today&apos;s schedule</h2>

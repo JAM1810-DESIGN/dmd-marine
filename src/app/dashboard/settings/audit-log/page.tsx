@@ -36,7 +36,7 @@ export default async function AuditLogPage() {
         </p>
       </div>
 
-      <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-neutral-400 bg-card ring-1 ring-foreground/10">
         {logs.length === 0 ? (
           <EmptyState
             className="border-none"
