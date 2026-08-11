@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ChevronDown, ChevronUp, Download, ExternalLink, FileText, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, ExternalLink, FileText, Pencil, Plus, Trash2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -15,19 +16,19 @@ import { notify } from "@/lib/notify";
 import { EmptyState } from "@/components/shared/empty-state";
 import {
   addProjectRequiredForm,
+  addCustomProjectRequiredForm,
+  renameProjectRequiredForm,
   removeProjectRequiredForm,
   reorderProjectRequiredForm,
-  toggleProjectRequiredFormCompleted,
   toggleProjectRequiredFormRequired,
 } from "../actions";
 
 type RequiredFormRow = {
   id: string;
-  companyDocumentId: string;
+  companyDocumentId: string | null;
   title: string;
-  url: string;
+  templateUrl: string | null;
   required: boolean;
-  completed: boolean;
   order: number;
 };
 
@@ -44,12 +45,15 @@ export function RequiredFormsSection({
 }) {
   const [isPending, startTransition] = useTransition();
   const [selected, setSelected] = useState<string>("");
+  const [custom, setCustom] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
 
-  const assignedIds = new Set(requiredForms.map((form) => form.companyDocumentId));
-  const options = availableForms.filter((form) => !assignedIds.has(form.id));
+  const assignedIds = new Set(requiredForms.map((f) => f.companyDocumentId).filter(Boolean));
+  const options = availableForms.filter((f) => !assignedIds.has(f.id));
   const sorted = [...requiredForms].sort((a, b) => a.order - b.order);
 
-  function handleAdd() {
+  function addFromLibrary() {
     if (!selected) return;
     startTransition(async () => {
       await addProjectRequiredForm(projectId, selected);
@@ -58,28 +62,27 @@ export function RequiredFormsSection({
     });
   }
 
-  function handleRemove(id: string) {
+  function addCustom() {
+    if (!custom.trim()) return;
     startTransition(async () => {
-      await removeProjectRequiredForm(projectId, id);
-      notify.success("Form removed");
+      const result = await addCustomProjectRequiredForm(projectId, custom);
+      if (result.error) notify.error(result.error);
+      else {
+        setCustom("");
+        notify.success("Form added");
+      }
     });
   }
 
-  function handleToggleRequired(id: string, required: boolean) {
+  function saveRename(id: string) {
+    if (!editValue.trim()) return;
     startTransition(async () => {
-      await toggleProjectRequiredFormRequired(projectId, id, required);
-    });
-  }
-
-  function handleToggleCompleted(id: string, completed: boolean) {
-    startTransition(async () => {
-      await toggleProjectRequiredFormCompleted(projectId, id, completed);
-    });
-  }
-
-  function handleReorder(id: string, direction: "up" | "down") {
-    startTransition(async () => {
-      await reorderProjectRequiredForm(projectId, id, direction);
+      const result = await renameProjectRequiredForm(projectId, id, editValue);
+      if (result.error) notify.error(result.error);
+      else {
+        setEditingId(null);
+        notify.success("Renamed");
+      }
     });
   }
 
@@ -88,7 +91,7 @@ export function RequiredFormsSection({
       <div className="p-4">
         <h2 className="font-heading text-base font-semibold">Required Forms</h2>
         <p className="text-sm text-muted-foreground">
-          Forms and paperwork needed to complete this project.
+          Itemized list for this project — add, rename, or delete.
         </p>
       </div>
 
@@ -98,118 +101,102 @@ export function RequiredFormsSection({
         <ul className="flex flex-col divide-y divide-border">
           {sorted.map((form, index) => (
             <li key={form.id} className="flex items-center justify-between gap-3 px-4 py-3">
-              <div className="flex items-center gap-3">
-                {canManage ? (
-                  <input
-                    type="checkbox"
-                    className="size-4"
-                    checked={form.completed}
-                    disabled={isPending}
-                    onChange={(event) => handleToggleCompleted(form.id, event.target.checked)}
-                    aria-label={`Mark ${form.title} completed`}
+              {editingId === form.id ? (
+                <div className="flex flex-1 items-center gap-2">
+                  <Input
+                    autoFocus
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && saveRename(form.id)}
+                    className="h-8"
                   />
-                ) : (
-                  <Badge variant={form.completed ? "success" : "outline"}>
-                    {form.completed ? "Done" : "Pending"}
-                  </Badge>
-                )}
-                <a
-                  href={form.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 hover:underline"
-                >
+                  <Button size="icon-sm" variant="ghost" aria-label="Save" disabled={isPending} onClick={() => saveRename(form.id)}>
+                    <Check className="size-4" />
+                  </Button>
+                  <Button size="icon-sm" variant="ghost" aria-label="Cancel" onClick={() => setEditingId(null)}>
+                    <X className="size-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex min-w-0 items-center gap-2">
                   <FileText className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">{form.title}</span>
-                </a>
-                <Badge
-                  variant={form.required ? "default" : "outline"}
-                  className={canManage ? "cursor-pointer" : undefined}
-                  onClick={
-                    canManage ? () => handleToggleRequired(form.id, !form.required) : undefined
-                  }
-                >
-                  {form.required ? "Required" : "Optional"}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-1">
-                <a
-                  href={form.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  aria-label={`Open ${form.title}`}
-                  title="Open"
-                >
-                  <ExternalLink className="size-4" />
-                </a>
-                <a
-                  href={form.url}
-                  download
-                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  aria-label={`Download ${form.title}`}
-                  title="Download"
-                >
-                  <Download className="size-4" />
-                </a>
-                {canManage && (
-                  <>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Move up"
-                    disabled={isPending || index === 0}
-                    onClick={() => handleReorder(form.id, "up")}
+                  <span className="truncate text-sm font-medium text-foreground">{form.title}</span>
+                  <Badge
+                    variant={form.required ? "default" : "outline"}
+                    className={canManage ? "cursor-pointer" : undefined}
+                    onClick={canManage ? () => startTransition(() => toggleProjectRequiredFormRequired(projectId, form.id, !form.required)) : undefined}
                   >
+                    {form.required ? "Required" : "Optional"}
+                  </Badge>
+                  {form.templateUrl && (
+                    <>
+                      <a href={form.templateUrl} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground" aria-label="Open template" title="Open blank form">
+                        <ExternalLink className="size-4" />
+                      </a>
+                      <a href={form.templateUrl} download className="text-muted-foreground hover:text-foreground" aria-label="Download template" title="Download blank form">
+                        <Download className="size-4" />
+                      </a>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {canManage && editingId !== form.id && (
+                <div className="flex items-center gap-1">
+                  <Button type="button" variant="ghost" size="icon-sm" aria-label="Move up" disabled={isPending || index === 0} onClick={() => startTransition(() => reorderProjectRequiredForm(projectId, form.id, "up"))}>
                     <ChevronUp className="size-4" />
                   </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Move down"
-                    disabled={isPending || index === sorted.length - 1}
-                    onClick={() => handleReorder(form.id, "down")}
-                  >
+                  <Button type="button" variant="ghost" size="icon-sm" aria-label="Move down" disabled={isPending || index === sorted.length - 1} onClick={() => startTransition(() => reorderProjectRequiredForm(projectId, form.id, "down"))}>
                     <ChevronDown className="size-4" />
                   </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Remove form"
-                    disabled={isPending}
-                    onClick={() => handleRemove(form.id)}
-                  >
-                    <Trash2 className="size-4" />
+                  <Button type="button" variant="ghost" size="icon-sm" aria-label="Rename" onClick={() => { setEditingId(form.id); setEditValue(form.title); }}>
+                    <Pencil className="size-4" />
                   </Button>
-                  </>
-                )}
-              </div>
+                  <Button type="button" variant="ghost" size="icon-sm" aria-label="Delete" disabled={isPending} onClick={() => startTransition(async () => { await removeProjectRequiredForm(projectId, form.id); notify.success("Form removed"); })}>
+                    <Trash2 className="size-4 text-destructive" />
+                  </Button>
+                </div>
+              )}
             </li>
           ))}
         </ul>
       )}
 
-      {canManage && options.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 p-4 pt-2">
-          <Select value={selected} onValueChange={(value) => setSelected(value ?? "")}>
-            <SelectTrigger size="sm" className="w-[220px]">
-              <SelectValue placeholder="Select a form to add" />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((form) => (
-                <SelectItem key={form.id} value={form.id}>
-                  {form.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button type="button" size="sm" disabled={!selected || isPending} onClick={handleAdd}>
-            <Plus className="size-4" />
-            Add
-          </Button>
+      {canManage && (
+        <div className="flex flex-col gap-2 border-t border-border p-4">
+          {options.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Select value={selected} onValueChange={(value) => setSelected(typeof value === "string" ? value : "")}>
+                <SelectTrigger size="sm" className="w-[220px]">
+                  <SelectValue placeholder="Add from library…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {options.map((form) => (
+                    <SelectItem key={form.id} value={form.id}>
+                      {form.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" size="sm" disabled={!selected || isPending} onClick={addFromLibrary}>
+                <Plus className="size-4" />
+                Add
+              </Button>
+            </div>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              placeholder="Or type a new form name…"
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addCustom()}
+              className="h-8 w-[220px]"
+            />
+            <Button type="button" size="sm" disabled={!custom.trim() || isPending} onClick={addCustom}>
+              <Plus className="size-4" />
+              Add form
+            </Button>
+          </div>
         </div>
       )}
     </div>

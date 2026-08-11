@@ -193,10 +193,94 @@ export async function addProjectRequiredForm(projectId: string, companyDocumentI
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
+/** Adds a custom (no-template) required form, named freely by the user. */
+export async function addCustomProjectRequiredForm(
+  projectId: string,
+  label: string,
+  required = true,
+): Promise<ActionState> {
+  await requireRole(...PROJECT_ROLES);
+  const name = label.trim();
+  if (!name) return { error: "Enter a form name." };
+
+  const maxOrder = await db.projectRequiredForm.aggregate({ where: { projectId }, _max: { order: true } });
+  await db.projectRequiredForm.create({
+    data: { projectId, label: name, required, order: (maxOrder._max.order ?? -1) + 1 },
+  });
+  revalidatePath(`/dashboard/projects/${projectId}`);
+  return { success: true };
+}
+
+/** Renames a required form (sets an override label; keeps any linked template). */
+export async function renameProjectRequiredForm(
+  projectId: string,
+  id: string,
+  label: string,
+): Promise<ActionState> {
+  await requireRole(...PROJECT_ROLES);
+  const name = label.trim();
+  if (!name) return { error: "Enter a form name." };
+  await db.projectRequiredForm.update({ where: { id }, data: { label: name } });
+  revalidatePath(`/dashboard/projects/${projectId}`);
+  return { success: true };
+}
+
 export async function removeProjectRequiredForm(projectId: string, id: string) {
   await requireRole(...PROJECT_ROLES);
   await db.projectRequiredForm.delete({ where: { id } });
   revalidatePath(`/dashboard/projects/${projectId}`);
+}
+
+/** Attaches a submitted report/file to a specific required form and marks it done. */
+export async function attachRequiredFormDocument(
+  projectId: string,
+  requiredFormId: string,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireRole(...PROJECT_ROLES);
+  if (!isStorageConfigured) return { error: "File storage is not configured yet." };
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { error: "Please choose a file." };
+
+  const uploaded = await uploadFile(file, `projects/${projectId}`);
+  await db.document.create({
+    data: {
+      fileName: uploaded.fileName,
+      url: uploaded.url,
+      mimeType: uploaded.mimeType,
+      sizeBytes: uploaded.sizeBytes,
+      category: "PROJECT_REPORT",
+      projectId,
+      requiredFormId,
+    },
+  });
+  await db.projectRequiredForm.update({
+    where: { id: requiredFormId },
+    data: { completed: true, completedAt: new Date() },
+  });
+
+  revalidatePath(`/dashboard/projects/${projectId}`);
+  return { success: true };
+}
+
+/** Removes an attached report; unchecks the requirement if nothing else is attached. */
+export async function detachRequiredFormDocument(projectId: string, documentId: string): Promise<ActionState> {
+  await requireRole(...PROJECT_ROLES);
+  const doc = await db.document.findUnique({ where: { id: documentId }, select: { requiredFormId: true } });
+  await db.document.delete({ where: { id: documentId } });
+
+  if (doc?.requiredFormId) {
+    const remaining = await db.document.count({ where: { requiredFormId: doc.requiredFormId } });
+    if (remaining === 0) {
+      await db.projectRequiredForm.update({
+        where: { id: doc.requiredFormId },
+        data: { completed: false, completedAt: null },
+      });
+    }
+  }
+  revalidatePath(`/dashboard/projects/${projectId}`);
+  return { success: true };
 }
 
 export async function toggleProjectRequiredFormRequired(

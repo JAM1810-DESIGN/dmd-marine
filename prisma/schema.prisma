@@ -500,18 +500,21 @@ model Document {
   bookingId    String?
   projectId    String?
   expenseId    String?
+  requiredFormId String?
   uploadedById String?
 
   createdAt DateTime @default(now())
 
-  booking    Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  project    Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  expense    Expense? @relation(fields: [expenseId], references: [id], onDelete: Cascade)
-  uploadedBy User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  booking      Booking?             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  project      Project?             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  expense      Expense?             @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  requiredForm ProjectRequiredForm? @relation(fields: [requiredFormId], references: [id], onDelete: SetNull)
+  uploadedBy   User?                @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
 
   @@index([bookingId])
   @@index([projectId])
   @@index([expenseId])
+  @@index([requiredFormId])
   @@map("documents")
 }
 
@@ -561,14 +564,16 @@ model ServiceRequiredForm {
 model ProjectRequiredForm {
   id                String    @id @default(cuid())
   projectId         String
-  companyDocumentId String
+  companyDocumentId String?
+  label             String?
   required          Boolean   @default(true)
   order             Int       @default(0)
   completed         Boolean   @default(false)
   completedAt       DateTime?
 
-  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  companyDocument CompanyDocument @relation(fields: [companyDocumentId], references: [id], onDelete: Cascade)
+  project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  companyDocument CompanyDocument? @relation(fields: [companyDocumentId], references: [id], onDelete: Cascade)
+  documents       Document[]
 
   @@unique([projectId, companyDocumentId])
   @@index([projectId])

@@ -45,7 +45,10 @@ export default async function ProjectDetailPage({
         booking: true,
         documents: { orderBy: { createdAt: "desc" } },
         schedules: { orderBy: { startAt: "asc" }, include: { consultant: true } },
-        requiredForms: { orderBy: { order: "asc" }, include: { companyDocument: true } },
+        requiredForms: {
+          orderBy: { order: "asc" },
+          include: { companyDocument: true, documents: { orderBy: { createdAt: "desc" } } },
+        },
         invoices: { orderBy: { issueDate: "desc" } },
         expenses: { orderBy: { expenseDate: "desc" }, include: { category: { select: { name: true } } } },
       },
@@ -171,10 +174,9 @@ export default async function ProjectDetailPage({
         requiredForms={project.requiredForms.map((form) => ({
           id: form.id,
           companyDocumentId: form.companyDocumentId,
-          title: form.companyDocument.title,
-          url: form.companyDocument.url,
+          title: form.companyDocument?.title ?? form.label ?? "Untitled form",
+          templateUrl: form.companyDocument?.url ?? null,
           required: form.required,
-          completed: form.completed,
           order: form.order,
         }))}
       />
@@ -183,14 +185,22 @@ export default async function ProjectDetailPage({
         projectId={project.id}
         canManage={canManage}
         storageConfigured={isStorageConfigured}
-        documents={project.documents.map((doc) => ({
-          id: doc.id,
-          fileName: doc.fileName,
-          url: doc.url,
-          category: doc.category,
-          sizeBytes: doc.sizeBytes,
-          createdAt: doc.createdAt.toISOString(),
+        items={project.requiredForms.map((form) => ({
+          id: form.id,
+          title: form.companyDocument?.title ?? form.label ?? "Untitled form",
+          required: form.required,
+          completed: form.completed,
+          attachments: form.documents.map((doc) => ({ id: doc.id, fileName: doc.fileName, url: doc.url })),
         }))}
+        otherDocuments={project.documents
+          .filter((doc) => doc.requiredFormId === null)
+          .map((doc) => ({
+            id: doc.id,
+            fileName: doc.fileName,
+            url: doc.url,
+            category: doc.category,
+            sizeBytes: doc.sizeBytes,
+          }))}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
