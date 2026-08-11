@@ -100,7 +100,7 @@ export default async function FinancialStatementsPage({
         </div>
       </div>
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card p-4 ring-1 ring-foreground/10">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="font-heading text-base font-semibold">Profit &amp; Loss Statement</h2>
           <SaveSnapshotButton type="PROFIT_AND_LOSS" periodStart={startStr} periodEnd={endStr} data={profitLossData} />
@@ -115,7 +115,7 @@ export default async function FinancialStatementsPage({
         <Row label="Net Profit" value={netProfit} bold />
       </div>
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card p-4 ring-1 ring-foreground/10">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="font-heading text-base font-semibold">Balance Sheet</h2>
           <SaveSnapshotButton type="BALANCE_SHEET" periodStart={startStr} periodEnd={endStr} data={balanceSheetData} />
@@ -132,7 +132,7 @@ export default async function FinancialStatementsPage({
         <Row label="Owner's Equity" value={cashPosition + accountsReceivable} bold />
       </div>
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card p-4 ring-1 ring-foreground/10">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="font-heading text-base font-semibold">Cash Flow Statement</h2>
           <SaveSnapshotButton type="CASH_FLOW" periodStart={startStr} periodEnd={endStr} data={cashFlowData} />

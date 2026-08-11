@@ -27,7 +27,7 @@ export default function FacebookConnectionPage() {
 
       <ConnectionBanner configured={isFacebookConfigured} pageName={pageName} />
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card p-4 ring-1 ring-foreground/10">
         <h2 className="font-heading text-base font-semibold">Configuration</h2>
         <p className="text-sm text-muted-foreground">
           Set these environment variables on the server (values are never shown here).
@@ -58,7 +58,7 @@ export default function FacebookConnectionPage() {
         </ul>
       </div>
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-blue-500 bg-card p-4 ring-1 ring-foreground/10">
         <h2 className="font-heading text-base font-semibold">Webhook callback</h2>
         <p className="text-sm text-muted-foreground">
           Register this URL in the Meta App dashboard (Messenger &amp; Page subscriptions), using your

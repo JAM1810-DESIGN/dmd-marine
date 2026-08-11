@@ -46,7 +46,7 @@ export default async function SettingsPage() {
 
       <SiteSettingsForm settings={settings} />
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-neutral-400 bg-card p-4 ring-1 ring-foreground/10">
         <h2 className="font-heading text-base font-semibold">Integrations</h2>
         <p className="text-sm text-muted-foreground">
           Credentials live in environment variables, not here — this is a read-only status check.
@@ -94,7 +94,7 @@ export default async function SettingsPage() {
 
       <Link
         href="/dashboard/settings/audit-log"
-        className="flex items-center justify-between rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-md"
+        className="flex items-center justify-between rounded-xl border-t-[3px] border-t-neutral-400 bg-card p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-md"
       >
         <div className="flex items-center gap-3">
           <ShieldCheck className="size-5 text-muted-foreground" />

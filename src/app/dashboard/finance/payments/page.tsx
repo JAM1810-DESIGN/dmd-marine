@@ -47,7 +47,7 @@ export default async function PaymentsPage() {
       </div>
 
       {/* This-month collection by method */}
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+      <div className="rounded-xl border-t-[3px] border-t-teal-500 bg-card p-4 ring-1 ring-foreground/10">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-heading text-base font-semibold">Collected this month</h2>
           <span className="text-sm font-medium">

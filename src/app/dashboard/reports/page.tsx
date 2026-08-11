@@ -104,7 +104,7 @@ export default async function ReportsPage({
         <ReportSelector report={report} period={period} />
       </div>
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">{chart}</div>
+      <div className="rounded-xl border-t-[3px] border-t-neutral-400 bg-card p-4 ring-1 ring-foreground/10">{chart}</div>
 
       <ReportTable
         title={title}

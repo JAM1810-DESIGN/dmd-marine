@@ -41,7 +41,7 @@ export default async function FacebookOverviewPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
-          <div key={card.label} className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+          <div key={card.label} className="rounded-xl border-t-[3px] border-t-blue-500 bg-card p-4 ring-1 ring-foreground/10">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <card.icon className="size-4" />
               {card.label}
