@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { ProjectsTable } from "./projects-table";
+import { ProjectsOverview } from "./projects-overview";
 
 export const metadata: Metadata = { title: "Projects" };
 
@@ -39,6 +40,22 @@ export default async function ProjectsPage() {
     select: { id: true, name: true },
   });
 
+  // Overview metrics (from the already-loaded projects).
+  const now = new Date();
+  const statusCounts: Record<string, number> = {};
+  let formsTotal = 0;
+  let formsDone = 0;
+  let attention = 0;
+  for (const project of projects) {
+    statusCounts[project.status] = (statusCounts[project.status] ?? 0) + 1;
+    formsTotal += project.requiredForms.length;
+    formsDone += project.requiredForms.filter((form) => form.completed).length;
+    if (project.endDate && project.endDate < now && project.status !== "COMPLETED" && project.status !== "CLOSED") {
+      attention++;
+    }
+  }
+  const formsPct = formsTotal > 0 ? Math.round((formsDone / formsTotal) * 100) : null;
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -47,6 +64,15 @@ export default async function ProjectsPage() {
           Manage engagements from kickoff through closure.
         </p>
       </div>
+
+      <ProjectsOverview
+        total={projects.length}
+        active={statusCounts.ACTIVE ?? 0}
+        completed={(statusCounts.COMPLETED ?? 0) + (statusCounts.CLOSED ?? 0)}
+        formsPct={formsPct}
+        attention={attention}
+        statusCounts={statusCounts}
+      />
 
       <ProjectsTable
         canManage={canManage}
