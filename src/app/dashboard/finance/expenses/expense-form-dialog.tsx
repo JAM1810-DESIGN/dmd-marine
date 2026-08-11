@@ -68,6 +68,26 @@ export function ExpenseFormDialog({
 }) {
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const [categoryId, setCategoryId] = useState(expense?.categoryId ?? "");
+  const [paymentMethod, setPaymentMethod] = useState(expense?.paymentMethod ?? "CASH");
+  const [vendorId, setVendorId] = useState(expense?.vendorId ?? "none");
+  const [branchId, setBranchId] = useState(expense?.branchId ?? "none");
+  const [projectId, setProjectId] = useState(expense?.projectId ?? "none");
+  const [bookingId, setBookingId] = useState(expense?.bookingId ?? "none");
+
+  const noneFirst = (label: string, list: { id: string; name: string }[]) => [
+    { value: "none", label },
+    ...list.map((x) => ({ value: x.id, label: x.name })),
+  ];
+  const categoryItems = categories.map((c) => ({ value: c.id, label: c.name }));
+  const paymentMethodItems = PAYMENT_METHODS.map((m) => ({ value: m, label: m.replace(/_/g, " ") }));
+  const vendorItems = noneFirst("None", vendors);
+  const branchItems = noneFirst("None", branches);
+  const projectItems = noneFirst("None", projects);
+  const bookingItems = [
+    { value: "none", label: "None" },
+    ...bookings.map((b) => ({ value: b.id, label: b.customerName })),
+  ];
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -104,7 +124,13 @@ export function ExpenseFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="categoryId">Category</Label>
-              <Select name="categoryId" defaultValue={expense?.categoryId} required>
+              <Select
+                name="categoryId"
+                items={categoryItems}
+                value={categoryId}
+                onValueChange={(v) => { if (typeof v === "string") setCategoryId(v); }}
+                required
+              >
                 <SelectTrigger id="categoryId" className="w-full">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -153,7 +179,13 @@ export function ExpenseFormDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <Label htmlFor="paymentMethod">Payment Method</Label>
-              <Select name="paymentMethod" defaultValue={expense?.paymentMethod ?? "CASH"} required>
+              <Select
+                name="paymentMethod"
+                items={paymentMethodItems}
+                value={paymentMethod}
+                onValueChange={(v) => { if (typeof v === "string") setPaymentMethod(v); }}
+                required
+              >
                 <SelectTrigger id="paymentMethod" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
@@ -168,7 +200,12 @@ export function ExpenseFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="vendorId">Vendor</Label>
-              <Select name="vendorId" defaultValue={expense?.vendorId ?? "none"}>
+              <Select
+                name="vendorId"
+                items={vendorItems}
+                value={vendorId}
+                onValueChange={(v) => { if (typeof v === "string") setVendorId(v); }}
+              >
                 <SelectTrigger id="vendorId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -187,7 +224,12 @@ export function ExpenseFormDialog({
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="grid gap-1.5">
               <Label htmlFor="branchId">Branch</Label>
-              <Select name="branchId" defaultValue={expense?.branchId ?? "none"}>
+              <Select
+                name="branchId"
+                items={branchItems}
+                value={branchId}
+                onValueChange={(v) => { if (typeof v === "string") setBranchId(v); }}
+              >
                 <SelectTrigger id="branchId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -203,7 +245,12 @@ export function ExpenseFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="projectId">Project</Label>
-              <Select name="projectId" defaultValue={expense?.projectId ?? "none"}>
+              <Select
+                name="projectId"
+                items={projectItems}
+                value={projectId}
+                onValueChange={(v) => { if (typeof v === "string") setProjectId(v); }}
+              >
                 <SelectTrigger id="projectId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -219,7 +266,12 @@ export function ExpenseFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="bookingId">Booking</Label>
-              <Select name="bookingId" defaultValue={expense?.bookingId ?? "none"}>
+              <Select
+                name="bookingId"
+                items={bookingItems}
+                value={bookingId}
+                onValueChange={(v) => { if (typeof v === "string") setBookingId(v); }}
+              >
                 <SelectTrigger id="bookingId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>

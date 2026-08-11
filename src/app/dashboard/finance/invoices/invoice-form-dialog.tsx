@@ -62,6 +62,20 @@ export function InvoiceFormDialog({
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
   const [discountAmount, setDiscountAmount] = useState(invoice?.discountAmount ?? 0);
+  const [customerId, setCustomerId] = useState(invoice?.customerId ?? "none");
+  const [branchId, setBranchId] = useState(invoice?.branchId ?? "none");
+  const customerItems = [
+    { value: "none", label: "None" },
+    ...customers.map((c) => ({ value: c.id, label: c.name })),
+  ];
+  const branchItems = [
+    { value: "none", label: "None" },
+    ...branches.map((b) => ({ value: b.id, label: b.name })),
+  ];
+  const serviceItems = [
+    { value: "none", label: "None" },
+    ...services.map((s) => ({ value: s.id, label: s.name })),
+  ];
   const [items, setItems] = useState<LineItem[]>(
     () =>
       invoice?.items.map((item) => ({
@@ -112,7 +126,12 @@ export function InvoiceFormDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <Label htmlFor="customerId">Customer</Label>
-              <Select name="customerId" defaultValue={invoice?.customerId ?? "none"}>
+              <Select
+                name="customerId"
+                items={customerItems}
+                value={customerId}
+                onValueChange={(v) => { if (typeof v === "string") setCustomerId(v); }}
+              >
                 <SelectTrigger id="customerId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -124,7 +143,12 @@ export function InvoiceFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="branchId">Branch</Label>
-              <Select name="branchId" defaultValue={invoice?.branchId ?? "none"}>
+              <Select
+                name="branchId"
+                items={branchItems}
+                value={branchId}
+                onValueChange={(v) => { if (typeof v === "string") setBranchId(v); }}
+              >
                 <SelectTrigger id="branchId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -170,11 +194,12 @@ export function InvoiceFormDialog({
             {items.map((item, index) => (
               <div key={index} className="grid grid-cols-12 gap-2 rounded-lg border border-border p-2">
                 <Select
+                  items={serviceItems}
                   value={item.serviceId}
                   onValueChange={(value) => {
                     const service = services.find((s) => s.id === value);
                     updateItem(index, {
-                      serviceId: value ?? "none",
+                      serviceId: typeof value === "string" ? value : "none",
                       description: service ? service.name : item.description,
                     });
                   }}

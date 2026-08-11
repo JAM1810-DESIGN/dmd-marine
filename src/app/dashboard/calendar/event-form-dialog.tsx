@@ -54,6 +54,10 @@ export function EventFormDialog({
 }) {
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const [type, setType] = useState(event?.type ?? "CONSULTATION");
+  const [consultantId, setConsultantId] = useState(event?.consultantId ?? "");
+  const typeItems = SCHEDULE_TYPES.map((t) => ({ value: t, label: t.charAt(0) + t.slice(1).toLowerCase() }));
+  const consultantItems = consultants.map((c) => ({ value: c.id, label: c.name }));
 
   let defaultStart = "";
   let defaultEnd = "";
@@ -95,7 +99,13 @@ export function EventFormDialog({
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="type">Type</Label>
-            <Select name="type" defaultValue={event?.type ?? "CONSULTATION"} required>
+            <Select
+              name="type"
+              items={typeItems}
+              value={type}
+              onValueChange={(v) => { if (typeof v === "string") setType(v); }}
+              required
+            >
               <SelectTrigger id="type" className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -120,7 +130,13 @@ export function EventFormDialog({
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="consultantId">Consultant</Label>
-            <Select name="consultantId" defaultValue={event?.consultantId} required>
+            <Select
+              name="consultantId"
+              items={consultantItems}
+              value={consultantId}
+              onValueChange={(v) => { if (typeof v === "string") setConsultantId(v); }}
+              required
+            >
               <SelectTrigger id="consultantId" className="w-full">
                 <SelectValue placeholder="Select a consultant" />
               </SelectTrigger>

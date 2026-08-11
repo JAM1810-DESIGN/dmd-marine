@@ -50,6 +50,19 @@ export function BudgetFormDialog({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const [categoryId, setCategoryId] = useState(budget?.categoryId ?? "none");
+  const [branchId, setBranchId] = useState(budget?.branchId ?? "none");
+  const [period, setPeriod] = useState(budget?.period ?? "MONTHLY");
+
+  const categoryItems = [
+    { value: "none", label: "All categories" },
+    ...categories.map((c) => ({ value: c.id, label: c.name })),
+  ];
+  const branchItems = [
+    { value: "none", label: "All branches" },
+    ...branches.map((b) => ({ value: b.id, label: b.name })),
+  ];
+  const periodItems = PERIODS.map((p) => ({ value: p, label: p }));
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -81,7 +94,12 @@ export function BudgetFormDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <Label htmlFor="categoryId">Category</Label>
-              <Select name="categoryId" defaultValue={budget?.categoryId ?? "none"}>
+              <Select
+                name="categoryId"
+                items={categoryItems}
+                value={categoryId}
+                onValueChange={(v) => { if (typeof v === "string") setCategoryId(v); }}
+              >
                 <SelectTrigger id="categoryId" className="w-full">
                   <SelectValue placeholder="All categories" />
                 </SelectTrigger>
@@ -93,7 +111,12 @@ export function BudgetFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="branchId">Branch</Label>
-              <Select name="branchId" defaultValue={budget?.branchId ?? "none"}>
+              <Select
+                name="branchId"
+                items={branchItems}
+                value={branchId}
+                onValueChange={(v) => { if (typeof v === "string") setBranchId(v); }}
+              >
                 <SelectTrigger id="branchId" className="w-full">
                   <SelectValue placeholder="All branches" />
                 </SelectTrigger>
@@ -107,7 +130,13 @@ export function BudgetFormDialog({
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="grid gap-1.5">
               <Label htmlFor="period">Period</Label>
-              <Select name="period" defaultValue={budget?.period ?? "MONTHLY"} required>
+              <Select
+                name="period"
+                items={periodItems}
+                value={period}
+                onValueChange={(v) => { if (typeof v === "string") setPeriod(v); }}
+                required
+              >
                 <SelectTrigger id="period" className="w-full">
                   <SelectValue />
                 </SelectTrigger>

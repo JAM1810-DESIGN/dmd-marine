@@ -66,12 +66,27 @@ export function ProjectFormDialog({
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
   const [location, setLocation] = useState(project?.location ?? "");
+  const [customerId, setCustomerId] = useState(project?.customerId ?? "none");
+  const [vesselId, setVesselId] = useState(project?.vesselId ?? "none");
+  const [serviceId, setServiceId] = useState(project?.serviceId ?? "none");
+  const [consultantId, setConsultantId] = useState(project?.consultantId ?? "");
+  const [status, setStatus] = useState(project?.status ?? "NEW");
 
   const rankedConsultants = useMemo(
     () => rankByProximity(consultants, location),
     [consultants, location],
   );
   const hasNearest = location.trim().length > 0 && rankedConsultants.some((c) => c.isNearest);
+
+  const noneFirst = (list: { id: string; name: string }[]) => [
+    { value: "none", label: "None" },
+    ...list.map((x) => ({ value: x.id, label: x.name })),
+  ];
+  const customerItems = noneFirst(customers);
+  const vesselItems = noneFirst(vessels);
+  const serviceItems = noneFirst(services);
+  const consultantItems = rankedConsultants.map((c) => ({ value: c.id, label: c.name }));
+  const statusItems = STATUS_OPTIONS.map((s) => ({ value: s, label: s.charAt(0) + s.slice(1).toLowerCase() }));
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -105,7 +120,12 @@ export function ProjectFormDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <Label htmlFor="customerId">Customer</Label>
-              <Select name="customerId" defaultValue={project?.customerId ?? "none"}>
+              <Select
+                name="customerId"
+                items={customerItems}
+                value={customerId}
+                onValueChange={(v) => { if (typeof v === "string") setCustomerId(v); }}
+              >
                 <SelectTrigger id="customerId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -121,7 +141,12 @@ export function ProjectFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="vesselId">Vessel</Label>
-              <Select name="vesselId" defaultValue={project?.vesselId ?? "none"}>
+              <Select
+                name="vesselId"
+                items={vesselItems}
+                value={vesselId}
+                onValueChange={(v) => { if (typeof v === "string") setVesselId(v); }}
+              >
                 <SelectTrigger id="vesselId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -140,7 +165,12 @@ export function ProjectFormDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <Label htmlFor="serviceId">Service</Label>
-              <Select name="serviceId" defaultValue={project?.serviceId ?? "none"}>
+              <Select
+                name="serviceId"
+                items={serviceItems}
+                value={serviceId}
+                onValueChange={(v) => { if (typeof v === "string") setServiceId(v); }}
+              >
                 <SelectTrigger id="serviceId" className="w-full">
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -156,7 +186,13 @@ export function ProjectFormDialog({
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="consultantId">Consultant</Label>
-              <Select name="consultantId" defaultValue={project?.consultantId} required>
+              <Select
+                name="consultantId"
+                items={consultantItems}
+                value={consultantId}
+                onValueChange={(v) => { if (typeof v === "string") setConsultantId(v); }}
+                required
+              >
                 <SelectTrigger id="consultantId" className="w-full">
                   <SelectValue placeholder="Select a consultant" />
                 </SelectTrigger>
@@ -201,7 +237,13 @@ export function ProjectFormDialog({
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="grid gap-1.5">
               <Label htmlFor="status">Status</Label>
-              <Select name="status" defaultValue={project?.status ?? "NEW"} required>
+              <Select
+                name="status"
+                items={statusItems}
+                value={status}
+                onValueChange={(v) => { if (typeof v === "string") setStatus(v); }}
+                required
+              >
                 <SelectTrigger id="status" className="w-full">
                   <SelectValue />
                 </SelectTrigger>

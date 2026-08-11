@@ -43,6 +43,11 @@ export function CustomerFormDialog({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const [companyId, setCompanyId] = useState(customer?.companyId ?? "none");
+  const companyItems = [
+    { value: "none", label: "None" },
+    ...companies.map((c) => ({ value: c.id, label: c.name })),
+  ];
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -85,7 +90,12 @@ export function CustomerFormDialog({
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="companyId">Company</Label>
-            <Select name="companyId" defaultValue={customer?.companyId ?? "none"}>
+            <Select
+              name="companyId"
+              items={companyItems}
+              value={companyId}
+              onValueChange={(v) => { if (typeof v === "string") setCompanyId(v); }}
+            >
               <SelectTrigger id="companyId" className="w-full">
                 <SelectValue placeholder="None" />
               </SelectTrigger>

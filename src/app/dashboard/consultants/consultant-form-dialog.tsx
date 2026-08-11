@@ -53,6 +53,10 @@ export function ConsultantFormDialog({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const [rank, setRank] = useState(consultant?.rank ?? "none");
+  const [availability, setAvailability] = useState(consultant?.availability ?? "AVAILABLE");
+  const rankItems = [{ value: "none", label: "None" }, ...CONSULTANT_RANKS.map((r) => ({ value: r, label: r }))];
+  const availabilityItems = AVAILABILITY_OPTIONS.map((o) => ({ value: o.value, label: o.label }));
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -95,7 +99,12 @@ export function ConsultantFormDialog({
           )}
           <div className="grid gap-1.5">
             <Label htmlFor="rank">Rank</Label>
-            <Select name="rank" defaultValue={consultant?.rank ?? "none"}>
+            <Select
+              name="rank"
+              items={rankItems}
+              value={rank}
+              onValueChange={(v) => { if (typeof v === "string") setRank(v); }}
+            >
               <SelectTrigger id="rank" className="w-full">
                 <SelectValue placeholder="None" />
               </SelectTrigger>
@@ -124,7 +133,12 @@ export function ConsultantFormDialog({
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="availability">Availability</Label>
-            <Select name="availability" defaultValue={consultant?.availability ?? "AVAILABLE"}>
+            <Select
+              name="availability"
+              items={availabilityItems}
+              value={availability}
+              onValueChange={(v) => { if (typeof v === "string") setAvailability(v); }}
+            >
               <SelectTrigger id="availability" className="w-full">
                 <SelectValue />
               </SelectTrigger>
