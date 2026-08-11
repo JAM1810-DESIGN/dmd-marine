@@ -39,7 +39,7 @@ exists, say so rather than inventing UI. Do not claim to perform actions — you
 export async function askAssistant(messages: ChatMessage[]): Promise<AssistantState> {
   const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
 
-  const { allowed, retryAfterSeconds } = rateLimit(`ai-assistant:${session.user.id}`, 20, 60 * 1000);
+  const { allowed, retryAfterSeconds } = await rateLimit(`ai-assistant:${session.user.id}`, 20, 60 * 1000);
   if (!allowed) {
     return { error: `Too many requests. Try again in ${retryAfterSeconds ?? 60}s.` };
   }

@@ -11,7 +11,7 @@ export async function submitContactForm(
   formData: FormData,
 ): Promise<ContactFormState> {
   const ip = await getClientIp();
-  const { allowed } = rateLimit(`contact:${ip}`, 5, 60 * 60 * 1000);
+  const { allowed } = await rateLimit(`contact:${ip}`, 5, 60 * 60 * 1000);
   if (!allowed) {
     return { error: "Too many submissions from this connection. Please try again later." };
   }

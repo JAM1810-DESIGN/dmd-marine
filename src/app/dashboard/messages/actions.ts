@@ -490,7 +490,7 @@ export type DraftState = { draft?: string; error?: string };
 export async function draftReply(messageId: string, instruction?: string): Promise<DraftState> {
   const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
 
-  const { allowed, retryAfterSeconds } = rateLimit(`ai-draft:${session.user.id}`, 20, 60 * 1000);
+  const { allowed, retryAfterSeconds } = await rateLimit(`ai-draft:${session.user.id}`, 20, 60 * 1000);
   if (!allowed) {
     return { error: `Too many requests. Try again in ${retryAfterSeconds ?? 60}s.` };
   }

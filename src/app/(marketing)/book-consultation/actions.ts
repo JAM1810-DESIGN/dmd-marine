@@ -15,7 +15,7 @@ export async function submitBookingForm(
   formData: FormData,
 ): Promise<BookingFormState> {
   const ip = await getClientIp();
-  const { allowed } = rateLimit(`booking:${ip}`, 5, 60 * 60 * 1000);
+  const { allowed } = await rateLimit(`booking:${ip}`, 5, 60 * 60 * 1000);
   if (!allowed) {
     return { error: "Too many requests from this connection. Please try again later." };
   }
