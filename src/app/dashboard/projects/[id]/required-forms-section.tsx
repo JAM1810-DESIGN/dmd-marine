@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ChevronDown, ChevronUp, FileText, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, ExternalLink, FileText, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -132,8 +132,28 @@ export function RequiredFormsSection({
                   {form.required ? "Required" : "Optional"}
                 </Badge>
               </div>
-              {canManage && (
-                <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
+                <a
+                  href={form.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  aria-label={`Open ${form.title}`}
+                  title="Open"
+                >
+                  <ExternalLink className="size-4" />
+                </a>
+                <a
+                  href={form.url}
+                  download
+                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  aria-label={`Download ${form.title}`}
+                  title="Download"
+                >
+                  <Download className="size-4" />
+                </a>
+                {canManage && (
+                  <>
                   <Button
                     type="button"
                     variant="ghost"
@@ -164,8 +184,9 @@ export function RequiredFormsSection({
                   >
                     <Trash2 className="size-4" />
                   </Button>
-                </div>
-              )}
+                  </>
+                )}
+              </div>
             </li>
           ))}
         </ul>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { FileText, Upload } from "lucide-react";
+import { Download, FileText, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -86,7 +86,18 @@ export function DocumentsSection({
                   <p className="text-xs text-muted-foreground">{formatSize(doc.sizeBytes)}</p>
                 </div>
               </a>
-              <Badge variant="outline">{doc.category.replace(/_/g, " ")}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">{doc.category.replace(/_/g, " ")}</Badge>
+                <a
+                  href={doc.url}
+                  download
+                  className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  aria-label={`Download ${doc.fileName}`}
+                  title="Download"
+                >
+                  <Download className="size-4" />
+                </a>
+              </div>
             </li>
           ))}
         </ul>
