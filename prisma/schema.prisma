@@ -502,6 +502,7 @@ model Document {
   bookingId    String?
   projectId    String?
   expenseId    String?
+  invoiceId    String?
   requiredFormId String?
   uploadedById String?
 
@@ -510,12 +511,14 @@ model Document {
   booking      Booking?             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   project      Project?             @relation(fields: [projectId], references: [id], onDelete: Cascade)
   expense      Expense?             @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  invoice      Invoice?             @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   requiredForm ProjectRequiredForm? @relation(fields: [requiredFormId], references: [id], onDelete: SetNull)
   uploadedBy   User?                @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
 
   @@index([bookingId])
   @@index([projectId])
   @@index([expenseId])
+  @@index([invoiceId])
   @@index([requiredFormId])
   @@map("documents")
 }
@@ -862,8 +865,9 @@ model Invoice {
   booking  Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   project  Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
   branch   Branch?       @relation(fields: [branchId], references: [id], onDelete: SetNull)
-  items    InvoiceItem[]
-  payments Payment[]
+  items       InvoiceItem[]
+  payments    Payment[]
+  attachments Document[]
 
   @@index([status])
   @@index([issueDate])

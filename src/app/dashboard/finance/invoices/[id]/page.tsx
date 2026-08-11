@@ -5,10 +5,13 @@ import { ArrowLeft } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getSiteSettings } from "@/lib/site-settings";
+import { isStorageConfigured } from "@/lib/storage";
 import { AccessDenied } from "@/components/shared/access-denied";
 import { Badge } from "@/components/ui/badge";
 import { CurrencyAmount } from "@/components/shared/currency-amount";
 import { InvoiceActions } from "./invoice-actions";
+import { InvoiceItemsEditor } from "./invoice-items-editor";
+import { InvoiceAttachments } from "./invoice-attachments";
 import { PaymentsList } from "./payments-list";
 
 export const metadata: Metadata = { title: "Invoice" };
@@ -36,12 +39,16 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         branch: true,
         items: { include: { service: true } },
         payments: { orderBy: { paymentDate: "desc" } },
+        attachments: { orderBy: { createdAt: "desc" } },
       },
     }),
     getSiteSettings(),
   ]);
 
   if (!invoice) notFound();
+
+  const editable = canManage && invoice.status === "DRAFT";
+  const canUpload = canManage && invoice.status !== "PAID" && invoice.status !== "CANCELLED";
 
   const paidTotal = invoice.payments
     .filter((p) => p.status === "COMPLETED")
@@ -95,28 +102,23 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
 
-        <table className="mt-6 w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left text-xs text-muted-foreground uppercase">
-              <th className="pb-2">Description</th>
-              <th className="pb-2 text-right">Qty</th>
-              <th className="pb-2 text-right">Unit Price</th>
-              <th className="pb-2 text-right">Tax</th>
-              <th className="pb-2 text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoice.items.map((item) => (
-              <tr key={item.id} className="border-b border-border/60">
-                <td className="py-2">{item.description}</td>
-                <td className="py-2 text-right">{Number(item.quantity)}</td>
-                <td className="py-2 text-right"><CurrencyAmount amountPhp={Number(item.unitPrice)} /></td>
-                <td className="py-2 text-right">{Number(item.taxRate)}%</td>
-                <td className="py-2 text-right"><CurrencyAmount amountPhp={Number(item.lineTotal)} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <InvoiceItemsEditor
+          invoiceId={invoice.id}
+          editable={editable}
+          items={invoice.items.map((item) => ({
+            id: item.id,
+            description: item.description,
+            quantity: Number(item.quantity),
+            unitPrice: Number(item.unitPrice),
+            taxRate: Number(item.taxRate),
+            lineTotal: Number(item.lineTotal),
+          }))}
+        />
+        {editable && (
+          <p className="mt-2 text-xs text-muted-foreground print:hidden">
+            Draft — tap a unit price to edit; totals update automatically.
+          </p>
+        )}
 
         <div className="mt-4 flex flex-col items-end gap-1 text-sm">
           <div className="flex w-56 justify-between"><span>Subtotal</span><span><CurrencyAmount amountPhp={Number(invoice.subtotal)} /></span></div>
@@ -132,6 +134,14 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         )}
         {invoice.notes && <p className="mt-2 text-sm text-muted-foreground">{invoice.notes}</p>}
       </div>
+
+      <InvoiceAttachments
+        invoiceId={invoice.id}
+        canManage={canManage}
+        canUpload={canUpload}
+        storageConfigured={isStorageConfigured}
+        attachments={invoice.attachments.map((a) => ({ id: a.id, fileName: a.fileName, url: a.url }))}
+      />
 
       <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 print:hidden">
         <h2 className="mb-2 font-heading text-base font-semibold">Payments</h2>

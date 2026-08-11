@@ -7,6 +7,7 @@ import { AppError } from "@/lib/errors";
 import { invoiceSchema, paymentSchema } from "@/lib/validations/finance";
 import { logAudit } from "@/lib/audit";
 import { sendEmail } from "@/lib/mailer";
+import { uploadFile, isStorageConfigured } from "@/lib/storage";
 import { Prisma } from "@/generated/prisma/client";
 
 export type ActionState = { error?: string; success?: boolean; id?: string; warning?: string };
@@ -360,6 +361,89 @@ export async function remindAllOverdue(): Promise<BulkReminderState> {
 
   revalidatePath("/dashboard/finance/invoices");
   return { sent, skipped };
+}
+
+/** Edits a single line item's unit price on a DRAFT invoice and recomputes totals. */
+export async function updateInvoiceItemPrice(
+  invoiceId: string,
+  itemId: string,
+  unitPrice: number,
+): Promise<ActionState> {
+  await requireRole(...MANAGE_ROLES);
+  if (!(unitPrice >= 0)) return { error: "Enter a valid unit price." };
+
+  const invoice = await db.invoice.findUnique({
+    where: { id: invoiceId },
+    include: { items: true, payments: true },
+  });
+  if (!invoice) return { error: "Invoice not found." };
+  if (invoice.status !== "DRAFT") return { error: "Only draft invoices can be edited." };
+  if (invoice.payments.length > 0) return { error: "This invoice already has payments." };
+
+  const items = invoice.items.map((item) =>
+    item.id === itemId ? { ...item, unitPrice: new Prisma.Decimal(unitPrice) } : item,
+  );
+  if (!items.some((i) => i.id === itemId)) return { error: "Line item not found." };
+
+  const subtotal = items.reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0);
+  const taxAmount = items.reduce(
+    (s, i) => s + Number(i.quantity) * Number(i.unitPrice) * (Number(i.taxRate) / 100),
+    0,
+  );
+  const totalAmount = Math.max(subtotal + taxAmount - Number(invoice.discountAmount), 0);
+  const lineTotal = Number(items.find((i) => i.id === itemId)!.quantity) * unitPrice;
+
+  await db.$transaction([
+    db.invoiceItem.update({ where: { id: itemId }, data: { unitPrice, lineTotal } }),
+    db.invoice.update({ where: { id: invoiceId }, data: { subtotal, taxAmount, totalAmount } }),
+  ]);
+
+  revalidatePath(`/dashboard/finance/invoices/${invoiceId}`);
+  revalidatePath("/dashboard/finance/invoices");
+  return { success: true };
+}
+
+/** Attaches a file (e.g. the quotation PDF) to an invoice. */
+export async function uploadInvoiceAttachment(invoiceId: string, formData: FormData): Promise<ActionState> {
+  const session = await requireRole(...MANAGE_ROLES);
+  if (!isStorageConfigured) return { error: "File storage isn't configured (set Cloudinary env vars)." };
+
+  const invoice = await db.invoice.findUnique({ where: { id: invoiceId }, select: { status: true } });
+  if (!invoice) return { error: "Invoice not found." };
+  if (invoice.status === "PAID" || invoice.status === "CANCELLED") {
+    return { error: "This invoice can no longer be edited." };
+  }
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { error: "Please choose a file." };
+  if (file.size > 10 * 1024 * 1024) return { error: "File must be 10 MB or smaller." };
+
+  try {
+    const uploaded = await uploadFile(file, `invoices/${invoiceId}`);
+    await db.document.create({
+      data: {
+        fileName: uploaded.fileName,
+        url: uploaded.url,
+        mimeType: uploaded.mimeType,
+        sizeBytes: uploaded.sizeBytes,
+        category: "SUPPORTING_DOCUMENT",
+        invoiceId,
+        uploadedById: session.user.id,
+      },
+    });
+    revalidatePath(`/dashboard/finance/invoices/${invoiceId}`);
+    return { success: true };
+  } catch {
+    return { error: "Upload failed. Try again." };
+  }
+}
+
+export async function deleteInvoiceAttachment(invoiceId: string, documentId: string): Promise<ActionState> {
+  await requireRole(...MANAGE_ROLES);
+  const result = await db.document.deleteMany({ where: { id: documentId, invoiceId } });
+  if (result.count === 0) return { error: "Attachment not found." };
+  revalidatePath(`/dashboard/finance/invoices/${invoiceId}`);
+  return { success: true };
 }
 
 export async function createInvoiceFromBooking(bookingId: string): Promise<ActionState> {
