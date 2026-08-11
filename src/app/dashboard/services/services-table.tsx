@@ -228,13 +228,21 @@ export function ServicesTable({
       childrenByParent.set(service.parentServiceId, siblings);
     }
 
+    const byOrderThenName = (a: ServiceRow, b: ServiceRow) =>
+      a.order - b.order || a.name.localeCompare(b.name);
+
+    // Group by category: all services of a category sit together under one header.
+    const sortedTop = [...topLevel].sort(
+      (a, b) => a.categoryName.localeCompare(b.categoryName) || byOrderThenName(a, b),
+    );
+
     const result: { service: ServiceRow; indent: boolean; categoryHeader: string | null }[] = [];
     let lastCategory: string | null = null;
-    for (const parent of topLevel) {
+    for (const parent of sortedTop) {
       const header = parent.categoryName !== lastCategory ? parent.categoryName : null;
       lastCategory = parent.categoryName;
       result.push({ service: parent, indent: false, categoryHeader: header });
-      for (const child of childrenByParent.get(parent.id) ?? []) {
+      for (const child of [...(childrenByParent.get(parent.id) ?? [])].sort(byOrderThenName)) {
         result.push({ service: child, indent: true, categoryHeader: null });
       }
     }
@@ -284,7 +292,7 @@ export function ServicesTable({
                 <TableRow className="hover:bg-transparent">
                   <TableCell
                     colSpan={6}
-                    className="bg-secondary/40 py-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                    className="bg-secondary/60 py-2 text-xs font-semibold uppercase tracking-wide text-foreground"
                   >
                     {categoryHeader}
                   </TableCell>
