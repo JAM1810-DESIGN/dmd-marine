@@ -292,7 +292,7 @@ export function ServicesTable({
                 <TableRow className="hover:bg-transparent">
                   <TableCell
                     colSpan={6}
-                    className="bg-secondary/60 py-2 text-xs font-semibold uppercase tracking-wide text-foreground"
+                    className="bg-amber-100 py-2 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:bg-amber-500/15 dark:text-amber-200"
                   >
                     {categoryHeader}
                   </TableCell>
