@@ -1,6 +1,7 @@
 "use server";
 
 import { requireRole } from "@/lib/rbac";
+import { rateLimit } from "@/lib/rate-limit";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 export type AssistantState = { reply?: string; error?: string };
@@ -36,7 +37,12 @@ click path (e.g. "Dashboard → Services → click the price"). If you are unsur
 exists, say so rather than inventing UI. Do not claim to perform actions — you only advise.`;
 
 export async function askAssistant(messages: ChatMessage[]): Promise<AssistantState> {
-  await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+  const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+
+  const { allowed, retryAfterSeconds } = rateLimit(`ai-assistant:${session.user.id}`, 20, 60 * 1000);
+  if (!allowed) {
+    return { error: `Too many requests. Try again in ${retryAfterSeconds ?? 60}s.` };
+  }
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return { error: "AI is not configured. Add ANTHROPIC_API_KEY to your .env to enable the assistant." };

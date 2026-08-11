@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
 import { sendEmail, type EmailAttachment } from "@/lib/mailer";
+import { rateLimit } from "@/lib/rate-limit";
 import { messageSchema } from "@/lib/validations/message";
 
 export type ActionState = { error?: string; success?: boolean; warning?: string };
@@ -488,6 +489,11 @@ export type DraftState = { draft?: string; error?: string };
 /** Drafts a reply to a received message using Claude. Reads ANTHROPIC_API_KEY. */
 export async function draftReply(messageId: string, instruction?: string): Promise<DraftState> {
   const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+
+  const { allowed, retryAfterSeconds } = rateLimit(`ai-draft:${session.user.id}`, 20, 60 * 1000);
+  if (!allowed) {
+    return { error: `Too many requests. Try again in ${retryAfterSeconds ?? 60}s.` };
+  }
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return { error: "AI is not configured. Add ANTHROPIC_API_KEY to your .env to enable draft replies." };
