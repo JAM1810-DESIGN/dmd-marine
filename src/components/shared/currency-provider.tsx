@@ -11,6 +11,10 @@ type CurrencyContextValue = {
   currency: CurrencyCode;
   setCurrency: (currency: CurrencyCode) => void;
   format: (amountPhp: number) => string;
+  /** Convert a PHP amount into the selected display currency. */
+  fromPhp: (amountPhp: number) => number;
+  /** Convert an amount in the selected display currency back into PHP. */
+  toPhp: (amount: number) => number;
 };
 
 const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefined);
@@ -52,6 +56,8 @@ export function CurrencyProvider({
     currency,
     setCurrency,
     format: (amountPhp: number) => formatCurrency(amountPhp, currency, initialRates),
+    fromPhp: (amountPhp: number) => (currency === "PHP" ? amountPhp : amountPhp * initialRates[currency]),
+    toPhp: (amount: number) => (currency === "PHP" ? amount : amount / initialRates[currency]),
   };
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
