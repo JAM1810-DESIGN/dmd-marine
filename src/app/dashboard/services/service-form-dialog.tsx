@@ -77,6 +77,21 @@ export function ServiceFormDialog({
 
   const parentOptions = topLevelServices.filter((option) => option.id !== service?.id);
 
+  // Maps so the trigger shows the label (name), not the stored id/code.
+  const categoryItems = categories.map((c) => ({ value: c.id, label: c.name }));
+  const parentItems = [
+    { value: "none", label: "None (top-level service)" },
+    ...parentOptions.map((o) => ({ value: o.id, label: o.name })),
+  ];
+  const consultantItems = [
+    { value: "none", label: "None" },
+    ...consultants.map((c) => ({ value: c.id, label: c.name })),
+  ];
+  const priceUnitItems = [
+    { value: "none", label: "No unit" },
+    ...PRICE_UNITS.map((u) => ({ value: u, label: u })),
+  ];
+
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
       const result = service
@@ -111,6 +126,7 @@ export function ServiceFormDialog({
               <Label htmlFor="categoryId">Category</Label>
               <Select
                 name="categoryId"
+                items={categoryItems}
                 value={categoryId}
                 onValueChange={(v) => { if (typeof v === "string") setCategoryId(v); }}
                 required
@@ -133,6 +149,7 @@ export function ServiceFormDialog({
             <Label htmlFor="parentServiceId">Parent Service</Label>
             <Select
               name="parentServiceId"
+              items={parentItems}
               value={parentServiceId}
               onValueChange={(v) => { if (typeof v === "string") setParentServiceId(v); }}
             >
@@ -172,6 +189,7 @@ export function ServiceFormDialog({
               <Label htmlFor="defaultConsultantId">Default Consultant</Label>
               <Select
                 name="defaultConsultantId"
+                items={consultantItems}
                 value={defaultConsultantId}
                 onValueChange={(v) => { if (typeof v === "string") setDefaultConsultantId(v); }}
               >
@@ -211,6 +229,7 @@ export function ServiceFormDialog({
               <Label htmlFor="priceUnit">Price unit</Label>
               <Select
                 name="priceUnit"
+                items={priceUnitItems}
                 value={priceUnit}
                 onValueChange={(v) => { if (typeof v === "string") setPriceUnit(v); }}
               >
