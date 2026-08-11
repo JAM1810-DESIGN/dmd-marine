@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ChevronDown, ChevronUp, Download, ExternalLink, FileText, Pencil, Plus, Trash2, Check, X } from "lucide-react";
+import { ChevronDown, ChevronUp, ClipboardList, Download, ExternalLink, FileText, Pencil, Plus, Trash2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { SectionShell } from "./section-shell";
 import {
   Select,
   SelectContent,
@@ -87,14 +88,13 @@ export function RequiredFormsSection({
   }
 
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
-      <div className="p-4">
-        <h2 className="font-heading text-base font-semibold">Required Forms</h2>
-        <p className="text-sm text-muted-foreground">
-          Itemized list for this project — add, rename, or delete.
-        </p>
-      </div>
-
+    <SectionShell
+      tone="gold"
+      icon={ClipboardList}
+      title="Required Forms"
+      description="Itemized list for this project — add, rename, or delete."
+      count={sorted.length > 0 ? `${sorted.length} form${sorted.length === 1 ? "" : "s"}` : undefined}
+    >
       {sorted.length === 0 ? (
         <EmptyState className="border-none" title="No required forms yet" />
       ) : (
@@ -199,6 +199,6 @@ export function RequiredFormsSection({
           </div>
         </div>
       )}
-    </div>
+    </SectionShell>
   );
 }

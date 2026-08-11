@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Wallet, Receipt, TrendingUp, ListChecks } from "lucide-react";
+import { ArrowLeft, Wallet, Receipt, TrendingUp, ListChecks, FileText } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { isStorageConfigured } from "@/lib/storage";
@@ -12,6 +12,7 @@ import { EditProjectButton } from "./edit-project-button";
 import { DocumentsSection } from "./documents-section";
 import { SchedulesSection } from "./schedules-section";
 import { RequiredFormsSection } from "./required-forms-section";
+import { SectionShell } from "./section-shell";
 
 export const metadata: Metadata = { title: "Project" };
 
@@ -204,11 +205,13 @@ export default async function ProjectDetailPage({
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
-          <div className="p-4">
-            <h2 className="font-heading text-base font-semibold">Invoices</h2>
-            <p className="text-sm text-muted-foreground">Billing tied to this project.</p>
-          </div>
+        <SectionShell
+          tone="purple"
+          icon={FileText}
+          title="Invoices"
+          description="Billing tied to this project."
+          count={project.invoices.length > 0 ? `${project.invoices.length}` : undefined}
+        >
           {project.invoices.length === 0 ? (
             <EmptyState className="border-none" title="No invoices yet" />
           ) : (
@@ -232,13 +235,15 @@ export default async function ProjectDetailPage({
               ))}
             </ul>
           )}
-        </div>
+        </SectionShell>
 
-        <div className="rounded-xl bg-card ring-1 ring-foreground/10">
-          <div className="p-4">
-            <h2 className="font-heading text-base font-semibold">Expenses</h2>
-            <p className="text-sm text-muted-foreground">Costs charged to this project.</p>
-          </div>
+        <SectionShell
+          tone="gray"
+          icon={Receipt}
+          title="Expenses"
+          description="Costs charged to this project."
+          count={project.expenses.length > 0 ? `${project.expenses.length}` : undefined}
+        >
           {project.expenses.length === 0 ? (
             <EmptyState className="border-none" title="No expenses yet" />
           ) : (
@@ -261,7 +266,7 @@ export default async function ProjectDetailPage({
               ))}
             </ul>
           )}
-        </div>
+        </SectionShell>
       </div>
     </div>
   );

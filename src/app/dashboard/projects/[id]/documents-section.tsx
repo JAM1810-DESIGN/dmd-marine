@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useTransition } from "react";
-import { Download, FileCheck, Paperclip, Trash2 } from "lucide-react";
+import { Download, FileCheck, FolderCheck, Paperclip, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { notify } from "@/lib/notify";
 import { EmptyState } from "@/components/shared/empty-state";
+import { SectionShell } from "./section-shell";
 import {
   attachRequiredFormDocument,
   detachRequiredFormDocument,
@@ -80,15 +81,13 @@ export function DocumentsSection({
   const done = items.filter((i) => i.completed).length;
 
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
-      <div className="p-4">
-        <h2 className="font-heading text-base font-semibold">Documents &amp; Reports</h2>
-        <p className="text-sm text-muted-foreground">
-          Every required form appears here — check it off and attach the report.
-          {items.length > 0 && ` · ${done} of ${items.length} done`}
-        </p>
-      </div>
-
+    <SectionShell
+      tone="teal"
+      icon={FolderCheck}
+      title="Documents & Reports"
+      description="Every required form appears here — check it off and attach the report."
+      count={items.length > 0 ? `${done} of ${items.length} done` : undefined}
+    >
       {items.length === 0 ? (
         <EmptyState className="border-none" title="No required forms yet" description="Add forms in the Required Forms box above." />
       ) : (
@@ -183,6 +182,6 @@ export function DocumentsSection({
           </ul>
         </div>
       )}
-    </div>
+    </SectionShell>
   );
 }

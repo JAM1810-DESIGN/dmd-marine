@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarPlus } from "lucide-react";
+import { CalendarPlus, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScheduleFormDialog } from "@/components/shared/schedule-form-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
+import { SectionShell } from "./section-shell";
 
 type ScheduleRow = {
   id: string;
@@ -34,17 +35,21 @@ export function SchedulesSection({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
-      <div className="flex items-center justify-between p-4">
-        <h2 className="font-heading text-base font-semibold">Scheduled Events</h2>
-        {canManage && (
+    <SectionShell
+      tone="blue"
+      icon={CalendarClock}
+      title="Scheduled Events"
+      description="Surveys, inspections and meetings for this project"
+      count={schedules.length > 0 ? `${schedules.length} event${schedules.length === 1 ? "" : "s"}` : undefined}
+      action={
+        canManage ? (
           <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
             <CalendarPlus className="size-4" />
             Add to Calendar
           </Button>
-        )}
-      </div>
-
+        ) : undefined
+      }
+    >
       {schedules.length === 0 ? (
         <EmptyState className="border-none" title="No scheduled events yet" />
       ) : (
@@ -75,6 +80,6 @@ export function SchedulesSection({
         defaultConsultantId={consultantId}
         consultants={consultants}
       />
-    </div>
+    </SectionShell>
   );
 }
