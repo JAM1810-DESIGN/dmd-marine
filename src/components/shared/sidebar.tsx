@@ -31,21 +31,31 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, enabled: true },
-  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarClock, enabled: true },
-  { href: "/dashboard/customers", label: "Customers", icon: Users, enabled: true },
-  { href: "/dashboard/consultants", label: "Consultants", icon: UserCog, enabled: true },
-  { href: "/dashboard/documents", label: "Documents & Forms", icon: FileText, enabled: true },
+  // Overview
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, enabled: true, groupStart: "Overview" },
+
+  // Engagement
+  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, enabled: true, groupStart: "Engagement" },
+  { href: "/dashboard/facebook", label: "Facebook", icon: Megaphone, enabled: true },
+
+  // Operations
+  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarClock, enabled: true, groupStart: "Operations" },
   { href: "/dashboard/services", label: "Services", icon: Wrench, enabled: true },
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban, enabled: true },
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, enabled: true },
-  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, enabled: true },
-  { href: "/dashboard/facebook", label: "Facebook", icon: Megaphone, enabled: true },
+  { href: "/dashboard/documents", label: "Documents & Forms", icon: FileText, enabled: true },
+
+  // People
+  { href: "/dashboard/customers", label: "Customers", icon: Users, enabled: true, groupStart: "People" },
+  { href: "/dashboard/consultants", label: "Consultants", icon: UserCog, enabled: true },
+
+  // Finance
   {
     href: "/dashboard/finance",
     label: "Finance",
     icon: Wallet,
     enabled: true,
+    groupStart: "Finance",
     children: [
       { href: "/dashboard/finance", label: "Dashboard" },
       { href: "/dashboard/finance/expenses", label: "Expenses" },
@@ -57,6 +67,8 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/dashboard/finance/settings", label: "Settings" },
     ],
   },
+
+  // System
   { href: "/dashboard/reports", label: "Reports", icon: BarChart3, enabled: true, groupStart: "System" },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, enabled: true },
 ];
@@ -86,14 +98,18 @@ export function SidebarNav({
       </div>
 
       <nav className="scrollbar-hide flex-1 space-y-1 overflow-y-auto p-3">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.map((item, index) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
 
           const groupDivider = item.groupStart && (
             <div
               key={`${item.href}-group`}
-              className={cn("mt-3 mb-1 border-t border-sidebar-border pt-3", collapsed && "mx-1")}
+              className={cn(
+                "mb-1",
+                index > 0 && "mt-3 border-t border-sidebar-border pt-3",
+                collapsed && "mx-1",
+              )}
             >
               {!collapsed && (
                 <p className="px-3 pb-1 text-[10px] font-semibold tracking-wider text-sidebar-foreground/40 uppercase">
