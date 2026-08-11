@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Banknote } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getSiteSettings } from "@/lib/site-settings";
@@ -9,6 +9,7 @@ import { isStorageConfigured } from "@/lib/storage";
 import { AccessDenied } from "@/components/shared/access-denied";
 import { Badge } from "@/components/ui/badge";
 import { CurrencyAmount } from "@/components/shared/currency-amount";
+import { SectionShell } from "@/components/shared/section-shell";
 import { InvoiceActions } from "./invoice-actions";
 import { InvoiceItemsEditor } from "./invoice-items-editor";
 import { InvoiceAttachments } from "./invoice-attachments";
@@ -143,19 +144,27 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         attachments={invoice.attachments.map((a) => ({ id: a.id, fileName: a.fileName, url: a.url }))}
       />
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 print:hidden">
-        <h2 className="mb-2 font-heading text-base font-semibold">Payments</h2>
-        <PaymentsList
-          canManage={canManage}
-          payments={invoice.payments.map((p) => ({
-            id: p.id,
-            paymentDate: p.paymentDate.toISOString(),
-            amount: Number(p.amount),
-            method: p.method,
-            status: p.status,
-            referenceNumber: p.referenceNumber,
-          }))}
-        />
+      <div className="print:hidden">
+        <SectionShell
+          tone="teal"
+          icon={Banknote}
+          title="Payments"
+          count={invoice.payments.length > 0 ? `${invoice.payments.length} payment${invoice.payments.length === 1 ? "" : "s"}` : undefined}
+        >
+          <div className="p-4">
+            <PaymentsList
+              canManage={canManage}
+              payments={invoice.payments.map((p) => ({
+                id: p.id,
+                paymentDate: p.paymentDate.toISOString(),
+                amount: Number(p.amount),
+                method: p.method,
+                status: p.status,
+                referenceNumber: p.referenceNumber,
+              }))}
+            />
+          </div>
+        </SectionShell>
       </div>
     </div>
   );
