@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { notify } from "@/lib/notify";
 import { EmptyState } from "@/components/shared/empty-state";
-import { SectionShell } from "./section-shell";
+import { SectionShell } from "@/components/shared/section-shell";
 import {
   attachRequiredFormDocument,
   detachRequiredFormDocument,

@@ -12,7 +12,7 @@ import { EditProjectButton } from "./edit-project-button";
 import { DocumentsSection } from "./documents-section";
 import { SchedulesSection } from "./schedules-section";
 import { RequiredFormsSection } from "./required-forms-section";
-import { SectionShell } from "./section-shell";
+import { SectionShell } from "@/components/shared/section-shell";
 
 export const metadata: Metadata = { title: "Project" };
 

@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp, ClipboardList, Download, ExternalLink, FileText
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { SectionShell } from "./section-shell";
+import { SectionShell } from "@/components/shared/section-shell";
 import {
   Select,
   SelectContent,

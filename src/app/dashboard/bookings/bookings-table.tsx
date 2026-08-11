@@ -16,6 +16,7 @@ import {
   LayoutGrid,
   Anchor,
   MapPin,
+  ClipboardList,
 } from "lucide-react";
 import {
   Table,
@@ -468,13 +469,19 @@ export function BookingsTable({
   const rangeEnd = Math.min(page * pageSize, total);
 
   return (
-    <div className="rounded-xl bg-card ring-1 ring-foreground/10">
+    <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+      <div className="h-[3px] bg-amber-500" />
       <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="font-heading text-base font-semibold">All Bookings</h2>
-          <p className="text-sm text-muted-foreground">
-            Search, filter, sort, and export booking requests.
-          </p>
+        <div className="flex items-center gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-200">
+            <ClipboardList className="size-5" />
+          </span>
+          <div>
+            <h2 className="font-heading text-base font-semibold">All Bookings</h2>
+            <p className="text-sm text-muted-foreground">
+              Search, filter, sort, and export booking requests.
+            </p>
+          </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Input
@@ -607,14 +614,21 @@ export function BookingsTable({
                     )}
                   </TableCell>
                   <TableCell>
-                    <button
-                      type="button"
-                      onClick={() => openDetail(booking.id)}
-                      className="text-left font-medium text-foreground hover:text-ocean hover:underline"
-                    >
-                      {booking.customerName}
-                    </button>
-                    <div className="text-xs text-muted-foreground">{booking.customerEmail}</div>
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-medium text-accent">
+                        {initials(booking.customerName)}
+                      </span>
+                      <div className="min-w-0">
+                        <button
+                          type="button"
+                          onClick={() => openDetail(booking.id)}
+                          className="block truncate text-left font-medium text-foreground hover:text-ocean hover:underline"
+                        >
+                          {booking.customerName}
+                        </button>
+                        <div className="truncate text-xs text-muted-foreground">{booking.customerEmail}</div>
+                      </div>
+                    </div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {booking.companyName ?? "—"}

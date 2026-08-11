@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { BookingCalendar } from "./booking-calendar";
 import { BookingsTable } from "./bookings-table";
+import { BookingsOverview } from "./bookings-overview";
 import {
   PAGE_SIZE,
   parseBookingListParams,
@@ -96,6 +97,24 @@ export default async function BookingsPage({
     consultantName: booking.assignedConsultant?.name ?? null,
   }));
 
+  // Overview metrics from the board source (all bookings, unfiltered).
+  const statusCounts: Record<string, number> = {};
+  let unassigned = 0;
+  for (const booking of boardSource) {
+    statusCounts[booking.status] = (statusCounts[booking.status] ?? 0) + 1;
+    if (!booking.assignedConsultantId && booking.status !== "COMPLETED" && booking.status !== "CANCELLED") {
+      unassigned++;
+    }
+  }
+  const overview = {
+    total: boardSource.length,
+    newCount: statusCounts.NEW ?? 0,
+    active: (statusCounts.SCHEDULED ?? 0) + (statusCounts.IN_PROGRESS ?? 0),
+    completed: statusCounts.COMPLETED ?? 0,
+    unassigned,
+    statusCounts,
+  };
+
   const tableBookings = pageBookings.map((booking) => ({
     id: booking.id,
     customerName: booking.customerName,
@@ -119,6 +138,8 @@ export default async function BookingsPage({
           Review incoming requests, manage scheduling, and track status.
         </p>
       </div>
+
+      <BookingsOverview {...overview} />
 
       <BookingCalendar bookings={calendarBookings} />
       <BookingsTable

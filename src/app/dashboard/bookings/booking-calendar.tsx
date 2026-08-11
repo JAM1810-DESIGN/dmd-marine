@@ -79,7 +79,9 @@ export function BookingCalendar({ bookings }: { bookings: CalendarBooking[] }) {
   }
 
   return (
-    <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+    <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+      <div className="h-[3px] bg-blue-500" />
+      <div className="p-4">
       <CalendarHeader
         view={view}
         onViewChange={setView}
@@ -100,6 +102,7 @@ export function BookingCalendar({ bookings }: { bookings: CalendarBooking[] }) {
         {view === "day" && (
           <DayList bookings={bookingsByDate.get(dateKey(currentDate)) ?? []} />
         )}
+      </div>
       </div>
     </div>
   );
