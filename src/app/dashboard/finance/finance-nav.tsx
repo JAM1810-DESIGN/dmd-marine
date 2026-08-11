@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FileText,
+  FileSignature,
   Banknote,
   Receipt,
   Wallet,
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/dashboard/finance", label: "Overview", icon: LayoutDashboard, exact: true },
+  { href: "/dashboard/finance/quotations", label: "Quotations", icon: FileSignature },
   { href: "/dashboard/finance/invoices", label: "Invoices", icon: FileText },
   { href: "/dashboard/finance/payments", label: "Payments", icon: Banknote },
   { href: "/dashboard/finance/expenses", label: "Expenses", icon: Receipt },

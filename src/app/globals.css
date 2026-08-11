@@ -327,3 +327,30 @@
 @view-transition {
   navigation: auto;
 }
+
+/* Print: isolate a .print-doc container as the whole printed page. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-doc,
+  .print-doc * {
+    visibility: visible;
+  }
+  .print-doc {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-doc input,
+  .print-doc textarea {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    resize: none;
+    color: #000 !important;
+  }
+}

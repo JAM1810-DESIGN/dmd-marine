@@ -225,6 +225,7 @@ model User {
   financialStatements      FinancialStatement[]
   blogPosts                BlogPost[]
   auditLogs                AuditLog[]
+  quotations               Quotation[]
 
   @@map("users")
 }
@@ -276,6 +277,7 @@ model Customer {
   invoices       Invoice[]
   messages       Message[]
   facebookLeads  FacebookLead[]
+  quotations     Quotation[]
 
   @@index([companyId])
   @@map("customers")
@@ -928,6 +930,60 @@ model Budget {
 
   @@index([periodStart, periodEnd])
   @@map("budgets")
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model Quotation {
+  id             String          @id @default(cuid())
+  quoteNumber    String          @unique
+  status         QuotationStatus @default(DRAFT)
+  title          String          @default("On/Off-Hire Bunker Survey")
+  billTo         String
+  attention      String?
+  vesselName     String?
+  location       String?
+  currency       String          @default("USD")
+  quoteDate      DateTime        @default(now())
+  validityDays   Int             @default(30)
+  paymentTerms   String?
+  conditions     String?
+  scope          String[]
+  notes          String?
+  taxRatePercent Decimal         @default(0) @db.Decimal(5, 2)
+  customerId     String?
+  createdById    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer  Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdBy User?           @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  items     QuotationItem[]
+
+  @@index([status])
+  @@map("quotations")
+}
+
+model QuotationItem {
+  id          String  @id @default(cuid())
+  quotationId String
+  description String
+  quantity    Decimal @default(1) @db.Decimal(12, 2)
+  unitPrice   Decimal @default(0) @db.Decimal(12, 2)
+  lineTotal   Decimal @default(0) @db.Decimal(12, 2)
+  order       Int     @default(0)
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId])
+  @@map("quotation_items")
 }
 
 model FinancialStatement {
