@@ -20,16 +20,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
+import { useCurrency } from "@/components/shared/currency-provider";
 import { recordPayment } from "../actions";
 
 const PAYMENT_METHODS = ["CASH", "BANK_TRANSFER", "CREDIT_CARD", "DEBIT_CARD", "GCASH", "MAYA", "CHECK", "OTHER"] as const;
+
+function round2(n: number) {
+  return Math.round(n * 100) / 100;
+}
 
 export function RecordPaymentDialog({ invoiceId, balanceDue }: { invoiceId: string; balanceDue: number }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const { currency, fromPhp, toPhp } = useCurrency();
 
   function handleSubmit(formData: FormData) {
+    // Amount is entered in the selected display currency — store it in PHP.
+    const display = Number(formData.get("amount"));
+    formData.set("amount", String(round2(toPhp(display))));
     startTransition(async () => {
       const result = await recordPayment(invoiceId, {}, formData);
       if (result.error) {
@@ -56,8 +65,16 @@ export function RecordPaymentDialog({ invoiceId, balanceDue }: { invoiceId: stri
               <Input id="paymentDate" name="paymentDate" type="date" defaultValue={new Date().toISOString().slice(0, 10)} required />
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="amount">Amount</Label>
-              <Input id="amount" name="amount" type="number" step="0.01" min="0.01" defaultValue={balanceDue.toFixed(2)} required />
+              <Label htmlFor="amount">Amount ({currency})</Label>
+              <Input
+                id="amount"
+                name="amount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                defaultValue={round2(fromPhp(balanceDue)).toFixed(2)}
+                required
+              />
             </div>
           </div>
           <div className="grid gap-1.5">
