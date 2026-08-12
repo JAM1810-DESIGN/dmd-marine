@@ -62,10 +62,17 @@ export default async function NewQuotationPage({
       const scope = service.scope
         ? service.scope.split(/\r?\n+/).map((s) => s.trim()).filter(Boolean)
         : [];
-      // Bunker survey services carry the same standard extra-charge rows as the
-      // hardcoded Bunker Survey template.
-      const isBunker = /bunker/i.test(service.name);
-      const items = isBunker
+      // Attendance-type surveys (Bunker, Draft, On-/Off-Hire) carry the same
+      // standard extra-charge rows as the hardcoded Bunker Survey template. The
+      // "Develop … Draft Survey Form" service is a deliverable, not an
+      // attendance, so it's excluded.
+      const name = service.name.toLowerCase();
+      const carriesExtras =
+        name.includes("bunker") ||
+        name.includes("on-hire") ||
+        name.includes("off-hire") ||
+        (name.includes("draft survey") && !name.includes("develop"));
+      const items = carriesExtras
         ? [{ description: service.name, quantity: 1, unitPrice: base }, ...DEFAULT_ADDITIONAL_ITEMS]
         : [{ description: service.name, quantity: 1, unitPrice: base }];
       return {
