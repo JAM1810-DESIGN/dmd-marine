@@ -55,10 +55,14 @@ export function QuotationEditor({
   quotation,
   customers,
   template,
+  prefillBillTo,
+  returnEmail,
 }: {
   quotation?: QuotationRecord;
   customers: { id: string; name: string }[];
   template?: QuotationTemplate;
+  prefillBillTo?: string;
+  returnEmail?: string;
 }) {
   const router = useRouter();
   const existing = Boolean(quotation);
@@ -66,7 +70,7 @@ export function QuotationEditor({
   const [state, formAction, pending] = useActionState<ActionState, FormData>(action, {});
 
   const [title, setTitle] = useState(quotation?.title ?? template?.title ?? "On/Off-Hire Bunker Survey");
-  const [billTo, setBillTo] = useState(quotation?.billTo ?? "");
+  const [billTo, setBillTo] = useState(quotation?.billTo ?? prefillBillTo ?? "");
   const [attention, setAttention] = useState(quotation?.attention ?? "");
   const [vesselName, setVesselName] = useState(quotation?.vesselName ?? "");
   const [location, setLocation] = useState(quotation?.location ?? template?.location ?? "Philippines – Port / Anchorage / Shipyard");
@@ -111,10 +115,15 @@ export function QuotationEditor({
 
   useEffect(() => {
     if (state.success && state.id) {
+      if (state.attached) {
+        notify.success("Quotation attached", "Added to the customer's conversation in Messages.");
+        router.push("/dashboard/messages");
+        return;
+      }
       notify.success(existing ? "Quotation saved" : "Quotation created");
       router.push(`/dashboard/finance/quotations/${state.id}`);
     }
-  }, [state.success, state.id, existing, router]);
+  }, [state.success, state.id, state.attached, existing, router]);
 
   function setItem(index: number, patch: Partial<ItemState>) {
     setItems((cur) => cur.map((it, i) => (i === index ? { ...it, ...patch } : it)));
@@ -235,6 +244,7 @@ export function QuotationEditor({
       <input type="hidden" name="reporting" value={JSON.stringify(reporting)} readOnly />
       <input type="hidden" name="exclusions" value={JSON.stringify(exclusions)} readOnly />
       <input type="hidden" name="sections" value={JSON.stringify(sections)} readOnly />
+      <input type="hidden" name="returnEmail" value={returnEmail ?? ""} readOnly />
 
       {/* The printable document */}
       <div className="print-doc mx-auto w-full max-w-3xl overflow-hidden rounded-xl bg-white text-neutral-900 ring-1 ring-foreground/10">

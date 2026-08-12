@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Star,
   CalendarCheck,
@@ -122,6 +123,7 @@ function HeaderRow({
 }
 
 function Composer({ thread, defaultIdentity }: { thread: Thread; defaultIdentity: IdentityLike | null }) {
+  const router = useRouter();
   const defaultSubject = () => {
     const base = thread.messages.find((m) => m.subject && m.subject.trim())?.subject?.trim();
     if (!base) return "Re: your message";
@@ -303,6 +305,24 @@ function Composer({ thread, defaultIdentity }: { thread: Thread; defaultIdentity
           >
             <Paperclip className="size-4" />
             Attach
+          </Button>
+        )}
+        {thread.external && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const params = new URLSearchParams({
+                email: thread.externalEmail ?? "",
+                name: thread.counterpartName,
+                returnEmail: thread.externalEmail ?? "",
+              });
+              router.push(`/dashboard/finance/quotations/new?${params.toString()}`);
+            }}
+            title="Create a quotation for this customer and attach it back to this conversation"
+          >
+            <FileText className="size-4" />
+            Quotation
           </Button>
         )}
         {thread.external &&

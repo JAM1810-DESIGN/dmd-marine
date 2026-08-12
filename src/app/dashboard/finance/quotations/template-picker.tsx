@@ -20,7 +20,13 @@ function money(n: number) {
   return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export function TemplatePicker({ templates }: { templates: PickerTemplate[] }) {
+export function TemplatePicker({
+  templates,
+  carry = {},
+}: {
+  templates: PickerTemplate[];
+  carry?: Record<string, string>;
+}) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedKey, setSelectedKey] = useState(templates[0]?.key ?? "");
@@ -45,7 +51,9 @@ export function TemplatePicker({ templates }: { templates: PickerTemplate[] }) {
   const total = selected ? selected.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0) : 0;
 
   function use() {
-    if (selected) router.push(`/dashboard/finance/quotations/new?template=${selected.key}`);
+    if (!selected) return;
+    const params = new URLSearchParams({ ...carry, template: selected.key });
+    router.push(`/dashboard/finance/quotations/new?${params.toString()}`);
   }
 
   return (

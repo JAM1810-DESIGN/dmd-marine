@@ -81,7 +81,7 @@ type TemplateDef = QuotationTemplate & { key: string; label: string; category: s
 export default async function NewQuotationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ template?: string }>;
+  searchParams: Promise<{ template?: string; email?: string; name?: string; returnEmail?: string }>;
 }) {
   const session = await auth();
   const role = session?.user.role;
@@ -89,7 +89,14 @@ export default async function NewQuotationPage({
     return <AccessDenied message="Quotations are restricted to Admin, Manager, and Finance Officer roles." />;
   }
 
-  const { template: templateKey } = await searchParams;
+  const { template: templateKey, email, name, returnEmail } = await searchParams;
+
+  // When launched from a message thread, carry the customer + return address so
+  // the created quotation can be attached back to that conversation.
+  const carry: Record<string, string> = {};
+  if (email) carry.email = email;
+  if (name) carry.name = name;
+  if (returnEmail) carry.returnEmail = returnEmail;
 
   const [customers, services] = await Promise.all([
     db.customer.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -374,7 +381,12 @@ export default async function NewQuotationPage({
           <ArrowLeft className="size-4" />
           Choose a different template
         </Link>
-        <QuotationEditor customers={customers} template={template} />
+        <QuotationEditor
+          customers={customers}
+          template={template}
+          prefillBillTo={name}
+          returnEmail={returnEmail}
+        />
       </div>
     );
   }
@@ -399,7 +411,7 @@ export default async function NewQuotationPage({
         <h1 className="mt-2 text-2xl font-semibold text-foreground">New quotation</h1>
         <p className="text-sm text-muted-foreground">Pick a service template — the quotation opens fully editable.</p>
       </div>
-      <TemplatePicker templates={pickerTemplates} />
+      <TemplatePicker templates={pickerTemplates} carry={carry} />
     </div>
   );
 }

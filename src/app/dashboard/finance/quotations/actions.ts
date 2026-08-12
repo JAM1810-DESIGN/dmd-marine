@@ -6,7 +6,11 @@ import { requireRole } from "@/lib/rbac";
 import { quotationSchema } from "@/lib/validations/quotation";
 import type { QuotationStatus } from "@/generated/prisma/client";
 
-export type ActionState = { error?: string; success?: boolean; id?: string };
+export type ActionState = { error?: string; success?: boolean; id?: string; attached?: boolean };
+
+function money(n: number) {
+  return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
 const MANAGE_ROLES = ["ADMIN", "MANAGER", "FINANCE_OFFICER"] as const;
 
@@ -103,6 +107,43 @@ export async function createQuotation(_prev: ActionState, formData: FormData): P
   });
 
   revalidatePath("/dashboard/finance/quotations");
+
+  // Launched from a message thread → attach the quotation back to that
+  // customer's conversation as a staff message with a summary and link.
+  const returnEmail = String(formData.get("returnEmail") ?? "").trim();
+  if (returnEmail) {
+    const subtotal = items.reduce((sum, it) => sum + it.quantity * it.unitPrice, 0);
+    const total = subtotal + (subtotal * (Number(rest.taxRatePercent) || 0)) / 100;
+    const body = [
+      `Quotation ${quoteNumber} — ${rest.title}`,
+      "",
+      ...items.filter((it) => it.description.trim()).map((it) => `- ${it.description}: ${rest.currency} ${money(it.quantity * it.unitPrice)}`),
+      "",
+      `Total: ${rest.currency} ${money(total)}`,
+      `Validity: ${rest.validityDays} days`,
+      `Payment terms: ${rest.paymentTerms ?? ""}`,
+      "",
+      `View / edit: /dashboard/finance/quotations/${quotation.id}`,
+    ].join("\n");
+    try {
+      await db.message.create({
+        data: {
+          channel: "EMAIL",
+          externalEmail: returnEmail,
+          externalName: rest.billTo,
+          fromUserId: session.user.id,
+          subject: `Quotation ${quoteNumber} — ${rest.title}`,
+          body,
+        },
+      });
+      revalidatePath("/dashboard/messages");
+      return { success: true, id: quotation.id, attached: true };
+    } catch {
+      // The quotation itself saved; just don't claim it was attached.
+      return { success: true, id: quotation.id };
+    }
+  }
+
   return { success: true, id: quotation.id };
 }
 
