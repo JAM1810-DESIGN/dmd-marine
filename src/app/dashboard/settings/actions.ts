@@ -8,6 +8,7 @@ import { hashPassword } from "@/lib/password";
 import { logAudit } from "@/lib/audit";
 import { siteSettingsSchema, createUserSchema } from "@/lib/validations/settings";
 import type { Role } from "@/generated/prisma/enums";
+import { Prisma } from "@/generated/prisma/client";
 
 export type ActionState = { error?: string; success?: boolean };
 
@@ -102,6 +103,47 @@ export async function updateUserRole(id: string, role: Role) {
     entityType: "User",
     entityId: id,
     metadata: { from: before.role, to: role },
+  });
+
+  revalidatePath("/dashboard/settings");
+}
+
+export async function deleteUser(id: string) {
+  const session = await requireRole("ADMIN");
+  if (id === session.user.id) {
+    throw new AppError("BAD_REQUEST", "You can't delete your own account.");
+  }
+
+  const target = await db.user.findUniqueOrThrow({ where: { id } });
+
+  // Never let the last admin be removed — it would lock everyone out.
+  if (target.role === "ADMIN") {
+    const adminCount = await db.user.count({ where: { role: "ADMIN" } });
+    if (adminCount <= 1) {
+      throw new AppError("BAD_REQUEST", "You can't delete the last admin account.");
+    }
+  }
+
+  try {
+    await db.user.delete({ where: { id } });
+  } catch (error) {
+    // Required relations (Projects, Expenses, Schedules the user owns) block a
+    // hard delete. Point the admin at Deactivate instead of failing opaquely.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+      throw new AppError(
+        "BAD_REQUEST",
+        "This account owns projects, expenses, or schedules and can't be deleted. Deactivate it instead.",
+      );
+    }
+    throw error;
+  }
+
+  await logAudit({
+    userId: session.user.id,
+    action: "USER_DELETED",
+    entityType: "User",
+    entityId: id,
+    metadata: { email: target.email, role: target.role },
   });
 
   revalidatePath("/dashboard/settings");

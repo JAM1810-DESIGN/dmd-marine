@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { notify } from "@/lib/notify";
-import { updateUserRole, toggleUserActive } from "./actions";
+import { updateUserRole, toggleUserActive, deleteUser } from "./actions";
 import { CreateUserDialog } from "./create-user-dialog";
 
 const ROLES = ["ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER"] as const;
@@ -87,6 +87,36 @@ function ActiveToggle({ id, isActive, isSelf }: { id: string; isActive: boolean;
   );
 }
 
+function DeleteButton({ id, name }: { id: string; name: string }) {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={isPending}
+      aria-label={`Delete ${name}`}
+      className="text-muted-foreground hover:text-destructive"
+      onClick={() => {
+        if (!window.confirm(`Delete ${name}? This can't be undone.`)) return;
+        startTransition(async () => {
+          try {
+            await deleteUser(id);
+            notify.success("Account deleted");
+          } catch (error) {
+            notify.error(
+              "Couldn't delete",
+              error instanceof Error ? error.message : "Please try again.",
+            );
+          }
+        });
+      }}
+    >
+      <Trash2 className="size-4" />
+    </Button>
+  );
+}
+
 export function UsersTable({ users, currentUserId }: { users: UserRow[]; currentUserId: string }) {
   return (
     <div className="rounded-xl border-t-[3px] border-t-neutral-400 bg-card ring-1 ring-foreground/10">
@@ -113,6 +143,7 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Active</TableHead>
+            <TableHead className="w-10 text-right sr-only">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -132,6 +163,9 @@ export function UsersTable({ users, currentUserId }: { users: UserRow[]; current
                 </TableCell>
                 <TableCell>
                   <ActiveToggle id={user.id} isActive={user.isActive} isSelf={isSelf} />
+                </TableCell>
+                <TableCell className="text-right">
+                  {!isSelf && <DeleteButton id={user.id} name={user.name} />}
                 </TableCell>
               </TableRow>
             );
