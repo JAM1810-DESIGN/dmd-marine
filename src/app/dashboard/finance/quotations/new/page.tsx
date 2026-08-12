@@ -8,6 +8,7 @@ import {
   QuotationEditor,
   DEFAULT_SCOPE,
   DEFAULT_CONDITIONS,
+  DEFAULT_ADDITIONAL_CHARGES,
   type QuotationTemplate,
 } from "../quotation-editor";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -53,6 +54,7 @@ export default async function NewQuotationPage({
       title: "On/Off-Hire Bunker Survey",
       currency: "USD",
       scope: DEFAULT_SCOPE,
+      additionalCharges: DEFAULT_ADDITIONAL_CHARGES,
       conditions: DEFAULT_CONDITIONS,
       items: [{ description: "On/Off-Hire Bunker Survey – Port", quantity: 1, unitPrice: 350 }],
     },
@@ -69,6 +71,7 @@ export default async function NewQuotationPage({
         title: service.name,
         currency: "PHP",
         scope,
+        additionalCharges: [],
         conditions: GENERIC_CONDITIONS,
         items: [{ description: service.name, quantity: 1, unitPrice: base }],
       };
@@ -81,6 +84,7 @@ export default async function NewQuotationPage({
       title: "Service Quotation",
       currency: "PHP",
       scope: [],
+      additionalCharges: [],
       conditions: "",
       items: [{ description: "", quantity: 1, unitPrice: 0 }],
     },
@@ -93,6 +97,7 @@ export default async function NewQuotationPage({
       title: def.title,
       currency: def.currency,
       scope: def.scope,
+      additionalCharges: def.additionalCharges,
       conditions: def.conditions,
       items: def.items,
     };

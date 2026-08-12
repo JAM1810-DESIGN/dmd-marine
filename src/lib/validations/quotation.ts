@@ -6,6 +6,11 @@ export const quotationItemSchema = z.object({
   unitPrice: z.coerce.number().min(0, "Rate can't be negative").default(0),
 });
 
+export const additionalChargeSchema = z.object({
+  label: z.string().min(1),
+  charge: z.string().default(""),
+});
+
 export const quotationSchema = z.object({
   title: z.string().min(1, "Title is required"),
   billTo: z.string().min(1, "Bill-to is required"),
@@ -18,6 +23,7 @@ export const quotationSchema = z.object({
   paymentTerms: z.string().optional(),
   conditions: z.string().optional(),
   scope: z.array(z.string()).default([]),
+  additionalCharges: z.array(additionalChargeSchema).default([]),
   notes: z.string().optional(),
   taxRatePercent: z.coerce.number().min(0).max(100).default(0),
   customerId: z
@@ -27,5 +33,6 @@ export const quotationSchema = z.object({
   items: z.array(quotationItemSchema).min(1, "Add at least one line item"),
 });
 
+export type AdditionalChargeInput = z.infer<typeof additionalChargeSchema>;
 export type QuotationInput = z.infer<typeof quotationSchema>;
 export type QuotationItemInput = z.infer<typeof quotationItemSchema>;
