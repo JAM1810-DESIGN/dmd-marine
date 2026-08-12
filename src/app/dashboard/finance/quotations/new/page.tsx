@@ -62,6 +62,9 @@ import {
   ONHIREBUNKER_SCOPE,
   ONHIREBUNKER_SECTIONS,
   ONHIREBUNKER_CONDITIONS,
+  DRAFTSURVEY_ITEMS,
+  DRAFTSURVEY_SCOPE,
+  DRAFTSURVEY_CONDITIONS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -271,6 +274,17 @@ export default async function NewQuotationPage({
               items: ONHIREBUNKER_ITEMS,
             }
           : undefined,
+        draftSurvey: name.includes("draft survey") && !name.includes("develop")
+          ? {
+              title: "Draft Survey – Ship Attendance",
+              scopeTitle: "Scope of Attendance",
+              scope: DRAFTSURVEY_SCOPE,
+              reporting: [],
+              exclusions: [],
+              conditions: DRAFTSURVEY_CONDITIONS,
+              items: DRAFTSURVEY_ITEMS,
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
@@ -284,7 +298,8 @@ export default async function NewQuotationPage({
         customDocs.chiefMentoring ??
         customDocs.draftForm ??
         customDocs.onHire ??
-        customDocs.onHireBunker;
+        customDocs.onHireBunker ??
+        customDocs.draftSurvey;
       if (doc) {
         return {
           key: service.id,

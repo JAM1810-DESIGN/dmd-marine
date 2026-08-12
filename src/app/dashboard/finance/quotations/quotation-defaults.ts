@@ -830,6 +830,43 @@ export const ONHIREBUNKER_CONDITIONS = [
   "10. Any requirements for independent bunker sampling, laboratory analysis, quantity dispute investigation or fuel quality assessment will be subject to a separate quotation.",
 ].join("\n");
 
+// ── Draft Survey – Ship Attendance ─────────────────────────────────────────
+export const DRAFTSURVEY_ITEMS: QuotationItemDefault[] = [
+  { description: "Draft Survey – Port Attendance", quantity: 1, unitPrice: 450 },
+  { description: "Draft Survey – Anchorage Attendance", quantity: 0, unitPrice: 550 },
+  { description: "Draft Survey – Shipyard Attendance", quantity: 0, unitPrice: 450 },
+  { description: "Additional / Re-attendance", quantity: 0, unitPrice: 300 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 60 },
+  { description: "Night attendance / weekend / public holiday (per hour)", quantity: 0, unitPrice: 100 },
+  { description: "Launch / boat transfer to anchorage (at cost)", quantity: 0, unitPrice: 0 },
+  { description: "Transportation / port access / special permits (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const DRAFTSURVEY_SCOPE = [
+  "The above fee includes:",
+  "Attendance on board the vessel.",
+  "Initial and/or final draft readings, as applicable.",
+  "Reading of forward, midship and aft drafts on both port and starboard sides.",
+  "Verification of vessel's draft marks.",
+  "Recording of ballast, fresh water, fuel oil and other relevant tank quantities.",
+  "Verification of vessel's hydrostatic particulars.",
+  "Allowance for density of seawater and dock water, where applicable.",
+  "Calculation of displacement and cargo quantity.",
+  "Preparation of Draft Survey Report.",
+  "Submission of the completed report by email in PDF format.",
+];
+
+export const DRAFTSURVEY_CONDITIONS = [
+  "1. Rates are based on one vessel attendance for one draft survey.",
+  "2. The above rates apply during normal working hours.",
+  "3. Attendance outside normal working hours, weekends and public holidays will be subject to additional charges.",
+  "4. Waiting time exceeding 2 hours due to vessel, terminal, port, cargo operation or other delays will be charged at the applicable hourly rate.",
+  "5. Launch/boat hire, transportation, port passes, permits and other third-party expenses, where required, will be charged at cost.",
+  "6. The vessel shall provide safe access and make available the required hydrostatic tables, tank capacity/calibration tables and other relevant documents.",
+  "7. Any additional attendance, re-survey or change of vessel schedule requiring a second visit will be charged separately.",
+  "8. Any additional work outside the above scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +
