@@ -65,6 +65,10 @@ import {
   DRAFTSURVEY_ITEMS,
   DRAFTSURVEY_SCOPE,
   DRAFTSURVEY_CONDITIONS,
+  BUNKERSURVEY_ITEMS,
+  BUNKERSURVEY_SCOPE,
+  BUNKERSURVEY_REPORTING,
+  BUNKERSURVEY_CONDITIONS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -285,6 +289,17 @@ export default async function NewQuotationPage({
               items: DRAFTSURVEY_ITEMS,
             }
           : undefined,
+        bunkerSurvey: name.includes("bunker") && !name.includes("hire")
+          ? {
+              title: "Bunker Quantity Survey",
+              scopeTitle: "Scope of Survey",
+              scope: BUNKERSURVEY_SCOPE,
+              reporting: BUNKERSURVEY_REPORTING,
+              exclusions: [],
+              conditions: BUNKERSURVEY_CONDITIONS,
+              items: BUNKERSURVEY_ITEMS,
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
@@ -299,7 +314,8 @@ export default async function NewQuotationPage({
         customDocs.draftForm ??
         customDocs.onHire ??
         customDocs.onHireBunker ??
-        customDocs.draftSurvey;
+        customDocs.draftSurvey ??
+        customDocs.bunkerSurvey;
       if (doc) {
         return {
           key: service.id,

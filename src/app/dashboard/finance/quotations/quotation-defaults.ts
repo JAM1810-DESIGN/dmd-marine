@@ -867,6 +867,57 @@ export const DRAFTSURVEY_CONDITIONS = [
   "8. Any additional work outside the above scope will be subject to a separate quotation.",
 ].join("\n");
 
+// ── Bunker Quantity Survey ─────────────────────────────────────────────────
+export const BUNKERSURVEY_ITEMS: QuotationItemDefault[] = [
+  { description: "Bunker Survey – Port", quantity: 1, unitPrice: 500 },
+  { description: "Bunker Survey – Anchorage", quantity: 0, unitPrice: 650 },
+  { description: "Bunker Survey – Shipyard", quantity: 0, unitPrice: 500 },
+  { description: "Additional attendance / re-measurement", quantity: 0, unitPrice: 300 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 50 },
+  { description: "Night / weekend / public holiday attendance (per hour)", quantity: 0, unitPrice: 75 },
+  { description: "Launch / boat transfer to anchorage (at cost)", quantity: 0, unitPrice: 0 },
+  { description: "Transportation / port access / special permits (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const BUNKERSURVEY_SCOPE = [
+  "The Bunker Survey will generally cover:",
+  "Attendance onboard the vessel at the agreed location.",
+  "Measurement of fuel oil and diesel oil tanks, as safely accessible.",
+  "Verification of sounding / ullage measurements.",
+  "Review of applicable tank calibration tables.",
+  "Recording of fuel grades and quantities.",
+  "Recording of tank temperatures, where available.",
+  "Review of relevant bunker documents and vessel records.",
+  "Calculation of apparent bunker quantities / ROB.",
+  "Comparison with vessel records, where applicable.",
+  "Identification of apparent discrepancies.",
+  "Photographic documentation, where appropriate.",
+];
+
+export const BUNKERSURVEY_REPORTING = [
+  "Attendance by a qualified marine surveyor.",
+  "Bunker tank measurements.",
+  "Bunker quantity calculations.",
+  "Recording of bunker ROB.",
+  "Reconciliation with available vessel records.",
+  "Photographs, where applicable.",
+  "Preparation of a Bunker Survey Report.",
+  "Submission of the report in PDF format by email.",
+];
+
+export const BUNKERSURVEY_CONDITIONS = [
+  "1. The above rates are based on one vessel attendance and up to 6 hours.",
+  "2. The survey is limited to tanks that are safely accessible and suitable for measurement.",
+  "3. Vessel tank calibration tables and relevant vessel information must be made available for the survey.",
+  "4. Waiting time exceeding 2 hours due to vessel, terminal, bunker supplier or operational delays will be charged at USD 50.00/hour.",
+  "5. Night attendance, weekends and public holidays will attract additional charges.",
+  "6. Launch/boat hire, transportation, port passes, permits and other third-party expenses will be charged at cost.",
+  "7. Additional attendance or re-measurement will be charged separately.",
+  "8. The survey covers quantity measurement only and does not include fuel quality testing, laboratory analysis, sampling or specification verification unless specifically agreed.",
+  "9. Bunker quantities are calculated based on measurements taken and vessel information provided at the time of attendance.",
+  "10. Any additional requirements outside the stated scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +
