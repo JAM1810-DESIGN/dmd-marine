@@ -6,9 +6,6 @@ import { db } from "@/lib/db";
 import { AccessDenied } from "@/components/shared/access-denied";
 import { QuotationEditor, type QuotationTemplate } from "../quotation-editor";
 import {
-  DEFAULT_SCOPE,
-  DEFAULT_CONDITIONS,
-  DEFAULT_ITEMS,
   DEFAULT_ADDITIONAL_ITEMS,
   VESSEL_CONDITION_ITEMS,
   VESSEL_CONDITION_SCOPE,
@@ -106,17 +103,6 @@ export default async function NewQuotationPage({
   const php = (n: number) => `₱${n.toLocaleString("en-PH", { maximumFractionDigits: 0 })}`;
 
   const templates: TemplateDef[] = [
-    {
-      key: "bunker",
-      label: "On/Off-Hire Bunker Survey",
-      category: "Surveys",
-      hint: "Full rate table + scope + terms",
-      title: "On/Off-Hire Bunker Survey",
-      currency: "USD",
-      scope: DEFAULT_SCOPE,
-      conditions: DEFAULT_CONDITIONS,
-      items: DEFAULT_ITEMS,
-    },
     ...services.map((service): TemplateDef => {
       const base = service.basePrice ? Number(service.basePrice) : 0;
       const scope = service.scope
