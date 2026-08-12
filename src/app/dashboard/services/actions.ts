@@ -10,6 +10,15 @@ import { categorySchema, serviceSchema } from "@/lib/validations/service";
 
 export type ActionState = { error?: string; success?: boolean };
 
+// Refresh the public marketing pages that list or link services so dashboard
+// changes (create/edit/price/enable/disable/delete) show on the website too.
+function revalidatePublicServices() {
+  revalidatePath("/");
+  revalidatePath("/services");
+  revalidatePath("/services/[slug]", "page");
+  revalidatePath("/book-consultation");
+}
+
 async function uniqueSlug(name: string, isTaken: (slug: string) => Promise<boolean>) {
   const base = slugify(name);
   let candidate = base;
@@ -55,6 +64,7 @@ export async function createCategory(
 
   await db.serviceCategory.create({ data: { ...parsed.data, slug } });
   revalidatePath("/dashboard/services");
+  revalidatePublicServices();
   return { success: true };
 }
 
@@ -76,6 +86,7 @@ export async function updateCategory(
 
   await db.serviceCategory.update({ where: { id }, data: parsed.data });
   revalidatePath("/dashboard/services");
+  revalidatePublicServices();
   return { success: true };
 }
 
@@ -83,6 +94,7 @@ export async function toggleCategoryActive(id: string, isActive: boolean) {
   await requireRole("ADMIN", "MANAGER");
   await db.serviceCategory.update({ where: { id }, data: { isActive } });
   revalidatePath("/dashboard/services");
+  revalidatePublicServices();
 }
 
 // ── Services ─────────────────────────────────────────────────────────────────
@@ -137,6 +149,7 @@ export async function createService(
   }
 
   revalidatePath("/dashboard/services");
+  revalidatePublicServices();
   return { success: true };
 }
 
@@ -190,6 +203,7 @@ export async function updateService(
   });
 
   revalidatePath("/dashboard/services");
+  revalidatePublicServices();
   return { success: true };
 }
 
@@ -197,6 +211,7 @@ export async function toggleServiceActive(id: string, isActive: boolean) {
   await requireRole("ADMIN", "MANAGER");
   await db.service.update({ where: { id }, data: { isActive } });
   revalidatePath("/dashboard/services");
+  revalidatePublicServices();
 }
 
 /**
