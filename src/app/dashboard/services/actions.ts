@@ -199,6 +199,35 @@ export async function toggleServiceActive(id: string, isActive: boolean) {
   revalidatePath("/dashboard/services");
 }
 
+/**
+ * Permanently deletes a service. Bookings, projects, quotation and invoice
+ * lines that referenced it keep their records (the service link is nulled).
+ * Returns (never throws) so a foreign-key block surfaces as a toast.
+ */
+export async function deleteService(id: string): Promise<ActionState> {
+  await requireRole("ADMIN", "MANAGER");
+  try {
+    const childCount = await db.service.count({ where: { parentServiceId: id } });
+    if (childCount > 0) {
+      return { error: "This service has sub-services. Delete or move them first." };
+    }
+
+    await db.service.delete({ where: { id } });
+    revalidatePath("/dashboard/services");
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const isForeignKey =
+      (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") ||
+      /foreign key|violates|constraint/i.test(message);
+    if (isForeignKey) {
+      return { error: "This service is linked to existing records and can't be deleted. Disable it instead." };
+    }
+    console.error("deleteService failed", error);
+    return { error: "Couldn't delete this service. Disable it instead." };
+  }
+}
+
 /** Inline price edit from the services table. Pass null to clear (On request). */
 export async function updateServicePrice(
   id: string,

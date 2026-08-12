@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useMemo, useState, useTransition } from "react";
-import { Pencil, Plus, Check, X } from "lucide-react";
+import { Pencil, Plus, Check, X, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { notify } from "@/lib/notify";
 import { cn } from "@/lib/utils";
-import { toggleServiceActive, updateServicePrice } from "./actions";
+import { toggleServiceActive, updateServicePrice, deleteService } from "./actions";
 import { ServiceFormDialog } from "./service-form-dialog";
 import { type RequiredFormRow } from "./required-forms-section";
 
@@ -140,6 +140,32 @@ function PriceCell({ service, canManage }: { service: ServiceRow; canManage: boo
   );
 }
 
+function DeleteServiceButton({ service }: { service: ServiceRow }) {
+  const [isPending, startTransition] = useTransition();
+  return (
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      aria-label={`Delete ${service.name}`}
+      disabled={isPending}
+      className="text-muted-foreground hover:text-destructive"
+      onClick={() => {
+        if (!window.confirm(`Delete "${service.name}"? This can't be undone.`)) return;
+        startTransition(async () => {
+          const result = await deleteService(service.id);
+          if (result?.error) {
+            notify.error("Couldn't delete", result.error);
+            return;
+          }
+          notify.success("Service deleted");
+        });
+      }}
+    >
+      <Trash2 className="size-4" />
+    </Button>
+  );
+}
+
 function ServiceTableRow({
   service,
   canManage,
@@ -177,9 +203,12 @@ function ServiceTableRow({
       </TableCell>
       <TableCell>
         {canManage && (
-          <Button variant="ghost" size="icon-sm" aria-label="Edit service" onClick={onEdit}>
-            <Pencil className="size-4" />
-          </Button>
+          <div className="flex items-center gap-0.5">
+            <Button variant="ghost" size="icon-sm" aria-label="Edit service" onClick={onEdit}>
+              <Pencil className="size-4" />
+            </Button>
+            <DeleteServiceButton service={service} />
+          </div>
         )}
       </TableCell>
     </TableRow>
