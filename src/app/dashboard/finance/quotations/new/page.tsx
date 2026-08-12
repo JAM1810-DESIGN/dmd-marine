@@ -41,6 +41,10 @@ import {
   DECK_SCOPE,
   DECK_REPORTING,
   DECK_CONDITIONS,
+  NAV_ITEMS,
+  NAV_SCOPE,
+  NAV_REPORTING,
+  NAV_CONDITIONS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -188,6 +192,17 @@ export default async function NewQuotationPage({
               items: DECK_ITEMS,
             }
           : undefined,
+        navAudit: name.includes("navigation audit")
+          ? {
+              scopeTitle: "Scope of Audit",
+              scope: NAV_SCOPE,
+              reporting: NAV_REPORTING,
+              exclusions: [],
+              conditions: NAV_CONDITIONS,
+              items: NAV_ITEMS,
+              location: "Philippines – Port / Anchorage / At Sea",
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
@@ -196,7 +211,8 @@ export default async function NewQuotationPage({
         customDocs.cargoHold ??
         customDocs.mentoring ??
         customDocs.btm ??
-        customDocs.deck;
+        customDocs.deck ??
+        customDocs.navAudit;
       if (doc) {
         return {
           key: service.id,

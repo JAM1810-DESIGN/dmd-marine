@@ -528,6 +528,57 @@ export const DECK_CONDITIONS = [
   "8. Any requirements outside the stated scope will be subject to a separate quotation.",
 ].join("\n");
 
+// ── Navigational Audit ─────────────────────────────────────────────────────
+export const NAV_ITEMS: QuotationItemDefault[] = [
+  { description: "Navigational Audit – Port (per day)", quantity: 1, unitPrice: 500 },
+  { description: "Navigational Audit – Anchorage (per day)", quantity: 0, unitPrice: 600 },
+  { description: "Navigational Audit – At Sea (per day)", quantity: 0, unitPrice: 700 },
+  { description: "Additional day / re-audit (per day)", quantity: 0, unitPrice: 400 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 50 },
+  { description: "Night / weekend / public holiday attendance (per hour)", quantity: 0, unitPrice: 75 },
+  { description: "Transportation / port access / permits (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const NAV_SCOPE = [
+  "The navigational audit will generally cover:",
+  "Bridge team organisation and watchkeeping practices.",
+  "Passage planning and voyage preparation.",
+  "ECDIS, radar and navigational equipment practices.",
+  "Position fixing and cross-checking procedures.",
+  "Compliance with COLREGs and safe navigation practices.",
+  "Master's standing orders and night orders.",
+  "Bridge procedures, checklists and records.",
+  "Pilotage and Master–Pilot exchange of information.",
+  "Arrival, departure and anchoring procedures.",
+  "Navigational risk assessment.",
+  "Bridge team communication and workload management.",
+  "Review of relevant navigational records and documentation.",
+  "Identification of deficiencies, unsafe practices and areas requiring improvement.",
+];
+
+export const NAV_REPORTING = [
+  "Attendance by a qualified maritime professional.",
+  "Review and assessment of navigational practices.",
+  "Review of relevant bridge records and documentation.",
+  "Identification of observations and deficiencies.",
+  "Practical recommendations and corrective actions.",
+  "Photographs of significant findings, where appropriate.",
+  "Preparation of a Navigational Audit Report.",
+  "Submission of the report in PDF format by email.",
+];
+
+export const NAV_CONDITIONS = [
+  "1. The above rates are based on one attendance of up to 8 hours per day.",
+  "2. For audits requiring 2 or more days, the applicable daily rate will be charged for each day of attendance.",
+  "3. Additional days or re-audits will be charged at the applicable additional-day rate.",
+  "4. Waiting time exceeding 2 hours due to vessel, port, terminal, pilot or operational delays will be charged at USD 50.00/hour.",
+  "5. Night attendance, weekends and public holidays will attract additional charges.",
+  "6. Transportation, port passes, permits, accommodation and other third-party expenses will be charged at cost where applicable.",
+  "7. The audit is an independent navigational assessment and does not constitute a Class, Flag State, statutory or Port State Control inspection.",
+  "8. No calibration, repair or specialist testing of navigational equipment is included.",
+  "9. Any additional requirements outside the stated scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +
