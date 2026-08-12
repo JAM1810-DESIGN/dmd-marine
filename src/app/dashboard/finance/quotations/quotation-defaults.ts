@@ -44,6 +44,46 @@ export const VESSEL_CONDITION_ITEMS: QuotationItemDefault[] = [
   { description: "Transportation / port access / special permits (at cost)", quantity: 0, unitPrice: 0 },
 ];
 
+export const VESSEL_CONDITION_SCOPE = [
+  "General condition and appearance of the vessel.",
+  "Hull and external structure, as accessible.",
+  "Main deck, weather decks and superstructure.",
+  "Accommodation and common areas.",
+  "Navigation bridge and navigational equipment, visually inspected.",
+  "Engine room and machinery spaces.",
+  "Main engine and auxiliary machinery, visual condition.",
+  "Pumps, piping and associated equipment, where accessible.",
+  "Cargo holds / tanks, where accessible and safe to inspect.",
+  "Mooring equipment, anchors and anchoring arrangements.",
+  "Cargo handling equipment, where fitted.",
+  "Lifesaving and firefighting equipment, visual condition.",
+  "General safety and housekeeping condition.",
+  "Evidence of corrosion, leakage, damage, deterioration or deficiencies.",
+  "Relevant certificates and records made available on board.",
+  "Photographic documentation of significant findings.",
+];
+
+export const VESSEL_CONDITION_REPORTING = [
+  "Attendance and inspection by a qualified marine surveyor.",
+  "Detailed inspection notes and observations.",
+  "Photographs of relevant findings.",
+  "Identification of apparent defects, deficiencies and areas requiring attention.",
+  "Preparation of a Vessel Condition Inspection Report.",
+  "Submission of the report in PDF format by email.",
+];
+
+export const VESSEL_CONDITION_CONDITIONS = [
+  "1. The above rates are based on one vessel attendance and an inspection duration of up to 6 hours.",
+  "2. The inspection is limited to areas that are safely accessible at the time of attendance.",
+  "3. No dismantling, opening-up, testing or specialist examination is included unless specifically agreed.",
+  "4. Waiting time exceeding 2 hours due to vessel, terminal, port or other operational delays will be charged at the applicable hourly rate.",
+  "5. Launch/boat hire, transportation, port passes, permits and other third-party expenses will be charged at cost where applicable.",
+  "6. Attendance outside normal working hours, weekends and public holidays will attract additional charges.",
+  "7. Any additional attendance or re-inspection will be charged separately.",
+  "8. The inspection is a visual condition assessment and does not constitute a class, statutory, thickness measurement, machinery performance or valuation survey unless specifically included in the scope.",
+  "9. Any additional requirements outside the stated scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +

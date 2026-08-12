@@ -36,7 +36,9 @@ export default async function QuotationPage({ params }: { params: Promise<{ id: 
     validityDays: quotation.validityDays,
     paymentTerms: quotation.paymentTerms,
     conditions: quotation.conditions,
+    scopeTitle: quotation.scopeTitle,
     scope: quotation.scope,
+    reporting: quotation.reporting,
     taxRatePercent: Number(quotation.taxRatePercent),
     customerId: quotation.customerId,
     items: quotation.items.map((i) => ({

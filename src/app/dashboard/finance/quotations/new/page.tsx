@@ -11,6 +11,9 @@ import {
   DEFAULT_ITEMS,
   DEFAULT_ADDITIONAL_ITEMS,
   VESSEL_CONDITION_ITEMS,
+  VESSEL_CONDITION_SCOPE,
+  VESSEL_CONDITION_REPORTING,
+  VESSEL_CONDITION_CONDITIONS,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
 
@@ -90,8 +93,10 @@ export default async function NewQuotationPage({
         hint: base > 0 ? `From ${php(base)}` : "On request",
         title: service.name,
         currency: isVesselCondition ? "USD" : "PHP",
-        scope,
-        conditions: GENERIC_CONDITIONS,
+        scopeTitle: isVesselCondition ? "Scope of Inspection" : "Scope of survey",
+        scope: isVesselCondition ? VESSEL_CONDITION_SCOPE : scope,
+        reporting: isVesselCondition ? VESSEL_CONDITION_REPORTING : [],
+        conditions: isVesselCondition ? VESSEL_CONDITION_CONDITIONS : GENERIC_CONDITIONS,
         items,
       };
     }),
@@ -114,7 +119,9 @@ export default async function NewQuotationPage({
     const template: QuotationTemplate = {
       title: def.title,
       currency: def.currency,
+      scopeTitle: def.scopeTitle,
       scope: def.scope,
+      reporting: def.reporting,
       conditions: def.conditions,
       items: def.items,
     };

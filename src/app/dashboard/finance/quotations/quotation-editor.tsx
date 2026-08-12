@@ -21,7 +21,9 @@ export type QuotationRecord = {
   validityDays: number;
   paymentTerms: string | null;
   conditions: string | null;
+  scopeTitle: string | null;
   scope: string[];
+  reporting: string[];
   taxRatePercent: number;
   customerId: string | null;
   items: { description: string; quantity: number; unitPrice: number }[];
@@ -32,7 +34,9 @@ type ItemState = { description: string; quantity: number; unitPrice: number };
 export type QuotationTemplate = {
   title: string;
   currency: string;
+  scopeTitle?: string;
   scope: string[];
+  reporting?: string[];
   conditions: string;
   items: ItemState[];
 };
@@ -67,8 +71,14 @@ export function QuotationEditor({
   const [conditions, setConditions] = useState(quotation?.conditions ?? template?.conditions ?? DEFAULT_CONDITIONS);
   const [taxRatePercent, setTaxRatePercent] = useState(quotation?.taxRatePercent ?? 0);
   const [customerId, setCustomerId] = useState(quotation?.customerId ?? "");
+  const [scopeTitle, setScopeTitle] = useState(
+    quotation?.scopeTitle ?? template?.scopeTitle ?? "Scope of survey",
+  );
   const [scope, setScope] = useState<string[]>(
     quotation?.scope?.length ? quotation.scope : (template?.scope ?? DEFAULT_SCOPE),
+  );
+  const [reporting, setReporting] = useState<string[]>(
+    quotation?.reporting?.length ? quotation.reporting : (template?.reporting ?? []),
   );
   const [items, setItems] = useState<ItemState[]>(
     quotation?.items?.length
@@ -150,6 +160,8 @@ export function QuotationEditor({
       <input type="hidden" name="validityDays" value={String(validityDays)} readOnly />
       <input type="hidden" name="paymentTerms" value={paymentTerms} readOnly />
       <input type="hidden" name="conditions" value={conditions} readOnly />
+      <input type="hidden" name="scopeTitle" value={scopeTitle} readOnly />
+      <input type="hidden" name="reporting" value={JSON.stringify(reporting)} readOnly />
 
       {/* The printable document */}
       <div className="print-doc mx-auto w-full max-w-3xl overflow-hidden rounded-xl bg-white text-neutral-900 ring-1 ring-foreground/10">
@@ -229,8 +241,9 @@ export function QuotationEditor({
             </div>
           </div>
 
-          <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
-            2. Scope of survey
+          <div className="mb-2 mt-5 flex items-center gap-1 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
+            <span>2.</span>
+            <input value={scopeTitle} onChange={(e) => setScopeTitle(e.target.value)} className="flex-1 bg-transparent uppercase tracking-wide outline-none" />
           </div>
           <ul className="flex flex-col gap-1">
             {scope.map((line, index) => (
@@ -247,10 +260,32 @@ export function QuotationEditor({
             <Plus className="size-3.5" /> Add scope line
           </button>
 
+          {reporting.length > 0 && (
+            <>
+              <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
+                3. Reporting
+              </div>
+              <ul className="flex flex-col gap-1">
+                {reporting.map((line, index) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-neutral-400" />
+                    <input value={line} onChange={(e) => setReporting((cur) => cur.map((l, i) => (i === index ? e.target.value : l)))} className="w-full bg-transparent outline-none" />
+                    <button type="button" aria-label="Remove reporting line" onClick={() => setReporting((cur) => cur.filter((_, i) => i !== index))} className="no-print text-neutral-400 hover:text-red-600">
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <button type="button" onClick={() => setReporting((cur) => [...cur, ""])} className="no-print mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline">
+                <Plus className="size-3.5" /> Add reporting line
+              </button>
+            </>
+          )}
+
           <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
-            3. Commercial conditions
+            {reporting.length > 0 ? "4." : "3."} Commercial conditions
           </div>
-          <textarea value={conditions} onChange={(e) => setConditions(e.target.value)} rows={4} className="w-full rounded border border-border bg-transparent p-2 text-sm outline-none focus:border-ring" />
+          <textarea value={conditions} onChange={(e) => setConditions(e.target.value)} rows={reporting.length > 0 ? 10 : 4} className="w-full rounded border border-border bg-transparent p-2 text-sm outline-none focus:border-ring" />
           <div className="mt-2 grid grid-cols-2 gap-3 text-sm">
             <label className="flex items-center gap-2"><span className="shrink-0 text-neutral-500">Validity (days)</span><input type="number" min="0" value={validityDays} onChange={(e) => setValidityDays(Number(e.target.value) || 0)} className={inp + " w-20"} /></label>
             <label className="flex items-center gap-2"><span className="shrink-0 text-neutral-500">Payment terms</span><input value={paymentTerms} onChange={(e) => setPaymentTerms(e.target.value)} className={inp} /></label>

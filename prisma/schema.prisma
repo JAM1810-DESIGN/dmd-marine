@@ -958,7 +958,12 @@ model Quotation {
   validityDays   Int             @default(30)
   paymentTerms   String?
   conditions     String?
+  // Heading for the scope section (e.g. "Scope of survey" or "Scope of
+  // Inspection"); null falls back to the default heading.
+  scopeTitle     String?
   scope          String[]
+  // Optional "Reporting" / deliverables section, one bullet per entry.
+  reporting      String[]
   // Optional charges shown on the quotation (label + free-text rate, e.g.
   // "Waiting time exceeding 2 hours" / "USD 50.00/hour"). Stored as a JSON
   // array of { label, charge }.

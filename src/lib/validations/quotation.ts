@@ -17,7 +17,9 @@ export const quotationSchema = z.object({
   validityDays: z.coerce.number().int().min(0).default(30),
   paymentTerms: z.string().optional(),
   conditions: z.string().optional(),
+  scopeTitle: z.string().optional(),
   scope: z.array(z.string()).default([]),
+  reporting: z.array(z.string()).default([]),
   notes: z.string().optional(),
   taxRatePercent: z.coerce.number().min(0).max(100).default(0),
   customerId: z
