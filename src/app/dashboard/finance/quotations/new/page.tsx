@@ -49,6 +49,11 @@ import {
   COMENTOR_SCOPE,
   COMENTOR_SECTIONS,
   COMENTOR_CONDITIONS,
+  DRAFTFORM_ITEMS,
+  DRAFTFORM_SCOPE,
+  DRAFTFORM_SECTIONS,
+  DRAFTFORM_CONDITIONS,
+  DRAFTFORM_PAYMENT_TERMS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -221,6 +226,20 @@ export default async function NewQuotationPage({
               paymentTerms: MENTORING_PAYMENT_TERMS,
             }
           : undefined,
+        draftForm: name.includes("vessel-specific draft survey")
+          ? {
+              title: "Vessel-Specific Draft Survey Form Development",
+              scopeTitle: "Scope of Service",
+              scope: DRAFTFORM_SCOPE,
+              reporting: [],
+              exclusions: [],
+              sections: DRAFTFORM_SECTIONS,
+              conditions: DRAFTFORM_CONDITIONS,
+              items: DRAFTFORM_ITEMS,
+              location: "Online / Remote",
+              paymentTerms: DRAFTFORM_PAYMENT_TERMS,
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
@@ -231,7 +250,8 @@ export default async function NewQuotationPage({
         customDocs.btm ??
         customDocs.deck ??
         customDocs.navAudit ??
-        customDocs.chiefMentoring;
+        customDocs.chiefMentoring ??
+        customDocs.draftForm;
       if (doc) {
         return {
           key: service.id,

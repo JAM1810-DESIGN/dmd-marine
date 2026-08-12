@@ -636,6 +636,72 @@ export const COMENTOR_CONDITIONS = [
   "7. Physical attendance, travel or additional training outside the stated scope will be subject to a separate quotation.",
 ].join("\n");
 
+// ── Vessel-Specific Draft Survey Form Development ──────────────────────────
+export const DRAFTFORM_ITEMS: QuotationItemDefault[] = [
+  { description: "Vessel-Specific Draft Survey Form Development", quantity: 1, unitPrice: 300 },
+  { description: "Additional revision / modification (per revision)", quantity: 0, unitPrice: 50 },
+  { description: "Additional vessel / separate form (per vessel)", quantity: 0, unitPrice: 200 },
+];
+
+export const DRAFTFORM_SCOPE = [
+  "The service is intended for Chief Officers who require a draft survey form specifically prepared for their vessel.",
+  "The service will generally include:",
+  "Review of vessel particulars and relevant information provided by the Chief Officer.",
+  "Development of a vessel-specific draft survey calculation form.",
+  "Incorporation of vessel-specific draft marks and applicable information.",
+  "Preparation of ballast, fresh water, fuel oil and other relevant correction fields.",
+  "Hydrostatic data input, where provided.",
+  "Preparation of displacement and deadweight calculation fields.",
+  "Trim and density correction sections, where applicable.",
+  "Forward, aft and midship draft entry sections.",
+  "Mean draft and corrected mean draft calculation fields.",
+  "Final displacement and cargo quantity calculation sections.",
+  "Clear and practical layout for onboard use.",
+  "Digital form suitable for computer or tablet use.",
+  "Basic instructions for completing the form.",
+];
+
+export const DRAFTFORM_SECTIONS: QuotationSection[] = [
+  {
+    title: "Deliverables",
+    lines: [
+      "The USD 300.00 fee includes:",
+      "One vessel-specific draft survey form.",
+      "Online consultation with the Chief Officer.",
+      "Incorporation of vessel particulars and data supplied by the client.",
+      "Calculation structure and formulas, where applicable.",
+      "One round of reasonable corrections following review.",
+      "Final electronic copy in an agreed format.",
+    ],
+  },
+  {
+    title: "Information Required",
+    lines: [
+      "The Chief Officer will be requested to provide the relevant vessel information, which may include:",
+      "Vessel particulars.",
+      "Hydrostatic tables / curves.",
+      "Deadweight information.",
+      "Draft marks and locations.",
+      "Tank capacities and relevant tank data.",
+      "Lightship / constant information, where applicable.",
+      "Fresh water and seawater density information.",
+      "Any existing draft survey forms or calculations used onboard.",
+    ],
+  },
+];
+
+export const DRAFTFORM_CONDITIONS = [
+  "1. The service is provided on an online / remote basis.",
+  "2. The USD 300.00 fee applies to one vessel-specific draft survey form.",
+  "3. The accuracy of the completed form depends on the accuracy and completeness of the vessel data supplied by the client.",
+  "4. The service does not include an onboard draft survey or physical verification of vessel particulars.",
+  "5. Hydrostatic data, tank data and other vessel-specific information must be provided by the client or obtained from authorised vessel documentation.",
+  "6. The completed form is intended as a practical operational tool and does not replace the Company's approved procedures or any statutory, Class or cargo survey requirements.",
+  "7. Any substantial redesign, additional calculation requirements or additional vessel forms will be subject to a separate quotation.",
+].join("\n");
+
+export const DRAFTFORM_PAYMENT_TERMS = "Payment in advance before commencement of the development work.";
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +
