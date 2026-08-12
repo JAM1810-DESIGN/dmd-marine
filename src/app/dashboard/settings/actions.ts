@@ -134,13 +134,20 @@ export async function deleteUser(id: string): Promise<ActionState> {
     await db.user.delete({ where: { id } });
   } catch (error) {
     // Required relations (Projects, Expenses, Schedules the user owns) block a
-    // hard delete. Point the admin at Deactivate instead of failing opaquely.
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+    // hard delete. The pg adapter can surface this as P2003 or as a raw driver
+    // error, so never re-throw — that would crash the page. Return a message
+    // pointing the admin at Deactivate instead.
+    const isForeignKey =
+      error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003";
+    if (isForeignKey) {
       return {
         error: "This account owns projects, expenses, or schedules and can't be deleted. Deactivate it instead.",
       };
     }
-    throw error;
+    console.error("deleteUser failed", error);
+    return {
+      error: "Couldn't delete this account — it's likely linked to existing records. Deactivate it instead.",
+    };
   }
 
   await logAudit({
