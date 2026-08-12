@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Printer, Plus, Trash2, Save } from "lucide-react";
+import { Printer, Plus, Trash2, Save, Mail, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { notify } from "@/lib/notify";
 import { createQuotation, updateQuotation, type ActionState } from "./actions";
@@ -129,6 +129,46 @@ export function QuotationEditor({
 
   const inp = "w-full rounded border border-border bg-transparent px-1.5 py-0.5 text-sm outline-none focus:border-ring";
 
+  // Short, email-friendly summary of the quotation for the message body. The
+  // full document goes as the printed PDF attachment.
+  function buildSummary() {
+    const ref = quotation?.quoteNumber ?? "";
+    const lines = [
+      "Dear Sir / Ma'am,",
+      "",
+      `Please find our quotation ${ref}${ref ? " " : ""}for ${title}.`,
+      "",
+      ...items
+        .filter((it) => it.description.trim())
+        .map((it) => `- ${it.description}: ${currency} ${money(it.quantity * it.unitPrice)}`),
+      "",
+      `Total: ${currency} ${money(total)}`,
+      `Validity: ${validityDays} days`,
+      `Payment terms: ${paymentTerms}`,
+      "",
+      "The detailed quotation is attached as a PDF.",
+      "",
+      "Best regards,",
+      "DMD Marine Consultation & Services",
+    ];
+    return lines.join("\n");
+  }
+
+  function emailQuotation() {
+    const subject = `Quotation ${quotation?.quoteNumber ?? ""} — ${title}`.replace(/\s+—/, " —").trim();
+    const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(buildSummary())}`;
+    window.location.href = url;
+  }
+
+  async function copySummary() {
+    try {
+      await navigator.clipboard.writeText(buildSummary());
+      notify.success("Copied", "Quotation summary copied — paste it into a message.");
+    } catch {
+      notify.error("Couldn't copy", "Your browser blocked clipboard access.");
+    }
+  }
+
   return (
     <form action={formAction} className="flex flex-col gap-4">
       {/* Toolbar (not printed) */}
@@ -151,6 +191,18 @@ export function QuotationEditor({
           </label>
         </div>
         <div className="flex items-center gap-2">
+          {existing && (
+            <>
+              <Button type="button" variant="outline" size="sm" onClick={emailQuotation} title="Email this quotation (attach the PDF you print)">
+                <Mail className="size-4" />
+                Email
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={copySummary} title="Copy a summary to paste into a message">
+                <Copy className="size-4" />
+                Copy
+              </Button>
+            </>
+          )}
           <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="size-4" />
             Print / PDF
