@@ -17,17 +17,22 @@ export const DEFAULT_SCOPE = [
   "Preparation and issuance of an On-Hire / Off-Hire Bunker Survey Report (PDF by email).",
 ];
 
-// Default line items for the Bunker Survey template: the base survey plus the
-// standard additional charges as their own rows. The extras default to qty 0 so
-// they list on the quotation (numbered 2, 3, …) without inflating the total —
-// staff set a qty when the charge applies and it flows into the Total.
-export const DEFAULT_ITEMS: { description: string; quantity: number; unitPrice: number }[] = [
-  { description: "On/Off-Hire Bunker Survey – Port", quantity: 1, unitPrice: 350 },
+// Standard bunker-survey extra charges as their own line rows. They default to
+// qty 0 so they list on the quotation (numbered after the base row) without
+// inflating the total — staff set a qty when the charge applies and it flows
+// into the Total.
+export const DEFAULT_ADDITIONAL_ITEMS: { description: string; quantity: number; unitPrice: number }[] = [
   { description: "Additional attendance / re-attendance", quantity: 0, unitPrice: 250 },
   { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 50 },
   { description: "Attendance outside normal working hours / weekends / holidays (per hour)", quantity: 0, unitPrice: 75 },
   { description: "Launch / boat transfer, if required (at cost)", quantity: 0, unitPrice: 0 },
   { description: "Transportation / special access charges, if applicable (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+// The hardcoded Bunker Survey template: base survey row + the extras.
+export const DEFAULT_ITEMS: { description: string; quantity: number; unitPrice: number }[] = [
+  { description: "On/Off-Hire Bunker Survey – Port", quantity: 1, unitPrice: 350 },
+  ...DEFAULT_ADDITIONAL_ITEMS,
 ];
 
 export const DEFAULT_CONDITIONS =

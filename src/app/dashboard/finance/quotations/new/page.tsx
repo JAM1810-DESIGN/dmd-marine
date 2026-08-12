@@ -9,6 +9,7 @@ import {
   DEFAULT_SCOPE,
   DEFAULT_CONDITIONS,
   DEFAULT_ITEMS,
+  DEFAULT_ADDITIONAL_ITEMS,
   type QuotationTemplate,
 } from "../quotation-editor";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -62,6 +63,12 @@ export default async function NewQuotationPage({
       const scope = service.scope
         ? service.scope.split(/\r?\n+/).map((s) => s.trim()).filter(Boolean)
         : [];
+      // Bunker survey services carry the same standard extra-charge rows as the
+      // hardcoded Bunker Survey template.
+      const isBunker = /bunker/i.test(service.name);
+      const items = isBunker
+        ? [{ description: service.name, quantity: 1, unitPrice: base }, ...DEFAULT_ADDITIONAL_ITEMS]
+        : [{ description: service.name, quantity: 1, unitPrice: base }];
       return {
         key: service.id,
         label: service.name,
@@ -71,7 +78,7 @@ export default async function NewQuotationPage({
         currency: "PHP",
         scope,
         conditions: GENERIC_CONDITIONS,
-        items: [{ description: service.name, quantity: 1, unitPrice: base }],
+        items,
       };
     }),
     {
