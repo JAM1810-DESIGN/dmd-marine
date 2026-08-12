@@ -702,6 +702,63 @@ export const DRAFTFORM_CONDITIONS = [
 
 export const DRAFTFORM_PAYMENT_TERMS = "Payment in advance before commencement of the development work.";
 
+// ── On-Hire / Off-Hire Condition Survey ────────────────────────────────────
+export const ONHIRE_ITEMS: QuotationItemDefault[] = [
+  { description: "On-Hire Survey – Port", quantity: 1, unitPrice: 600 },
+  { description: "Off-Hire Survey – Port", quantity: 0, unitPrice: 600 },
+  { description: "On-Hire / Off-Hire Survey – Anchorage", quantity: 0, unitPrice: 750 },
+  { description: "On-Hire / Off-Hire Survey – Shipyard", quantity: 0, unitPrice: 600 },
+  { description: "Additional attendance / re-attendance", quantity: 0, unitPrice: 350 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 60 },
+  { description: "Night / weekend / public holiday attendance (per hour)", quantity: 0, unitPrice: 100 },
+  { description: "Launch / boat transfer to anchorage (at cost)", quantity: 0, unitPrice: 0 },
+  { description: "Transportation / port access / special permits (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const ONHIRE_SCOPE = [
+  "The On-Hire / Off-Hire survey will generally cover:",
+  "General condition and appearance of the vessel.",
+  "Hull and external areas, as accessible.",
+  "Main deck and weather decks.",
+  "Accommodation and common areas.",
+  "Navigation bridge and equipment, visually inspected.",
+  "Engine room and machinery spaces, where accessible.",
+  "Cargo holds / tanks, where applicable and safely accessible.",
+  "Deck machinery and equipment.",
+  "Mooring equipment, anchors and anchoring arrangements.",
+  "Cargo handling equipment, where fitted.",
+  "Lifesaving and firefighting equipment, visually inspected.",
+  "General cleanliness and housekeeping condition.",
+  "Evidence of damage, corrosion, leakage or deterioration.",
+  "Recording of existing damage and defects.",
+  "Comparison of condition at the relevant handover or redelivery stage.",
+  "Photographic documentation of significant findings.",
+  "Review of relevant vessel records made available.",
+];
+
+export const ONHIRE_REPORTING = [
+  "Attendance by a qualified marine surveyor.",
+  "Visual condition assessment of accessible areas.",
+  "Recording of apparent defects, damages and deficiencies.",
+  "Photographs of relevant findings.",
+  "Preparation of an On-Hire / Off-Hire Condition Survey Report.",
+  "Clear identification of significant condition differences, where applicable.",
+  "Submission of the report in PDF format by email.",
+];
+
+export const ONHIRE_CONDITIONS = [
+  "1. The above rates are based on one vessel attendance and an inspection duration of up to 6 hours.",
+  "2. The survey is limited to areas that are safely accessible at the time of attendance.",
+  "3. No dismantling, opening-up, testing, thickness measurement or specialist examination is included unless specifically agreed.",
+  "4. Waiting time exceeding 2 hours due to vessel, terminal, port or operational delays will be charged at USD 60.00/hour.",
+  "5. Night attendance, weekends and public holidays will attract additional charges.",
+  "6. Launch/boat hire, transportation, port passes, permits and other third-party expenses will be charged at cost.",
+  "7. Additional attendance or re-inspection will be charged separately.",
+  "8. The survey is a visual condition assessment and does not constitute a Class, statutory, machinery performance, valuation or structural survey unless specifically agreed.",
+  "9. The survey report records the condition observed at the time and place of attendance and is not intended to determine latent defects or defects not reasonably accessible during the survey.",
+  "10. Any additional requirements outside the stated scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +

@@ -54,6 +54,10 @@ import {
   DRAFTFORM_SECTIONS,
   DRAFTFORM_CONDITIONS,
   DRAFTFORM_PAYMENT_TERMS,
+  ONHIRE_ITEMS,
+  ONHIRE_SCOPE,
+  ONHIRE_REPORTING,
+  ONHIRE_CONDITIONS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -240,6 +244,17 @@ export default async function NewQuotationPage({
               paymentTerms: DRAFTFORM_PAYMENT_TERMS,
             }
           : undefined,
+        onHire: name.includes("on-hire") || name.includes("off-hire")
+          ? {
+              title: "On-Hire / Off-Hire Condition Survey",
+              scopeTitle: "Scope of Survey",
+              scope: ONHIRE_SCOPE,
+              reporting: ONHIRE_REPORTING,
+              exclusions: [],
+              conditions: ONHIRE_CONDITIONS,
+              items: ONHIRE_ITEMS,
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
@@ -251,7 +266,8 @@ export default async function NewQuotationPage({
         customDocs.deck ??
         customDocs.navAudit ??
         customDocs.chiefMentoring ??
-        customDocs.draftForm;
+        customDocs.draftForm ??
+        customDocs.onHire;
       if (doc) {
         return {
           key: service.id,
