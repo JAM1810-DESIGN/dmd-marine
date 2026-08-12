@@ -84,6 +84,55 @@ export const VESSEL_CONDITION_CONDITIONS = [
   "9. Any additional requirements outside the stated scope will be subject to a separate quotation.",
 ].join("\n");
 
+// ── Cargo Operation Support ────────────────────────────────────────────────
+export const CARGO_ITEMS: QuotationItemDefault[] = [
+  { description: "Cargo Loading Operation Support – Port (per day)", quantity: 1, unitPrice: 600 },
+  { description: "Cargo Discharging Operation Support – Port (per day)", quantity: 0, unitPrice: 600 },
+  { description: "Loading / Discharging Operation – Anchorage (per day)", quantity: 0, unitPrice: 750 },
+  { description: "Additional operation day / continuation (per day)", quantity: 0, unitPrice: 500 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 60 },
+  { description: "Night attendance / weekend / public holiday (per hour)", quantity: 0, unitPrice: 100 },
+  { description: "Launch / boat transfer to anchorage (at cost)", quantity: 0, unitPrice: 0 },
+  { description: "Transportation / port access / special permits (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const CARGO_SCOPE = [
+  "Pre-operation review and discussion of cargo operations.",
+  "Monitoring of cargo loading and/or discharging operations.",
+  "Monitoring of loading/discharging sequence and operational progress.",
+  "Coordination with the Master, Chief Officer, terminal and relevant parties.",
+  "Observation of cargo handling equipment and connections, where applicable.",
+  "Monitoring of cargo and ballast-related operational considerations.",
+  "Identification of apparent operational risks, damage or deficiencies.",
+  "General operational advice to the vessel's Master and deck team.",
+  "Assistance with cargo operation documentation and records.",
+  "Photographic documentation of significant findings, where required.",
+];
+
+export const CARGO_REPORTING = [
+  "Daily attendance by a qualified marine professional.",
+  "Monitoring and operational support during the agreed attendance period.",
+  "Daily operational observations, where required.",
+  "Photographs of significant findings.",
+  "Identification of apparent deficiencies or operational concerns.",
+  "Preparation of a Cargo Operation Support Report upon completion.",
+  "Submission of the report in PDF format by email.",
+];
+
+export const CARGO_CONDITIONS = [
+  "1. The above rates are based on up to 8 hours of attendance per operational day.",
+  "2. The number of operational days will be based on the actual loading/discharging schedule and may be extended upon request.",
+  "3. For operations extending beyond the initially quoted period, each additional day will be charged at the applicable Additional Operation Day rate.",
+  "4. Waiting time exceeding 2 hours due to vessel, terminal, cargo, port or other operational delays will be charged at USD 60.00/hour.",
+  "5. Night attendance, weekends and public holidays will attract additional charges as stated above.",
+  "6. Launch/boat hire, transportation, port passes, permits and other third-party expenses will be charged at cost where applicable.",
+  "7. The service is provided as operational support and advisory assistance and does not replace the responsibilities of the Master, Chief Officer, terminal or cargo interests.",
+  "8. The service does not include independent cargo quantity measurement, draft survey, ullage survey, cargo condition survey, laboratory testing or certification unless specifically agreed.",
+  "9. Any additional requirements outside the stated scope will be subject to a separate quotation.",
+  "",
+  "Examples (illustrative): 2-day port operation – USD 1,100.00; 3-day port operation – USD 1,600.00; 2-day anchorage operation – USD 1,350.00; 3-day anchorage operation – USD 1,850.00.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +

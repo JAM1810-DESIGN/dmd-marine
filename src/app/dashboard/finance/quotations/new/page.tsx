@@ -14,6 +14,10 @@ import {
   VESSEL_CONDITION_SCOPE,
   VESSEL_CONDITION_REPORTING,
   VESSEL_CONDITION_CONDITIONS,
+  CARGO_ITEMS,
+  CARGO_SCOPE,
+  CARGO_REPORTING,
+  CARGO_CONDITIONS,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
 
@@ -68,8 +72,38 @@ export default async function NewQuotationPage({
         : [];
       const name = service.name.toLowerCase();
 
-      // Vessel Condition Inspection has its own USD rate card.
+      // Fully-specified service templates with their own USD rate card, scope,
+      // reporting section and commercial conditions.
       const isVesselCondition = name.includes("vessel condition inspection");
+      const isCargo = name.includes("cargo operation support");
+      if (isVesselCondition || isCargo) {
+        const doc = isVesselCondition
+          ? {
+              scopeTitle: "Scope of Inspection",
+              scope: VESSEL_CONDITION_SCOPE,
+              reporting: VESSEL_CONDITION_REPORTING,
+              conditions: VESSEL_CONDITION_CONDITIONS,
+              items: VESSEL_CONDITION_ITEMS,
+              location: undefined as string | undefined,
+            }
+          : {
+              scopeTitle: "Scope of Service",
+              scope: CARGO_SCOPE,
+              reporting: CARGO_REPORTING,
+              conditions: CARGO_CONDITIONS,
+              items: CARGO_ITEMS,
+              location: "Philippines – Port / Anchorage / Terminal" as string | undefined,
+            };
+        return {
+          key: service.id,
+          label: service.name,
+          category: service.category?.name ?? "Services",
+          hint: "Full rate card + scope + reporting",
+          title: service.name,
+          currency: "USD",
+          ...doc,
+        };
+      }
 
       // Other attendance-type surveys (Bunker, Draft, On-/Off-Hire) carry the
       // standard bunker extra-charge rows. "Develop … Draft Survey Form" is a
@@ -80,11 +114,9 @@ export default async function NewQuotationPage({
         name.includes("off-hire") ||
         (name.includes("draft survey") && !name.includes("develop"));
 
-      const items = isVesselCondition
-        ? VESSEL_CONDITION_ITEMS
-        : carriesExtras
-          ? [{ description: service.name, quantity: 1, unitPrice: base }, ...DEFAULT_ADDITIONAL_ITEMS]
-          : [{ description: service.name, quantity: 1, unitPrice: base }];
+      const items = carriesExtras
+        ? [{ description: service.name, quantity: 1, unitPrice: base }, ...DEFAULT_ADDITIONAL_ITEMS]
+        : [{ description: service.name, quantity: 1, unitPrice: base }];
 
       return {
         key: service.id,
@@ -92,11 +124,9 @@ export default async function NewQuotationPage({
         category: service.category?.name ?? "Services",
         hint: base > 0 ? `From ${php(base)}` : "On request",
         title: service.name,
-        currency: isVesselCondition ? "USD" : "PHP",
-        scopeTitle: isVesselCondition ? "Scope of Inspection" : "Scope of survey",
-        scope: isVesselCondition ? VESSEL_CONDITION_SCOPE : scope,
-        reporting: isVesselCondition ? VESSEL_CONDITION_REPORTING : [],
-        conditions: isVesselCondition ? VESSEL_CONDITION_CONDITIONS : GENERIC_CONDITIONS,
+        currency: "PHP",
+        scope,
+        conditions: GENERIC_CONDITIONS,
         items,
       };
     }),
@@ -119,6 +149,7 @@ export default async function NewQuotationPage({
     const template: QuotationTemplate = {
       title: def.title,
       currency: def.currency,
+      location: def.location,
       scopeTitle: def.scopeTitle,
       scope: def.scope,
       reporting: def.reporting,

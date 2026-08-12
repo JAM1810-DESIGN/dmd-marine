@@ -34,6 +34,7 @@ type ItemState = { description: string; quantity: number; unitPrice: number };
 export type QuotationTemplate = {
   title: string;
   currency: string;
+  location?: string;
   scopeTitle?: string;
   scope: string[];
   reporting?: string[];
@@ -63,7 +64,7 @@ export function QuotationEditor({
   const [billTo, setBillTo] = useState(quotation?.billTo ?? "");
   const [attention, setAttention] = useState(quotation?.attention ?? "");
   const [vesselName, setVesselName] = useState(quotation?.vesselName ?? "");
-  const [location, setLocation] = useState(quotation?.location ?? "Philippines – Port / Anchorage / Shipyard");
+  const [location, setLocation] = useState(quotation?.location ?? template?.location ?? "Philippines – Port / Anchorage / Shipyard");
   const [currency, setCurrency] = useState(quotation?.currency ?? template?.currency ?? "USD");
   const [quoteDate, setQuoteDate] = useState(quotation?.quoteDate.slice(0, 10) ?? new Date().toISOString().slice(0, 10));
   const [validityDays, setValidityDays] = useState(quotation?.validityDays ?? 30);
