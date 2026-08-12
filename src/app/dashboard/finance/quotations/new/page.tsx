@@ -37,6 +37,10 @@ import {
   BTM_SCOPE,
   BTM_REPORTING,
   BTM_CONDITIONS,
+  DECK_ITEMS,
+  DECK_SCOPE,
+  DECK_REPORTING,
+  DECK_CONDITIONS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -174,6 +178,16 @@ export default async function NewQuotationPage({
               location: "Philippines – Onboard Vessel / Port / Anchorage / At Sea",
             }
           : undefined,
+        deck: name.includes("deck operation")
+          ? {
+              scopeTitle: "Scope of Consulting",
+              scope: DECK_SCOPE,
+              reporting: DECK_REPORTING,
+              exclusions: [],
+              conditions: DECK_CONDITIONS,
+              items: DECK_ITEMS,
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
@@ -181,7 +195,8 @@ export default async function NewQuotationPage({
         customDocs.prePurchase ??
         customDocs.cargoHold ??
         customDocs.mentoring ??
-        customDocs.btm;
+        customDocs.btm ??
+        customDocs.deck;
       if (doc) {
         return {
           key: service.id,

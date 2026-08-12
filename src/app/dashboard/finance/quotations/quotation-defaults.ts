@@ -482,6 +482,52 @@ export const BTM_CONDITIONS = [
   "9. Any additional requirements outside the stated scope will be subject to a separate quotation.",
 ].join("\n");
 
+// ── Deck Operation Consulting ──────────────────────────────────────────────
+export const DECK_ITEMS: QuotationItemDefault[] = [
+  { description: "Deck Operation Consulting – Port (per day)", quantity: 1, unitPrice: 500 },
+  { description: "Deck Operation Consulting – Anchorage (per day)", quantity: 0, unitPrice: 600 },
+  { description: "Deck Operation Consulting – Shipyard (per day)", quantity: 0, unitPrice: 500 },
+  { description: "Additional day / re-attendance (per day)", quantity: 0, unitPrice: 400 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 50 },
+  { description: "Night / weekend / public holiday attendance (per hour)", quantity: 0, unitPrice: 75 },
+  { description: "Transportation / port access / permits (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const DECK_SCOPE = [
+  "The consulting will generally cover:",
+  "Review of deck operations and working practices.",
+  "Mooring and anchoring operations.",
+  "Cargo and deck operation preparation.",
+  "Deck crew organisation and supervision.",
+  "Safe working practices and risk assessment.",
+  "Permit-to-work and toolbox meeting practices.",
+  "Deck machinery and equipment operations.",
+  "Cargo securing and lashing, where applicable.",
+  "Lifting operations and safe working practices.",
+  "Housekeeping and maintenance of deck areas.",
+  "Identification of operational risks and deficiencies.",
+  "Practical advice to the Master, Chief Officer and deck team.",
+];
+
+export const DECK_REPORTING = [
+  "Attendance by a qualified maritime professional.",
+  "Operational observations and consultation.",
+  "Practical recommendations and guidance.",
+  "Photographs of significant findings, where applicable.",
+  "Brief Deck Operation Consulting Report by email.",
+];
+
+export const DECK_CONDITIONS = [
+  "1. The above rates are based on one attendance of up to 8 hours per day.",
+  "2. For operations requiring 2–3 days or longer, the applicable daily rate will be charged for each day of attendance.",
+  "3. Additional days will be charged at the applicable Additional Day / Re-attendance rate.",
+  "4. Waiting time exceeding 2 hours due to vessel, terminal, port or operational delays will be charged at USD 50.00/hour.",
+  "5. Night attendance, weekends and public holidays will attract additional charges.",
+  "6. Transportation, port passes, permits, launch/boat hire and other third-party expenses will be charged at cost.",
+  "7. The service is advisory and does not replace the operational responsibilities of the Master, Chief Officer, vessel crew or Company.",
+  "8. Any requirements outside the stated scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +
