@@ -250,6 +250,65 @@ export const PREPURCHASE_CONDITIONS = [
 export const PREPURCHASE_PAYMENT_TERMS =
   "50% upon confirmation and 50% upon submission of the final report, unless otherwise agreed.";
 
+// ── Cargo Hold Inspection ──────────────────────────────────────────────────
+export const CARGOHOLD_ITEMS: QuotationItemDefault[] = [
+  { description: "Cargo Hold Inspection – Port", quantity: 1, unitPrice: 600 },
+  { description: "Cargo Hold Inspection – Anchorage", quantity: 0, unitPrice: 750 },
+  { description: "Cargo Hold Inspection – Shipyard", quantity: 0, unitPrice: 600 },
+  { description: "Additional attendance / re-attendance", quantity: 0, unitPrice: 350 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 60 },
+  { description: "Night attendance / weekend / public holiday (per hour)", quantity: 0, unitPrice: 100 },
+  { description: "Launch / boat transfer to anchorage (at cost)", quantity: 0, unitPrice: 0 },
+  { description: "Transportation / port access / special permits (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const CARGOHOLD_SCOPE = [
+  "The inspection will generally cover the condition of the vessel's cargo holds and associated areas, including:",
+  "General condition and cleanliness of cargo holds.",
+  "Condition of hold tank tops, floors, bulkheads and side structures, as accessible.",
+  "Examination of hold plating and visible structural members.",
+  "Condition of hatch coamings, hatch covers and associated fittings, where accessible.",
+  "Inspection of hatch cover sealing arrangements and rubber packing, where accessible.",
+  "Condition of ladders, access arrangements, platforms and handrails.",
+  "Evidence of corrosion, wastage, cracks, deformation, damage or deterioration.",
+  "Evidence of leakage, water ingress, oil contamination or other contamination.",
+  "Condition of bilge wells, bilge covers and drainage arrangements, where accessible.",
+  "Condition of manholes, access covers and associated fittings.",
+  "Condition of cargo hold ventilation arrangements, where accessible.",
+  "Condition of hold lighting and electrical fittings, visually inspected.",
+  "Condition of cargo securing arrangements, where fitted.",
+  "Condition of tank top and areas relevant to cargo operations.",
+  "General suitability and apparent readiness of the holds for intended cargo, subject to the agreed inspection purpose.",
+  "Identification of loose scale, flaking paint, residues, standing water or other visible deficiencies.",
+  "Photographic documentation of significant findings.",
+];
+
+export const CARGOHOLD_REPORTING = [
+  "Attendance and inspection by a qualified marine surveyor.",
+  "Visual examination of accessible cargo holds and associated fittings.",
+  "Detailed inspection notes and observations.",
+  "Photographs of relevant findings.",
+  "Identification of apparent defects, deficiencies and areas requiring attention.",
+  "Assessment of the general apparent condition of the cargo holds.",
+  "Preparation of a Cargo Hold Inspection Report.",
+  "Submission of the report in PDF format by email.",
+];
+
+export const CARGOHOLD_CONDITIONS = [
+  "1. The above rates are based on one vessel attendance and an inspection duration of up to 6 hours.",
+  "2. The inspection is limited to cargo holds and associated areas that are safely accessible at the time of attendance.",
+  "3. Cargo holds must be safely accessible and, where applicable, adequately ventilated, gas-free and prepared for inspection.",
+  "4. No entry into enclosed or hazardous spaces will be undertaken unless appropriate safety requirements and permits are in place.",
+  "5. No dismantling, opening-up, testing, thickness measurement or specialist examination is included unless specifically agreed.",
+  "6. Waiting time exceeding 2 hours due to vessel, terminal, port or other operational delays will be charged at the applicable hourly rate.",
+  "7. Launch/boat hire, transportation, port passes, permits and other third-party expenses will be charged at cost where applicable.",
+  "8. Attendance outside normal working hours, weekends and public holidays will attract additional charges.",
+  "9. Any additional attendance or re-inspection will be charged separately.",
+  "10. The inspection is a visual cargo hold condition assessment and does not constitute a class, statutory, structural thickness measurement, ultrasonic testing, coating inspection, gas-free certification or cargo suitability certification unless specifically included in the scope.",
+  "11. The surveyor will not enter cargo holds or other spaces where safe access, lighting, ventilation, atmosphere or other required safety conditions are not provided.",
+  "12. Any additional requirements outside the stated scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +

@@ -24,6 +24,10 @@ import {
   PREPURCHASE_EXCLUSIONS,
   PREPURCHASE_CONDITIONS,
   PREPURCHASE_PAYMENT_TERMS,
+  CARGOHOLD_ITEMS,
+  CARGOHOLD_SCOPE,
+  CARGOHOLD_REPORTING,
+  CARGOHOLD_CONDITIONS,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
 
@@ -123,8 +127,22 @@ export default async function NewQuotationPage({
               paymentTerms: PREPURCHASE_PAYMENT_TERMS,
             }
           : undefined,
+        cargoHold: name.includes("hold inspection")
+          ? {
+              scopeTitle: "Scope of Inspection",
+              scope: CARGOHOLD_SCOPE,
+              reporting: CARGOHOLD_REPORTING,
+              exclusions: [],
+              conditions: CARGOHOLD_CONDITIONS,
+              items: CARGOHOLD_ITEMS,
+            }
+          : undefined,
       };
-      const doc = customDocs.vesselCondition ?? customDocs.cargo ?? customDocs.prePurchase;
+      const doc =
+        customDocs.vesselCondition ??
+        customDocs.cargo ??
+        customDocs.prePurchase ??
+        customDocs.cargoHold;
       if (doc) {
         return {
           key: service.id,
