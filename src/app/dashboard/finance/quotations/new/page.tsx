@@ -45,6 +45,10 @@ import {
   NAV_SCOPE,
   NAV_REPORTING,
   NAV_CONDITIONS,
+  COMENTOR_ITEMS,
+  COMENTOR_SCOPE,
+  COMENTOR_SECTIONS,
+  COMENTOR_CONDITIONS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -203,6 +207,20 @@ export default async function NewQuotationPage({
               location: "Philippines – Port / Anchorage / At Sea",
             }
           : undefined,
+        chiefMentoring: name.includes("chief officer mentoring")
+          ? {
+              title: "Individual Chief Officer Mentoring",
+              scopeTitle: "Scope of Mentoring",
+              scope: COMENTOR_SCOPE,
+              reporting: [],
+              exclusions: [],
+              sections: COMENTOR_SECTIONS,
+              conditions: COMENTOR_CONDITIONS,
+              items: COMENTOR_ITEMS,
+              location: "Online / Remote",
+              paymentTerms: MENTORING_PAYMENT_TERMS,
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
@@ -212,7 +230,8 @@ export default async function NewQuotationPage({
         customDocs.mentoring ??
         customDocs.btm ??
         customDocs.deck ??
-        customDocs.navAudit;
+        customDocs.navAudit ??
+        customDocs.chiefMentoring;
       if (doc) {
         return {
           key: service.id,

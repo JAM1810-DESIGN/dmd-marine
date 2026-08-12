@@ -579,6 +579,63 @@ export const NAV_CONDITIONS = [
   "9. Any additional requirements outside the stated scope will be subject to a separate quotation.",
 ].join("\n");
 
+// ── Individual Chief Officer Mentoring ─────────────────────────────────────
+export const COMENTOR_ITEMS: QuotationItemDefault[] = [
+  { description: "Chief Officer Mentoring – 3 Months", quantity: 1, unitPrice: 300 },
+  { description: "Chief Officer Mentoring – 6 Months", quantity: 0, unitPrice: 550 },
+  { description: "Chief Officer Mentoring – 9 Months", quantity: 0, unitPrice: 750 },
+  { description: "Chief Officer Mentoring – 12 Months", quantity: 0, unitPrice: 900 },
+];
+
+export const COMENTOR_SCOPE = [
+  "The program is designed for an officer who is newly appointed, newly promoted or preparing to take up the position of Chief Officer and requires practical guidance and professional mentoring.",
+  "The participant may start with the 3-month program and extend the mentoring period to 6, 9 or 12 months.",
+  "The mentoring will generally cover:",
+  "Chief Officer's duties and responsibilities.",
+  "Transition into the Chief Officer position.",
+  "Deck department leadership and crew management.",
+  "Cargo planning, loading and discharging operations.",
+  "Cargo care, securing and monitoring.",
+  "Stability, ballast and draft considerations.",
+  "Mooring and anchoring operations.",
+  "Deck maintenance and planned maintenance coordination.",
+  "Safety Management System and risk assessment.",
+  "Permit-to-work and toolbox meeting practices.",
+  "Enclosed space entry and safe working practices.",
+  "Preparation for PSC, Class, Flag State and Company inspections.",
+  "Management of deficiencies and corrective actions.",
+  "Communication with the Master, crew and shore management.",
+  "Supervision and delegation of deck officers and ratings.",
+  "Handling operational challenges and decision-making.",
+  "Review of practical shipboard situations and lessons learned.",
+  "Professional development and confidence building.",
+];
+
+export const COMENTOR_SECTIONS: QuotationSection[] = [
+  {
+    title: "Mentoring Service",
+    lines: [
+      "The mentoring fee includes:",
+      "One-to-one mentoring with an experienced maritime professional.",
+      "Scheduled online mentoring sessions.",
+      "Practical advice based on the participant's actual situations.",
+      "Discussion and guidance on Chief Officer responsibilities.",
+      "Review of selected documents or operational scenarios, where appropriate.",
+      "Ongoing professional support during the selected mentoring period.",
+    ],
+  },
+];
+
+export const COMENTOR_CONDITIONS = [
+  "1. The minimum mentoring period is 3 months.",
+  "2. The participant may select a 3, 6, 9 or 12-month mentoring period.",
+  "3. The mentoring is provided on an individual basis and is intended as professional guidance and support.",
+  "4. The mentoring does not replace statutory training, certification, Company SMS requirements or other mandatory requirements.",
+  "5. The participant remains responsible for operational decisions and actions taken onboard.",
+  "6. Mentoring will normally be conducted remotely by online meeting, telephone or other agreed communication method.",
+  "7. Physical attendance, travel or additional training outside the stated scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +
