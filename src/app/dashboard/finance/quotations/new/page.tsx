@@ -4,14 +4,13 @@ import { ArrowLeft } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { AccessDenied } from "@/components/shared/access-denied";
+import { QuotationEditor, type QuotationTemplate } from "../quotation-editor";
 import {
-  QuotationEditor,
   DEFAULT_SCOPE,
   DEFAULT_CONDITIONS,
   DEFAULT_ITEMS,
   DEFAULT_ADDITIONAL_ITEMS,
-  type QuotationTemplate,
-} from "../quotation-editor";
+} from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
 
 export const metadata: Metadata = { title: "New Quotation" };
