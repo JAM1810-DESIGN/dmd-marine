@@ -108,19 +108,25 @@ export async function updateUserRole(id: string, role: Role) {
   revalidatePath("/dashboard/settings");
 }
 
-export async function deleteUser(id: string) {
+// Returns (not throws) its outcome: Next masks thrown Server Action errors in
+// production, so a thrown message would never reach the client. The caller
+// surfaces `error` in a toast.
+export async function deleteUser(id: string): Promise<ActionState> {
   const session = await requireRole("ADMIN");
   if (id === session.user.id) {
-    throw new AppError("BAD_REQUEST", "You can't delete your own account.");
+    return { error: "You can't delete your own account." };
   }
 
-  const target = await db.user.findUniqueOrThrow({ where: { id } });
+  const target = await db.user.findUnique({ where: { id } });
+  if (!target) {
+    return { error: "That account no longer exists." };
+  }
 
   // Never let the last admin be removed — it would lock everyone out.
   if (target.role === "ADMIN") {
     const adminCount = await db.user.count({ where: { role: "ADMIN" } });
     if (adminCount <= 1) {
-      throw new AppError("BAD_REQUEST", "You can't delete the last admin account.");
+      return { error: "You can't delete the last admin account." };
     }
   }
 
@@ -130,10 +136,9 @@ export async function deleteUser(id: string) {
     // Required relations (Projects, Expenses, Schedules the user owns) block a
     // hard delete. Point the admin at Deactivate instead of failing opaquely.
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
-      throw new AppError(
-        "BAD_REQUEST",
-        "This account owns projects, expenses, or schedules and can't be deleted. Deactivate it instead.",
-      );
+      return {
+        error: "This account owns projects, expenses, or schedules and can't be deleted. Deactivate it instead.",
+      };
     }
     throw error;
   }
@@ -147,6 +152,7 @@ export async function deleteUser(id: string) {
   });
 
   revalidatePath("/dashboard/settings");
+  return { success: true };
 }
 
 export async function toggleUserActive(id: string, isActive: boolean) {

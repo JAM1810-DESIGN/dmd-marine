@@ -100,15 +100,12 @@ function DeleteButton({ id, name }: { id: string; name: string }) {
       onClick={() => {
         if (!window.confirm(`Delete ${name}? This can't be undone.`)) return;
         startTransition(async () => {
-          try {
-            await deleteUser(id);
-            notify.success("Account deleted");
-          } catch (error) {
-            notify.error(
-              "Couldn't delete",
-              error instanceof Error ? error.message : "Please try again.",
-            );
+          const result = await deleteUser(id);
+          if (result?.error) {
+            notify.error("Couldn't delete", result.error);
+            return;
           }
+          notify.success("Account deleted");
         });
       }}
     >
