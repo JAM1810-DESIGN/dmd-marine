@@ -226,7 +226,7 @@ export default async function CustomerDetailPage({
             {customer.bookings.map((booking) => (
               <li key={booking.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div>
-                  <p className="font-medium text-foreground">{booking.service.name}</p>
+                  <p className="font-medium text-foreground">{booking.service?.name ?? "—"}</p>
                   <p className="text-xs text-muted-foreground">{shortDate(booking.createdAt)}</p>
                 </div>
                 <Badge variant="outline">{booking.status.replace(/_/g, " ")}</Badge>

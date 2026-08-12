@@ -77,7 +77,7 @@ export default async function BookingsPage({
   const calendarBookings = calendarSource.map((booking) => ({
     id: booking.id,
     customerName: booking.customerName,
-    serviceName: booking.service.name,
+    serviceName: booking.service?.name ?? "—",
     status: booking.status,
     preferredDate: booking.preferredDate!.toISOString(),
     preferredTime: booking.preferredTime,
@@ -85,7 +85,7 @@ export default async function BookingsPage({
 
   const boardBookings = boardSource.map((booking) => ({
     id: booking.id,
-    serviceName: booking.service.name,
+    serviceName: booking.service?.name ?? "—",
     customerName: booking.customerName,
     companyName: booking.companyName,
     vesselName: booking.vesselName,
@@ -121,7 +121,7 @@ export default async function BookingsPage({
     customerEmail: booking.customerEmail,
     companyName: booking.companyName,
     vesselName: booking.vesselName,
-    serviceName: booking.service.name,
+    serviceName: booking.service?.name ?? "—",
     status: booking.status,
     assignedConsultantId: booking.assignedConsultantId,
     customerId: booking.customerId,

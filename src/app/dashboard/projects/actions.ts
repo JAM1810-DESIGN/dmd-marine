@@ -131,7 +131,9 @@ export async function createProjectFromBooking(
     },
   });
 
-  await copyServiceRequiredFormsToProject(project.id, booking.serviceId);
+  if (booking.serviceId) {
+    await copyServiceRequiredFormsToProject(project.id, booking.serviceId);
+  }
 
   revalidatePath("/dashboard/projects");
   revalidatePath("/dashboard/bookings");

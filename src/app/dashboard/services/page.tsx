@@ -105,7 +105,7 @@ export default async function ServiceManagementPage() {
           id: request.id,
           customerName: request.customerName,
           customerEmail: request.customerEmail,
-          serviceName: request.service.name,
+          serviceName: request.service?.name ?? "—",
           status: request.status,
           createdAt: request.createdAt,
         }))}

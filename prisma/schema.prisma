@@ -390,7 +390,9 @@ model Booking {
   companyName          String?
   vesselName           String?
   port                 String?
-  serviceId            String
+  // Nullable so a service can be deleted without destroying its bookings — the
+  // link is cleared (SetNull). New bookings still always set a service.
+  serviceId            String?
   preferredDate        DateTime?
   preferredTime        String?
   message              String?
@@ -404,7 +406,7 @@ model Booking {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  service            Service    @relation(fields: [serviceId], references: [id])
+  service            Service?   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   assignedConsultant User?      @relation("BookingConsultant", fields: [assignedConsultantId], references: [id], onDelete: SetNull)
   customer           Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
   company            Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)

@@ -79,7 +79,7 @@ export async function assignConsultant(
           userId: consultantId,
           type: "OTHER",
           title: "New booking assigned",
-          message: `${existing.customerName} — ${existing.service.name}`,
+          message: `${existing.customerName} — ${existing.service?.name ?? "a service"}`,
           link: "/dashboard/bookings",
         },
       });
@@ -194,7 +194,7 @@ export async function getBookingDetail(id: string): Promise<BookingDetail | null
     vesselName: booking.vesselName,
     port: booking.port,
     message: booking.message,
-    serviceName: booking.service.name,
+    serviceName: booking.service?.name ?? "—",
     status: booking.status,
     preferredDate: booking.preferredDate ? booking.preferredDate.toISOString() : null,
     preferredTime: booking.preferredTime,
@@ -253,7 +253,7 @@ export async function exportBookings(
     customerEmail: booking.customerEmail,
     companyName: booking.companyName,
     vesselName: booking.vesselName,
-    serviceName: booking.service.name,
+    serviceName: booking.service?.name ?? "—",
     status: booking.status,
     createdAt: booking.createdAt.toISOString(),
   }));

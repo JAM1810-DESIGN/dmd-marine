@@ -48,7 +48,7 @@ export async function getCompletedServices(range: DateRange) {
 
   const byService = new Map<string, number>();
   for (const booking of bookings) {
-    byService.set(booking.service.name, (byService.get(booking.service.name) ?? 0) + 1);
+    byService.set(booking.service?.name ?? "Unknown service", (byService.get(booking.service?.name ?? "Unknown service") ?? 0) + 1);
   }
 
   return Array.from(byService.entries())
@@ -110,7 +110,7 @@ export async function getPopularServices(range: DateRange) {
 
   const byService = new Map<string, number>();
   for (const booking of bookings) {
-    byService.set(booking.service.name, (byService.get(booking.service.name) ?? 0) + 1);
+    byService.set(booking.service?.name ?? "Unknown service", (byService.get(booking.service?.name ?? "Unknown service") ?? 0) + 1);
   }
 
   return Array.from(byService.entries())

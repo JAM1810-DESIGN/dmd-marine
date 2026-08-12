@@ -133,7 +133,7 @@ export default async function ConsultantDetailPage({
                   <div>
                     <p className="font-medium text-foreground">{booking.customerName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {booking.service.name} · {shortDate(booking.preferredDate)}
+                      {booking.service?.name ?? "—"} · {shortDate(booking.preferredDate)}
                     </p>
                   </div>
                   <Badge variant="outline">{booking.status.replace(/_/g, " ")}</Badge>
