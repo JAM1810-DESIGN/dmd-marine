@@ -33,6 +33,10 @@ import {
   MENTORING_SECTIONS,
   MENTORING_CONDITIONS,
   MENTORING_PAYMENT_TERMS,
+  BTM_ITEMS,
+  BTM_SCOPE,
+  BTM_REPORTING,
+  BTM_CONDITIONS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -159,13 +163,25 @@ export default async function NewQuotationPage({
               paymentTerms: MENTORING_PAYMENT_TERMS,
             }
           : undefined,
+        btm: name.includes("bridge team management")
+          ? {
+              scopeTitle: "Scope of Service",
+              scope: BTM_SCOPE,
+              reporting: BTM_REPORTING,
+              exclusions: [],
+              conditions: BTM_CONDITIONS,
+              items: BTM_ITEMS,
+              location: "Philippines – Onboard Vessel / Port / Anchorage / At Sea",
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
         customDocs.cargo ??
         customDocs.prePurchase ??
         customDocs.cargoHold ??
-        customDocs.mentoring;
+        customDocs.mentoring ??
+        customDocs.btm;
       if (doc) {
         return {
           key: service.id,

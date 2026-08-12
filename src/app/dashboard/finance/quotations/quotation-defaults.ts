@@ -428,6 +428,60 @@ export const MENTORING_CONDITIONS = [
 export const MENTORING_PAYMENT_TERMS =
   "Payment in advance for the selected mentoring period, unless otherwise agreed.";
 
+// ── Bridge Team Management Support ─────────────────────────────────────────
+export const BTM_ITEMS: QuotationItemDefault[] = [
+  { description: "Bridge Team Management Support – Port / Anchorage (per day)", quantity: 1, unitPrice: 600 },
+  { description: "Bridge Team Management Support – At Sea (per day)", quantity: 0, unitPrice: 750 },
+  { description: "Additional operation / attendance day (per day)", quantity: 0, unitPrice: 500 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 60 },
+  { description: "Night attendance / weekend / public holiday (per hour)", quantity: 0, unitPrice: 100 },
+  { description: "Travel / transportation / port access (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const BTM_SCOPE = [
+  "The Bridge Team Management support will generally cover:",
+  "Assessment of bridge team organisation and coordination.",
+  "Review of bridge team roles and responsibilities.",
+  "Bridge watchkeeping practices and effective communication.",
+  "Passage planning and voyage preparation.",
+  "Monitoring of navigational practices and situational awareness.",
+  "Application of COLREGs and safe navigation principles.",
+  "Use and management of bridge navigational equipment.",
+  "Master–Pilot information exchange and coordination.",
+  "Pilotage and arrival/departure procedures.",
+  "Bridge team communication and closed-loop communication.",
+  "Workload management and appropriate delegation.",
+  "Identification and management of navigational risks.",
+  "Monitoring of position fixing and cross-checking practices.",
+  "Radar, ECDIS and visual navigation practices, as applicable.",
+  "Anchoring and berthing/departure bridge procedures.",
+  "Emergency and contingency preparedness.",
+  "Identification of deficiencies and areas requiring improvement.",
+  "Practical coaching and recommendations to bridge team members.",
+];
+
+export const BTM_REPORTING = [
+  "Attendance by a qualified maritime professional.",
+  "Observation and assessment of bridge team practices.",
+  "Discussion and coaching with the Master and bridge team.",
+  "Identification of strengths, deficiencies and areas for improvement.",
+  "Practical recommendations for improving bridge team performance.",
+  "Preparation of a Bridge Team Management Observation Report.",
+  "Submission of the report in PDF format by email.",
+];
+
+export const BTM_CONDITIONS = [
+  "1. The above rates are based on up to 8 hours of attendance per day.",
+  "2. The service may be arranged for 1 day or extended over multiple days, depending on the vessel's operational requirements.",
+  "3. Additional attendance days will be charged at the applicable daily rate.",
+  "4. Waiting time exceeding 2 hours due to vessel, port, terminal, pilot or other operational delays will be charged at USD 60.00/hour.",
+  "5. Attendance outside normal working hours, weekends and public holidays will attract additional charges.",
+  "6. Travel, transportation, accommodation, port passes, permits and other third-party expenses will be charged at cost where applicable.",
+  "7. The service is intended as assessment, coaching and operational support and does not replace the responsibilities of the Master, bridge team or Company.",
+  "8. No navigational equipment testing, calibration, statutory certification or Class survey is included unless specifically agreed.",
+  "9. Any additional requirements outside the stated scope will be subject to a separate quotation.",
+].join("\n");
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +
