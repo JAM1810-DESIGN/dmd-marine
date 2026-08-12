@@ -244,7 +244,7 @@ export default async function NewQuotationPage({
               paymentTerms: DRAFTFORM_PAYMENT_TERMS,
             }
           : undefined,
-        onHire: name.includes("on-hire") || name.includes("off-hire")
+        onHire: name.includes("condition survey")
           ? {
               title: "On-Hire / Off-Hire Condition Survey",
               scopeTitle: "Scope of Survey",
