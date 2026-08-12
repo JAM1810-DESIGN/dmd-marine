@@ -58,6 +58,10 @@ import {
   ONHIRE_SCOPE,
   ONHIRE_REPORTING,
   ONHIRE_CONDITIONS,
+  ONHIREBUNKER_ITEMS,
+  ONHIREBUNKER_SCOPE,
+  ONHIREBUNKER_SECTIONS,
+  ONHIREBUNKER_CONDITIONS,
   type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
@@ -255,6 +259,18 @@ export default async function NewQuotationPage({
               items: ONHIRE_ITEMS,
             }
           : undefined,
+        onHireBunker: name.includes("bunker") && name.includes("hire")
+          ? {
+              title: "On-Hire / Off-Hire Bunker Survey",
+              scopeTitle: "Scope of Survey",
+              scope: ONHIREBUNKER_SCOPE,
+              reporting: [],
+              exclusions: [],
+              sections: ONHIREBUNKER_SECTIONS,
+              conditions: ONHIREBUNKER_CONDITIONS,
+              items: ONHIREBUNKER_ITEMS,
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
@@ -267,7 +283,8 @@ export default async function NewQuotationPage({
         customDocs.navAudit ??
         customDocs.chiefMentoring ??
         customDocs.draftForm ??
-        customDocs.onHire;
+        customDocs.onHire ??
+        customDocs.onHireBunker;
       if (doc) {
         return {
           key: service.id,
