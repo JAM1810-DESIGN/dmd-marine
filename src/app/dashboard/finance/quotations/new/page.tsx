@@ -10,6 +10,7 @@ import {
   DEFAULT_CONDITIONS,
   DEFAULT_ITEMS,
   DEFAULT_ADDITIONAL_ITEMS,
+  VESSEL_CONDITION_ITEMS,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
 
@@ -62,26 +63,33 @@ export default async function NewQuotationPage({
       const scope = service.scope
         ? service.scope.split(/\r?\n+/).map((s) => s.trim()).filter(Boolean)
         : [];
-      // Attendance-type surveys (Bunker, Draft, On-/Off-Hire) carry the same
-      // standard extra-charge rows as the hardcoded Bunker Survey template. The
-      // "Develop … Draft Survey Form" service is a deliverable, not an
-      // attendance, so it's excluded.
       const name = service.name.toLowerCase();
+
+      // Vessel Condition Inspection has its own USD rate card.
+      const isVesselCondition = name.includes("vessel condition inspection");
+
+      // Other attendance-type surveys (Bunker, Draft, On-/Off-Hire) carry the
+      // standard bunker extra-charge rows. "Develop … Draft Survey Form" is a
+      // deliverable, not an attendance, so it's excluded.
       const carriesExtras =
         name.includes("bunker") ||
         name.includes("on-hire") ||
         name.includes("off-hire") ||
         (name.includes("draft survey") && !name.includes("develop"));
-      const items = carriesExtras
-        ? [{ description: service.name, quantity: 1, unitPrice: base }, ...DEFAULT_ADDITIONAL_ITEMS]
-        : [{ description: service.name, quantity: 1, unitPrice: base }];
+
+      const items = isVesselCondition
+        ? VESSEL_CONDITION_ITEMS
+        : carriesExtras
+          ? [{ description: service.name, quantity: 1, unitPrice: base }, ...DEFAULT_ADDITIONAL_ITEMS]
+          : [{ description: service.name, quantity: 1, unitPrice: base }];
+
       return {
         key: service.id,
         label: service.name,
         category: service.category?.name ?? "Services",
         hint: base > 0 ? `From ${php(base)}` : "On request",
         title: service.name,
-        currency: "PHP",
+        currency: isVesselCondition ? "USD" : "PHP",
         scope,
         conditions: GENERIC_CONDITIONS,
         items,

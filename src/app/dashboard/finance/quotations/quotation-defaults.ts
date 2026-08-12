@@ -33,6 +33,17 @@ export const DEFAULT_ITEMS: QuotationItemDefault[] = [
   ...DEFAULT_ADDITIONAL_ITEMS,
 ];
 
+// Vessel Condition Inspection has its own rate card (USD, different figures
+// from the bunker set). Base row qty 1; extras qty 0 until they apply.
+export const VESSEL_CONDITION_ITEMS: QuotationItemDefault[] = [
+  { description: "Vessel Condition Inspection – Port", quantity: 1, unitPrice: 600 },
+  { description: "Additional attendance / re-attendance", quantity: 0, unitPrice: 350 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 60 },
+  { description: "Night attendance / weekend / public holiday (per hour)", quantity: 0, unitPrice: 100 },
+  { description: "Launch / boat transfer to anchorage (at cost)", quantity: 0, unitPrice: 0 },
+  { description: "Transportation / port access / special permits (at cost)", quantity: 0, unitPrice: 0 },
+];
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +
