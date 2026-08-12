@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/rbac";
 import { AppError } from "@/lib/errors";
-import { hashPassword } from "@/lib/password";
+import { hashPassword, verifyPassword } from "@/lib/password";
 import { logAudit } from "@/lib/audit";
-import { siteSettingsSchema, createUserSchema } from "@/lib/validations/settings";
+import { siteSettingsSchema, createUserSchema, changePasswordSchema } from "@/lib/validations/settings";
 import type { Role } from "@/generated/prisma/enums";
 import { Prisma } from "@/generated/prisma/client";
 
@@ -87,6 +87,57 @@ export async function createUser(
 
   revalidatePath("/dashboard/settings");
   return { success: true };
+}
+
+export async function changeOwnPassword(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("ADMIN", "MANAGER", "STAFF", "FINANCE_OFFICER");
+
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
+  }
+
+  try {
+    const user = await db.user.findUnique({ where: { id: session.user.id } });
+    if (!user) {
+      return { error: "Your account could not be found." };
+    }
+
+    const valid = await verifyPassword(parsed.data.currentPassword, user.passwordHash);
+    if (!valid) {
+      return { error: "Your current password is incorrect." };
+    }
+
+    if (parsed.data.newPassword === parsed.data.currentPassword) {
+      return { error: "New password must be different from the current one." };
+    }
+
+    const passwordHash = await hashPassword(parsed.data.newPassword);
+    await db.user.update({ where: { id: user.id }, data: { passwordHash } });
+
+    try {
+      await logAudit({
+        userId: user.id,
+        action: "USER_PASSWORD_CHANGED",
+        entityType: "User",
+        entityId: user.id,
+      });
+    } catch (error) {
+      console.error("changeOwnPassword: audit failed", error);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("changeOwnPassword failed", error);
+    return { error: "Couldn't change your password right now. Please try again." };
+  }
 }
 
 export async function updateUserRole(id: string, role: Role) {

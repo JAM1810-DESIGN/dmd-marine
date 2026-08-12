@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { AccessDenied } from "@/components/shared/access-denied";
 import { UsersTable } from "./users-table";
 import { SiteSettingsForm } from "./site-settings-form";
+import { ChangePasswordForm } from "./change-password-form";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -43,6 +44,8 @@ export default async function SettingsPage() {
           isActive: user.isActive,
         }))}
       />
+
+      <ChangePasswordForm />
 
       <SiteSettingsForm settings={settings} />
 
