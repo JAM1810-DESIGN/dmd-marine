@@ -117,49 +117,63 @@ export async function deleteUser(id: string): Promise<ActionState> {
     return { error: "You can't delete your own account." };
   }
 
-  const target = await db.user.findUnique({ where: { id } });
-  if (!target) {
-    return { error: "That account no longer exists." };
-  }
-
-  // Never let the last admin be removed — it would lock everyone out.
-  if (target.role === "ADMIN") {
-    const adminCount = await db.user.count({ where: { role: "ADMIN" } });
-    if (adminCount <= 1) {
-      return { error: "You can't delete the last admin account." };
-    }
-  }
-
+  // The whole body is guarded: any thrown error (FK restrict from the pg
+  // adapter, a failed audit write, anything) is turned into a returned message.
+  // Next masks thrown Server Action errors AND trips the page error boundary
+  // ("Something went wrong"), so this action must never throw.
   try {
-    await db.user.delete({ where: { id } });
-  } catch (error) {
-    // Required relations (Projects, Expenses, Schedules the user owns) block a
-    // hard delete. The pg adapter can surface this as P2003 or as a raw driver
-    // error, so never re-throw — that would crash the page. Return a message
-    // pointing the admin at Deactivate instead.
-    const isForeignKey =
-      error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003";
-    if (isForeignKey) {
-      return {
-        error: "This account owns projects, expenses, or schedules and can't be deleted. Deactivate it instead.",
-      };
+    const target = await db.user.findUnique({ where: { id } });
+    if (!target) {
+      return { error: "That account no longer exists." };
     }
+
+    // Never let the last admin be removed — it would lock everyone out.
+    if (target.role === "ADMIN") {
+      const adminCount = await db.user.count({ where: { role: "ADMIN" } });
+      if (adminCount <= 1) {
+        return { error: "You can't delete the last admin account." };
+      }
+    }
+
+    try {
+      await db.user.delete({ where: { id } });
+    } catch (error) {
+      // Required relations (Projects, Expenses, Schedules the user owns) block a
+      // hard delete. The pg adapter surfaces this as P2003 or as a raw driver
+      // error whose message mentions the constraint — treat both as "blocked".
+      const message = error instanceof Error ? error.message : String(error);
+      const isForeignKey =
+        (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") ||
+        /foreign key|violates|constraint/i.test(message);
+      if (isForeignKey) {
+        return {
+          error: "This account owns projects, expenses, or schedules and can't be deleted. Deactivate it instead.",
+        };
+      }
+      console.error("deleteUser: delete failed", error);
+      return { error: "Couldn't delete this account. Deactivate it instead." };
+    }
+
+    // Best-effort — the account is already gone, so a failure here must not
+    // crash the page or report the delete as failed.
+    try {
+      await logAudit({
+        userId: session.user.id,
+        action: "USER_DELETED",
+        entityType: "User",
+        entityId: id,
+        metadata: { email: target.email, role: target.role },
+      });
+      revalidatePath("/dashboard/settings");
+    } catch (error) {
+      console.error("deleteUser: post-delete step failed", error);
+    }
+
+    return { success: true };
+  } catch (error) {
     console.error("deleteUser failed", error);
-    return {
-      error: "Couldn't delete this account — it's likely linked to existing records. Deactivate it instead.",
-    };
+    return { error: "Couldn't delete this account right now. Please try again." };
   }
-
-  await logAudit({
-    userId: session.user.id,
-    action: "USER_DELETED",
-    entityType: "User",
-    entityId: id,
-    metadata: { email: target.email, role: target.role },
-  });
-
-  revalidatePath("/dashboard/settings");
-  return { success: true };
 }
 
 export async function toggleUserActive(id: string, isActive: boolean) {
