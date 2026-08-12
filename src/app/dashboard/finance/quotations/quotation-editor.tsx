@@ -251,41 +251,10 @@ export function QuotationEditor({
             <Plus className="size-3.5" /> Add line
           </button>
 
-          <div className="mt-3 flex justify-end">
-            <div className="w-64 text-sm">
-              <div className="flex justify-between py-0.5"><span>Subtotal</span><span className="tabular-nums">{currency} {money(subtotal)}</span></div>
-              <div className="flex items-center justify-between py-0.5">
-                <span className="flex items-center gap-1">Tax
-                  <input type="number" min="0" max="100" step="0.01" value={taxRatePercent} onChange={(e) => setTaxRatePercent(Number(e.target.value) || 0)} className="w-14 rounded border border-border bg-transparent px-1 text-right outline-none" />%
-                </span>
-                <span className="tabular-nums">{money(tax)}</span>
-              </div>
-              <div className="mt-1 flex justify-between border-t-2 border-[#12395f] pt-1.5 text-base font-bold text-[#12395f]"><span>Total</span><span className="tabular-nums">{currency} {money(total)}</span></div>
-            </div>
+          <div className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+            Additional charges (if applicable)
           </div>
-
-          <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
-            2. Scope of survey
-          </div>
-          <ul className="flex flex-col gap-1">
-            {scope.map((line, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm">
-                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-neutral-400" />
-                <input value={line} onChange={(e) => setScope((cur) => cur.map((l, i) => (i === index ? e.target.value : l)))} className="w-full bg-transparent outline-none" />
-                <button type="button" aria-label="Remove scope line" onClick={() => setScope((cur) => cur.filter((_, i) => i !== index))} className="no-print text-neutral-400 hover:text-red-600">
-                  <Trash2 className="size-3.5" />
-                </button>
-              </li>
-            ))}
-          </ul>
-          <button type="button" onClick={() => setScope((cur) => [...cur, ""])} className="no-print mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline">
-            <Plus className="size-3.5" /> Add scope line
-          </button>
-
-          <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
-            3. Additional charges (if applicable)
-          </div>
-          <table className="w-full border-collapse text-sm">
+          <table className="mt-1 w-full border-collapse text-sm">
             <tbody>
               {additionalCharges.map((charge, index) => (
                 <tr key={index}>
@@ -331,8 +300,39 @@ export function QuotationEditor({
             <Plus className="size-3.5" /> Add line
           </button>
 
+          <div className="mt-3 flex justify-end">
+            <div className="w-64 text-sm">
+              <div className="flex justify-between py-0.5"><span>Subtotal</span><span className="tabular-nums">{currency} {money(subtotal)}</span></div>
+              <div className="flex items-center justify-between py-0.5">
+                <span className="flex items-center gap-1">Tax
+                  <input type="number" min="0" max="100" step="0.01" value={taxRatePercent} onChange={(e) => setTaxRatePercent(Number(e.target.value) || 0)} className="w-14 rounded border border-border bg-transparent px-1 text-right outline-none" />%
+                </span>
+                <span className="tabular-nums">{money(tax)}</span>
+              </div>
+              <div className="mt-1 flex justify-between border-t-2 border-[#12395f] pt-1.5 text-base font-bold text-[#12395f]"><span>Total</span><span className="tabular-nums">{currency} {money(total)}</span></div>
+            </div>
+          </div>
+
           <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
-            4. Commercial conditions
+            2. Scope of survey
+          </div>
+          <ul className="flex flex-col gap-1">
+            {scope.map((line, index) => (
+              <li key={index} className="flex items-start gap-2 text-sm">
+                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-neutral-400" />
+                <input value={line} onChange={(e) => setScope((cur) => cur.map((l, i) => (i === index ? e.target.value : l)))} className="w-full bg-transparent outline-none" />
+                <button type="button" aria-label="Remove scope line" onClick={() => setScope((cur) => cur.filter((_, i) => i !== index))} className="no-print text-neutral-400 hover:text-red-600">
+                  <Trash2 className="size-3.5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button type="button" onClick={() => setScope((cur) => [...cur, ""])} className="no-print mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline">
+            <Plus className="size-3.5" /> Add scope line
+          </button>
+
+          <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
+            3. Commercial conditions
           </div>
           <textarea value={conditions} onChange={(e) => setConditions(e.target.value)} rows={4} className="w-full rounded border border-border bg-transparent p-2 text-sm outline-none focus:border-ring" />
           <div className="mt-2 grid grid-cols-2 gap-3 text-sm">
