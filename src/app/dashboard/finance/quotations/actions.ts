@@ -19,7 +19,6 @@ async function nextQuoteNumber() {
 function parseForm(formData: FormData) {
   let items: unknown[] = [];
   let scope: string[] = [];
-  let additionalCharges: unknown[] = [];
   try {
     const raw = formData.get("items");
     items = raw ? JSON.parse(String(raw)) : [];
@@ -31,12 +30,6 @@ function parseForm(formData: FormData) {
     scope = raw ? JSON.parse(String(raw)) : [];
   } catch {
     scope = [];
-  }
-  try {
-    const raw = formData.get("additionalCharges");
-    additionalCharges = raw ? JSON.parse(String(raw)) : [];
-  } catch {
-    additionalCharges = [];
   }
 
   return quotationSchema.safeParse({
@@ -51,7 +44,6 @@ function parseForm(formData: FormData) {
     paymentTerms: formData.get("paymentTerms") || undefined,
     conditions: formData.get("conditions") || undefined,
     scope: scope.filter((line) => line.trim().length > 0),
-    additionalCharges,
     notes: formData.get("notes") || undefined,
     taxRatePercent: formData.get("taxRatePercent") || 0,
     customerId: formData.get("customerId") || undefined,

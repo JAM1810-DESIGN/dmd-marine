@@ -5,20 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { AccessDenied } from "@/components/shared/access-denied";
-import { QuotationEditor, type QuotationRecord, type AdditionalCharge } from "../quotation-editor";
-
-// `additionalCharges` is a free-form JSON column; normalize whatever is stored
-// back into typed { label, charge } rows and drop anything malformed.
-function parseAdditionalCharges(value: unknown): AdditionalCharge[] {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((entry) => {
-    if (entry && typeof entry === "object" && "label" in entry) {
-      const row = entry as Record<string, unknown>;
-      return [{ label: String(row.label ?? ""), charge: String(row.charge ?? "") }];
-    }
-    return [];
-  });
-}
+import { QuotationEditor, type QuotationRecord } from "../quotation-editor";
 
 export const metadata: Metadata = { title: "Quotation" };
 
@@ -50,7 +37,6 @@ export default async function QuotationPage({ params }: { params: Promise<{ id: 
     paymentTerms: quotation.paymentTerms,
     conditions: quotation.conditions,
     scope: quotation.scope,
-    additionalCharges: parseAdditionalCharges(quotation.additionalCharges),
     taxRatePercent: Number(quotation.taxRatePercent),
     customerId: quotation.customerId,
     items: quotation.items.map((i) => ({

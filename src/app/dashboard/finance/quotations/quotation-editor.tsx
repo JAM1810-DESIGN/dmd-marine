@@ -17,12 +17,17 @@ export const DEFAULT_SCOPE = [
   "Preparation and issuance of an On-Hire / Off-Hire Bunker Survey Report (PDF by email).",
 ];
 
-export const DEFAULT_ADDITIONAL_CHARGES: AdditionalCharge[] = [
-  { label: "Additional attendance / re-attendance", charge: "USD 250.00" },
-  { label: "Waiting time exceeding 2 hours", charge: "USD 50.00/hour" },
-  { label: "Attendance outside normal working hours / weekends / holidays", charge: "USD 75.00/hour" },
-  { label: "Launch / boat transfer, if required", charge: "At cost" },
-  { label: "Transportation / special access charges, if applicable", charge: "At cost" },
+// Default line items for the Bunker Survey template: the base survey plus the
+// standard additional charges as their own rows. The extras default to qty 0 so
+// they list on the quotation (numbered 2, 3, …) without inflating the total —
+// staff set a qty when the charge applies and it flows into the Total.
+export const DEFAULT_ITEMS: { description: string; quantity: number; unitPrice: number }[] = [
+  { description: "On/Off-Hire Bunker Survey – Port", quantity: 1, unitPrice: 350 },
+  { description: "Additional attendance / re-attendance", quantity: 0, unitPrice: 250 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 50 },
+  { description: "Attendance outside normal working hours / weekends / holidays (per hour)", quantity: 0, unitPrice: 75 },
+  { description: "Launch / boat transfer, if required (at cost)", quantity: 0, unitPrice: 0 },
+  { description: "Transportation / special access charges, if applicable (at cost)", quantity: 0, unitPrice: 0 },
 ];
 
 export const DEFAULT_CONDITIONS =
@@ -47,7 +52,6 @@ export type QuotationRecord = {
   paymentTerms: string | null;
   conditions: string | null;
   scope: string[];
-  additionalCharges: AdditionalCharge[];
   taxRatePercent: number;
   customerId: string | null;
   items: { description: string; quantity: number; unitPrice: number }[];
@@ -55,13 +59,10 @@ export type QuotationRecord = {
 
 type ItemState = { description: string; quantity: number; unitPrice: number };
 
-export type AdditionalCharge = { label: string; charge: string };
-
 export type QuotationTemplate = {
   title: string;
   currency: string;
   scope: string[];
-  additionalCharges?: AdditionalCharge[];
   conditions: string;
   items: ItemState[];
 };
@@ -99,15 +100,10 @@ export function QuotationEditor({
   const [scope, setScope] = useState<string[]>(
     quotation?.scope?.length ? quotation.scope : (template?.scope ?? DEFAULT_SCOPE),
   );
-  const [additionalCharges, setAdditionalCharges] = useState<AdditionalCharge[]>(
-    quotation?.additionalCharges?.length
-      ? quotation.additionalCharges
-      : (template?.additionalCharges ?? DEFAULT_ADDITIONAL_CHARGES),
-  );
   const [items, setItems] = useState<ItemState[]>(
     quotation?.items?.length
       ? quotation.items.map((i) => ({ description: i.description, quantity: i.quantity, unitPrice: i.unitPrice }))
-      : (template?.items ?? [{ description: "On/Off-Hire Bunker Survey – Port", quantity: 1, unitPrice: 350 }]),
+      : (template?.items ?? DEFAULT_ITEMS),
   );
 
   const subtotal = useMemo(() => items.reduce((s, i) => s + i.quantity * i.unitPrice, 0), [items]);
@@ -172,7 +168,6 @@ export function QuotationEditor({
       {/* Hidden serialized fields */}
       <input type="hidden" name="items" value={JSON.stringify(items)} readOnly />
       <input type="hidden" name="scope" value={JSON.stringify(scope)} readOnly />
-      <input type="hidden" name="additionalCharges" value={JSON.stringify(additionalCharges)} readOnly />
       <input type="hidden" name="taxRatePercent" value={String(taxRatePercent)} readOnly />
       <input type="hidden" name="customerId" value={customerId} readOnly />
       <input type="hidden" name="title" value={title} readOnly />
@@ -248,55 +243,6 @@ export function QuotationEditor({
             </tbody>
           </table>
           <button type="button" onClick={() => setItems((cur) => [...cur, { description: "", quantity: 1, unitPrice: 0 }])} className="no-print mt-2 inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline">
-            <Plus className="size-3.5" /> Add line
-          </button>
-
-          <div className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
-            Additional charges (if applicable)
-          </div>
-          <table className="mt-1 w-full border-collapse text-sm">
-            <tbody>
-              {additionalCharges.map((charge, index) => (
-                <tr key={index}>
-                  <td className="border border-neutral-200 px-1 py-0.5">
-                    <input
-                      value={charge.label}
-                      onChange={(e) =>
-                        setAdditionalCharges((cur) => cur.map((c, i) => (i === index ? { ...c, label: e.target.value } : c)))
-                      }
-                      className="w-full bg-transparent px-1 outline-none"
-                      placeholder="Description"
-                    />
-                  </td>
-                  <td className="border border-neutral-200 px-1 py-0.5 text-right" style={{ width: 160 }}>
-                    <input
-                      value={charge.charge}
-                      onChange={(e) =>
-                        setAdditionalCharges((cur) => cur.map((c, i) => (i === index ? { ...c, charge: e.target.value } : c)))
-                      }
-                      className="w-full bg-transparent px-1 text-right outline-none"
-                      placeholder="e.g. USD 50.00/hour"
-                    />
-                  </td>
-                  <td className="no-print border border-neutral-200 px-1 py-0.5 text-center" style={{ width: 34 }}>
-                    <button
-                      type="button"
-                      aria-label="Remove charge line"
-                      onClick={() => setAdditionalCharges((cur) => cur.filter((_, i) => i !== index))}
-                      className="text-neutral-400 hover:text-red-600"
-                    >
-                      <Trash2 className="mx-auto size-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            type="button"
-            onClick={() => setAdditionalCharges((cur) => [...cur, { label: "", charge: "" }])}
-            className="no-print mt-2 inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline"
-          >
             <Plus className="size-3.5" /> Add line
           </button>
 
