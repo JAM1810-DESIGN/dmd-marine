@@ -31,6 +31,16 @@ export function BookingForm({
   const [state, formAction, isPending] = useActionState(submitBookingForm, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
+  // Base-UI Select needs a value→label map so the trigger shows the service
+  // name (not the raw id) when a service is pre-selected via ?service=… before
+  // the dropdown has ever been opened.
+  const serviceLabels = Object.fromEntries(
+    services.map((service) => [
+      service.id,
+      service.parentServiceId ? `↳ ${service.name}` : `${service.categoryName} — ${service.name}`,
+    ]),
+  );
+
   useEffect(() => {
     if (state.success) {
       notify.success("Request received", "We'll be in touch to confirm your booking.");
@@ -75,7 +85,7 @@ export function BookingForm({
 
       <div className="grid gap-1.5">
         <Label htmlFor="serviceId">Service</Label>
-        <Select name="serviceId" defaultValue={defaultServiceId} required>
+        <Select name="serviceId" defaultValue={defaultServiceId} items={serviceLabels} required>
           <SelectTrigger id="serviceId" className="w-full">
             <SelectValue placeholder="Select a service" />
           </SelectTrigger>
