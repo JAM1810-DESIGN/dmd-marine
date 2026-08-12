@@ -309,6 +309,125 @@ export const CARGOHOLD_CONDITIONS = [
   "12. Any additional requirements outside the stated scope will be subject to a separate quotation.",
 ].join("\n");
 
+// A titled, bulleted section that can appear between Scope and Commercial
+// Conditions. Lets templates define arbitrary sections beyond the fixed ones.
+export type QuotationSection = { title: string; lines: string[] };
+
+// ── Individual Master Mentoring Program ────────────────────────────────────
+export const MENTORING_ITEMS: QuotationItemDefault[] = [
+  { description: "Master Mentoring – 3 Months", quantity: 1, unitPrice: 300 },
+  { description: "Master Mentoring – 6 Months", quantity: 0, unitPrice: 550 },
+  { description: "Master Mentoring – 9 Months", quantity: 0, unitPrice: 750 },
+  { description: "Master Mentoring – 12 Months", quantity: 0, unitPrice: 900 },
+];
+
+export const MENTORING_SCOPE = [
+  "The program is designed for an individual officer who is newly appointed, newly promoted or preparing to take up the position of Master and would benefit from practical guidance and one-to-one professional mentoring.",
+  "The participant may initially enroll for 3 months and may choose to extend the mentoring period to 6, 9 or 12 months.",
+  "The mentoring program will focus on the practical transition into the Master's role, including:",
+  "Understanding the responsibilities and expectations of the Master.",
+  "Transition from Chief Officer / senior officer to Master.",
+  "Leadership and management of the shipboard team.",
+  "Decision-making and professional judgement.",
+  "Bridge management and navigational leadership.",
+  "Passage planning and voyage preparation.",
+  "Bridge Team Management and effective delegation.",
+  "Communication with officers, crew and shore management.",
+  "Managing difficult situations and operational pressures.",
+  "Safety Management System (SMS) awareness and practical application.",
+  "Risk assessment and safe operational decision-making.",
+  "Emergency preparedness and response.",
+  "Incident, near-miss and deficiency management.",
+  "Preparation for Port State Control, Flag State, Class and other inspections.",
+  "Managing external inspectors and auditors professionally.",
+  "Port arrival, departure, mooring and anchoring considerations.",
+  "Cargo operation supervision, where applicable.",
+  "Crew discipline, motivation and welfare.",
+  "Master's standing orders and shipboard instructions.",
+  "Review of reports, checklists and important shipboard documentation.",
+  "Lessons learned from practical operational situations.",
+  "Professional development and confidence building.",
+  "General guidance on challenges encountered by a newly appointed Master.",
+];
+
+export const MENTORING_SECTIONS: QuotationSection[] = [
+  {
+    title: "Mentoring Approach",
+    lines: [
+      "The mentoring is intended to be personal, practical and confidential, allowing the officer to discuss actual situations and challenges encountered in the position.",
+      "Mentoring may include:",
+      "One-to-one online mentoring sessions.",
+      "Discussion of actual shipboard situations.",
+      "Questions and answers on Master's duties and responsibilities.",
+      "Review of selected documents or scenarios provided by the participant.",
+      "Practical advice based on the mentor's professional experience.",
+      "Guidance before and after important operations or inspections.",
+      "Discussion of lessons learned and alternative approaches.",
+      "Personal development recommendations.",
+      "The participant is encouraged to raise real operational situations with the mentor so that the mentoring can be tailored to the individual's experience and development needs.",
+    ],
+  },
+  {
+    title: "Suggested Program Structure",
+    lines: [
+      "Month 1 – Transition to Master. Focus on:",
+      "Role and responsibilities of the Master.",
+      "Leadership and authority.",
+      "Managing the bridge team and crew.",
+      "Communication with shore management.",
+      "Decision-making and risk management.",
+      "Understanding the expectations of the Company and vessel.",
+      "Month 2 – Operational Confidence. Focus on:",
+      "Navigation and voyage management.",
+      "Port operations.",
+      "Cargo and mooring operations.",
+      "Emergency preparedness.",
+      "Safety management.",
+      "Inspections, audits and deficiencies.",
+      "Managing operational pressure.",
+      "Month 3 – Consolidation. Focus on:",
+      "Review of challenges encountered.",
+      "Lessons learned.",
+      "Improvement of leadership and decision-making.",
+      "Areas requiring further development.",
+      "Personal action plan for continued development.",
+      "For 6, 9 or 12-month programs, the mentoring continues with progressively deeper guidance based on the participant's actual experience and development needs.",
+    ],
+  },
+  {
+    title: "Deliverables",
+    lines: [
+      "The selected mentoring program includes:",
+      "Initial one-to-one mentoring discussion.",
+      "Regular mentoring sessions during the selected period.",
+      "Professional advice and practical guidance.",
+      "Discussion of actual operational situations.",
+      "Review of relevant documents or scenarios, where appropriate.",
+      "Personal development recommendations.",
+      "Progress discussions throughout the program.",
+      "Final mentoring summary and recommendations upon completion.",
+    ],
+  },
+];
+
+export const MENTORING_CONDITIONS = [
+  "1. The minimum mentoring engagement is 3 months.",
+  "2. The participant may select a 3, 6, 9 or 12-month mentoring period.",
+  "3. The participant may initially commence with the 3-month program and extend the mentoring period by mutual agreement.",
+  "4. The mentoring program is provided to the individual officer and is not intended to replace Company training, statutory certification, STCW requirements, SMS procedures or other mandatory training.",
+  "5. The mentor provides professional guidance and advice based on experience. The participant remains responsible for operational decisions made onboard the vessel.",
+  "6. No guarantee is given regarding the outcome of PSC inspections, audits, examinations, promotions or Company assessments.",
+  "7. Mentoring sessions will normally be conducted remotely by online meeting, telephone or other mutually agreed communication method.",
+  "8. The participant is responsible for providing any documents or information required for discussion, subject to confidentiality and Company requirements.",
+  "9. Physical attendance onboard, travel, accommodation or additional training outside the mentoring program is excluded and may be quoted separately.",
+  "10. All discussions between the participant and mentor will be treated as confidential, subject to applicable legal or professional obligations.",
+  "",
+  "Recommended starting option: 3-Month Individual Master Mentoring Program – USD 300.00.",
+].join("\n");
+
+export const MENTORING_PAYMENT_TERMS =
+  "Payment in advance for the selected mentoring period, unless otherwise agreed.";
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +

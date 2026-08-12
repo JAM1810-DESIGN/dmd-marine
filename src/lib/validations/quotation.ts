@@ -21,6 +21,9 @@ export const quotationSchema = z.object({
   scope: z.array(z.string()).default([]),
   reporting: z.array(z.string()).default([]),
   exclusions: z.array(z.string()).default([]),
+  sections: z
+    .array(z.object({ title: z.string(), lines: z.array(z.string()) }))
+    .default([]),
   notes: z.string().optional(),
   taxRatePercent: z.coerce.number().min(0).max(100).default(0),
   customerId: z

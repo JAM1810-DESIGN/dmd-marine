@@ -28,6 +28,12 @@ import {
   CARGOHOLD_SCOPE,
   CARGOHOLD_REPORTING,
   CARGOHOLD_CONDITIONS,
+  MENTORING_ITEMS,
+  MENTORING_SCOPE,
+  MENTORING_SECTIONS,
+  MENTORING_CONDITIONS,
+  MENTORING_PAYMENT_TERMS,
+  type QuotationSection,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
 
@@ -85,10 +91,12 @@ export default async function NewQuotationPage({
       // Fully-specified service templates with their own USD rate card, scope,
       // reporting/exclusions sections and commercial conditions.
       type CustomDoc = {
+        title?: string;
         scopeTitle: string;
         scope: string[];
         reporting: string[];
         exclusions: string[];
+        sections?: QuotationSection[];
         conditions: string;
         items: typeof VESSEL_CONDITION_ITEMS;
         location?: string;
@@ -137,12 +145,27 @@ export default async function NewQuotationPage({
               items: CARGOHOLD_ITEMS,
             }
           : undefined,
+        mentoring: name.includes("master mentoring")
+          ? {
+              title: "Individual Master Mentoring Program",
+              scopeTitle: "Scope of Mentoring",
+              scope: MENTORING_SCOPE,
+              reporting: [],
+              exclusions: [],
+              sections: MENTORING_SECTIONS,
+              conditions: MENTORING_CONDITIONS,
+              items: MENTORING_ITEMS,
+              location: "Online / Remote Mentoring",
+              paymentTerms: MENTORING_PAYMENT_TERMS,
+            }
+          : undefined,
       };
       const doc =
         customDocs.vesselCondition ??
         customDocs.cargo ??
         customDocs.prePurchase ??
-        customDocs.cargoHold;
+        customDocs.cargoHold ??
+        customDocs.mentoring;
       if (doc) {
         return {
           key: service.id,
@@ -204,6 +227,7 @@ export default async function NewQuotationPage({
       scope: def.scope,
       reporting: def.reporting,
       exclusions: def.exclusions,
+      sections: def.sections,
       conditions: def.conditions,
       paymentTerms: def.paymentTerms,
       items: def.items,

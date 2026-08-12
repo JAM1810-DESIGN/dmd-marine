@@ -6,6 +6,20 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { AccessDenied } from "@/components/shared/access-denied";
 import { QuotationEditor, type QuotationRecord } from "../quotation-editor";
+import type { QuotationSection } from "../quotation-defaults";
+
+// `sections` is a free-form JSON column; normalize into typed { title, lines }.
+function parseSections(value: unknown): QuotationSection[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry) => {
+    if (entry && typeof entry === "object" && "title" in entry) {
+      const row = entry as Record<string, unknown>;
+      const lines = Array.isArray(row.lines) ? row.lines.map((l) => String(l)) : [];
+      return [{ title: String(row.title ?? ""), lines }];
+    }
+    return [];
+  });
+}
 
 export const metadata: Metadata = { title: "Quotation" };
 
@@ -40,6 +54,7 @@ export default async function QuotationPage({ params }: { params: Promise<{ id: 
     scope: quotation.scope,
     reporting: quotation.reporting,
     exclusions: quotation.exclusions,
+    sections: parseSections(quotation.sections),
     taxRatePercent: Number(quotation.taxRatePercent),
     customerId: quotation.customerId,
     items: quotation.items.map((i) => ({

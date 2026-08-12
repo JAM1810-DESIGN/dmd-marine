@@ -6,7 +6,7 @@ import { Printer, Plus, Trash2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { notify } from "@/lib/notify";
 import { createQuotation, updateQuotation, type ActionState } from "./actions";
-import { DEFAULT_SCOPE, DEFAULT_CONDITIONS, DEFAULT_ITEMS, DEFAULT_TERMS } from "./quotation-defaults";
+import { DEFAULT_SCOPE, DEFAULT_CONDITIONS, DEFAULT_ITEMS, DEFAULT_TERMS, type QuotationSection } from "./quotation-defaults";
 
 export type QuotationRecord = {
   id: string;
@@ -25,6 +25,7 @@ export type QuotationRecord = {
   scope: string[];
   reporting: string[];
   exclusions: string[];
+  sections: QuotationSection[];
   taxRatePercent: number;
   customerId: string | null;
   items: { description: string; quantity: number; unitPrice: number }[];
@@ -40,6 +41,7 @@ export type QuotationTemplate = {
   scope: string[];
   reporting?: string[];
   exclusions?: string[];
+  sections?: QuotationSection[];
   conditions: string;
   paymentTerms?: string;
   items: ItemState[];
@@ -87,11 +89,15 @@ export function QuotationEditor({
   const [exclusions, setExclusions] = useState<string[]>(
     quotation?.exclusions?.length ? quotation.exclusions : (template?.exclusions ?? []),
   );
+  const [sections, setSections] = useState<QuotationSection[]>(
+    quotation?.sections?.length ? quotation.sections : (template?.sections ?? []),
+  );
 
   // Section numbers shift with which optional sections are present.
   let sectionNo = 2; // Scope is always section 2.
   const reportingNo = reporting.length > 0 ? ++sectionNo : 0;
   const exclusionsNo = exclusions.length > 0 ? ++sectionNo : 0;
+  const sectionNos = sections.map(() => ++sectionNo);
   const conditionsNo = ++sectionNo;
   const [items, setItems] = useState<ItemState[]>(
     quotation?.items?.length
@@ -176,6 +182,7 @@ export function QuotationEditor({
       <input type="hidden" name="scopeTitle" value={scopeTitle} readOnly />
       <input type="hidden" name="reporting" value={JSON.stringify(reporting)} readOnly />
       <input type="hidden" name="exclusions" value={JSON.stringify(exclusions)} readOnly />
+      <input type="hidden" name="sections" value={JSON.stringify(sections)} readOnly />
 
       {/* The printable document */}
       <div className="print-doc mx-auto w-full max-w-3xl overflow-hidden rounded-xl bg-white text-neutral-900 ring-1 ring-foreground/10">
@@ -317,6 +324,52 @@ export function QuotationEditor({
               </button>
             </>
           )}
+
+          {sections.map((section, si) => (
+            <div key={si}>
+              <div className="mb-2 mt-5 flex items-center gap-1 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
+                <span>{sectionNos[si]}.</span>
+                <input
+                  value={section.title}
+                  onChange={(e) => setSections((cur) => cur.map((s, i) => (i === si ? { ...s, title: e.target.value } : s)))}
+                  className="flex-1 bg-transparent uppercase tracking-wide outline-none"
+                />
+              </div>
+              <ul className="flex flex-col gap-1">
+                {section.lines.map((line, li) => (
+                  <li key={li} className="flex items-start gap-2 text-sm">
+                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-neutral-400" />
+                    <input
+                      value={line}
+                      onChange={(e) =>
+                        setSections((cur) =>
+                          cur.map((s, i) => (i === si ? { ...s, lines: s.lines.map((l, j) => (j === li ? e.target.value : l)) } : s)),
+                        )
+                      }
+                      className="w-full bg-transparent outline-none"
+                    />
+                    <button
+                      type="button"
+                      aria-label="Remove line"
+                      onClick={() =>
+                        setSections((cur) => cur.map((s, i) => (i === si ? { ...s, lines: s.lines.filter((_, j) => j !== li) } : s)))
+                      }
+                      className="no-print text-neutral-400 hover:text-red-600"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() => setSections((cur) => cur.map((s, i) => (i === si ? { ...s, lines: [...s.lines, ""] } : s)))}
+                className="no-print mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline"
+              >
+                <Plus className="size-3.5" /> Add line
+              </button>
+            </div>
+          ))}
 
           <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
             {conditionsNo}. Commercial conditions

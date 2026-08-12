@@ -21,6 +21,7 @@ function parseForm(formData: FormData) {
   let scope: string[] = [];
   let reporting: string[] = [];
   let exclusions: string[] = [];
+  let sections: unknown[] = [];
   try {
     const raw = formData.get("items");
     items = raw ? JSON.parse(String(raw)) : [];
@@ -45,6 +46,12 @@ function parseForm(formData: FormData) {
   } catch {
     exclusions = [];
   }
+  try {
+    const raw = formData.get("sections");
+    sections = raw ? JSON.parse(String(raw)) : [];
+  } catch {
+    sections = [];
+  }
 
   return quotationSchema.safeParse({
     title: formData.get("title"),
@@ -61,6 +68,7 @@ function parseForm(formData: FormData) {
     scope: scope.filter((line) => line.trim().length > 0),
     reporting: reporting.filter((line) => line.trim().length > 0),
     exclusions: exclusions.filter((line) => line.trim().length > 0),
+    sections,
     notes: formData.get("notes") || undefined,
     taxRatePercent: formData.get("taxRatePercent") || 0,
     customerId: formData.get("customerId") || undefined,
