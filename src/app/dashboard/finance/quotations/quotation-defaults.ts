@@ -133,6 +133,123 @@ export const CARGO_CONDITIONS = [
   "Examples (illustrative): 2-day port operation – USD 1,100.00; 3-day port operation – USD 1,600.00; 2-day anchorage operation – USD 1,350.00; 3-day anchorage operation – USD 1,850.00.",
 ].join("\n");
 
+// ── Pre-Purchase / S&P Vessel Inspection ───────────────────────────────────
+export const PREPURCHASE_ITEMS: QuotationItemDefault[] = [
+  { description: "Pre-Purchase Inspection – Port", quantity: 1, unitPrice: 1500 },
+  { description: "Pre-Purchase Inspection – Anchorage", quantity: 0, unitPrice: 1750 },
+  { description: "Pre-Purchase Inspection – Shipyard", quantity: 0, unitPrice: 1500 },
+  { description: "Additional attendance / re-attendance", quantity: 0, unitPrice: 750 },
+  { description: "Additional surveyor, if required (per day)", quantity: 0, unitPrice: 500 },
+  { description: "Waiting time exceeding 2 hours (per hour)", quantity: 0, unitPrice: 75 },
+  { description: "Night attendance / weekend / public holiday (per hour)", quantity: 0, unitPrice: 125 },
+  { description: "Launch / boat transfer to anchorage (at cost)", quantity: 0, unitPrice: 0 },
+  { description: "Travel, accommodation and other out-of-town expenses (at cost)", quantity: 0, unitPrice: 0 },
+];
+
+export const PREPURCHASE_SCOPE = [
+  "The pre-purchase inspection will include, as applicable and safely accessible:",
+  "A. General / External Condition",
+  "General condition and appearance of vessel.",
+  "Hull and external structure.",
+  "Main deck and weather decks.",
+  "Superstructure and accommodation.",
+  "Corrosion, wastage, cracks, deformation and visible repairs.",
+  "Condition of shell plating and exposed areas.",
+  "B. Deck & Mooring Equipment",
+  "Anchors and anchor chains.",
+  "Windlass and mooring machinery.",
+  "Mooring winches and associated equipment.",
+  "Fairleads, bollards and deck fittings.",
+  "Hatch covers and closing arrangements, where fitted.",
+  "Deck piping, valves and visible fittings.",
+  "C. Cargo Spaces",
+  "Cargo holds / tanks, where accessible.",
+  "Internal structure and visible condition.",
+  "Tank tops, bulkheads, frames and stiffeners.",
+  "Cargo handling equipment, where fitted.",
+  "Bilge and drainage arrangements.",
+  "D. Machinery Spaces",
+  "Main engine and associated machinery – visual condition.",
+  "Auxiliary engines and generators.",
+  "Boilers / exhaust systems, where fitted.",
+  "Pumps, compressors and other auxiliary machinery.",
+  "Piping, valves and visible machinery components.",
+  "General cleanliness, leakage and maintenance condition.",
+  "E. Bridge / Navigation",
+  "Navigation bridge and equipment.",
+  "Steering arrangements.",
+  "Communication equipment.",
+  "Navigation equipment, based on visual inspection and documents provided.",
+  "F. Safety / LSA / FFA",
+  "Lifeboats / rescue boats, where accessible.",
+  "Life-saving appliances.",
+  "Firefighting equipment and systems.",
+  "Emergency equipment.",
+  "General safety arrangements.",
+  "G. Accommodation",
+  "Cabins and living spaces.",
+  "Galley and sanitary spaces.",
+  "General condition and housekeeping.",
+  "Air-conditioning and ventilation systems, where accessible.",
+  "H. Documents & Records (review, where made available)",
+  "Class certificates and status.",
+  "Statutory certificates.",
+  "Previous survey reports.",
+  "Maintenance records.",
+  "Dry-docking records.",
+  "Defect / repair records.",
+  "Machinery records.",
+  "Relevant trading and operational history.",
+];
+
+export const PREPURCHASE_REPORTING = [
+  "The fee includes preparation of a Pre-Purchase Vessel Inspection Report, including:",
+  "Executive summary.",
+  "General vessel particulars.",
+  "Detailed observations by area/system.",
+  "Photographic record.",
+  "Identification of apparent defects and deficiencies.",
+  "Assessment of general condition.",
+  "Identification of significant maintenance / repair items.",
+  "Recommendations for further investigation or repair, where appropriate.",
+  "Review of available class and statutory information.",
+  "Overall condition assessment based on the inspection performed.",
+  "The final report will be submitted in PDF format by email.",
+];
+
+export const PREPURCHASE_EXCLUSIONS = [
+  "Unless specifically agreed, the following are excluded:",
+  "Dry-docking survey.",
+  "Underwater hull inspection.",
+  "Ultrasonic thickness measurement (UTM).",
+  "Non-destructive testing (NDT).",
+  "Oil / fuel / lube oil laboratory analysis.",
+  "Machinery performance testing.",
+  "Engine dismantling or opening-up.",
+  "Crane / lifting appliance load testing.",
+  "Tank cleaning or gas-freeing.",
+  "Diving services.",
+  "Sea trial attendance.",
+  "Class/statutory certification.",
+  "Valuation of the vessel.",
+  "Any of the above services can be arranged separately upon request.",
+];
+
+export const PREPURCHASE_CONDITIONS = [
+  "1. The above professional fee is based on one vessel attendance of up to 8 hours.",
+  "2. Inspection will be carried out on a visual and operational basis where practicable.",
+  "3. All areas inspected must be safely accessible and adequately lit.",
+  "4. The vessel's crew shall provide reasonable assistance and access to relevant areas.",
+  "5. Any waiting time exceeding 2 hours due to vessel or operational delays will be charged at the applicable rate.",
+  "6. Additional attendance or re-inspection will be charged separately.",
+  "7. Launch/boat hire, transportation, accommodation, port passes, permits and other third-party expenses will be charged at cost.",
+  "8. Any requirement for specialist testing or additional survey work will be subject to separate quotation.",
+  "9. The inspection represents the surveyor's findings based on the condition visible and accessible at the time of inspection and should not be considered a guarantee of the vessel's future performance or condition.",
+].join("\n");
+
+export const PREPURCHASE_PAYMENT_TERMS =
+  "50% upon confirmation and 50% upon submission of the final report, unless otherwise agreed.";
+
 export const DEFAULT_CONDITIONS =
   "Rates are based on one vessel attendance and one completed bunker survey during normal working hours. " +
   "Waiting time exceeding 2 hours, night attendance, weekends and public holidays are charged at the applicable extra rates. " +

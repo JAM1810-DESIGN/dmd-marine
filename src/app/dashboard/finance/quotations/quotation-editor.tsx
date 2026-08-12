@@ -24,6 +24,7 @@ export type QuotationRecord = {
   scopeTitle: string | null;
   scope: string[];
   reporting: string[];
+  exclusions: string[];
   taxRatePercent: number;
   customerId: string | null;
   items: { description: string; quantity: number; unitPrice: number }[];
@@ -38,7 +39,9 @@ export type QuotationTemplate = {
   scopeTitle?: string;
   scope: string[];
   reporting?: string[];
+  exclusions?: string[];
   conditions: string;
+  paymentTerms?: string;
   items: ItemState[];
 };
 
@@ -68,7 +71,7 @@ export function QuotationEditor({
   const [currency, setCurrency] = useState(quotation?.currency ?? template?.currency ?? "USD");
   const [quoteDate, setQuoteDate] = useState(quotation?.quoteDate.slice(0, 10) ?? new Date().toISOString().slice(0, 10));
   const [validityDays, setValidityDays] = useState(quotation?.validityDays ?? 30);
-  const [paymentTerms, setPaymentTerms] = useState(quotation?.paymentTerms ?? DEFAULT_TERMS);
+  const [paymentTerms, setPaymentTerms] = useState(quotation?.paymentTerms ?? template?.paymentTerms ?? DEFAULT_TERMS);
   const [conditions, setConditions] = useState(quotation?.conditions ?? template?.conditions ?? DEFAULT_CONDITIONS);
   const [taxRatePercent, setTaxRatePercent] = useState(quotation?.taxRatePercent ?? 0);
   const [customerId, setCustomerId] = useState(quotation?.customerId ?? "");
@@ -81,6 +84,15 @@ export function QuotationEditor({
   const [reporting, setReporting] = useState<string[]>(
     quotation?.reporting?.length ? quotation.reporting : (template?.reporting ?? []),
   );
+  const [exclusions, setExclusions] = useState<string[]>(
+    quotation?.exclusions?.length ? quotation.exclusions : (template?.exclusions ?? []),
+  );
+
+  // Section numbers shift with which optional sections are present.
+  let sectionNo = 2; // Scope is always section 2.
+  const reportingNo = reporting.length > 0 ? ++sectionNo : 0;
+  const exclusionsNo = exclusions.length > 0 ? ++sectionNo : 0;
+  const conditionsNo = ++sectionNo;
   const [items, setItems] = useState<ItemState[]>(
     quotation?.items?.length
       ? quotation.items.map((i) => ({ description: i.description, quantity: i.quantity, unitPrice: i.unitPrice }))
@@ -163,6 +175,7 @@ export function QuotationEditor({
       <input type="hidden" name="conditions" value={conditions} readOnly />
       <input type="hidden" name="scopeTitle" value={scopeTitle} readOnly />
       <input type="hidden" name="reporting" value={JSON.stringify(reporting)} readOnly />
+      <input type="hidden" name="exclusions" value={JSON.stringify(exclusions)} readOnly />
 
       {/* The printable document */}
       <div className="print-doc mx-auto w-full max-w-3xl overflow-hidden rounded-xl bg-white text-neutral-900 ring-1 ring-foreground/10">
@@ -264,7 +277,7 @@ export function QuotationEditor({
           {reporting.length > 0 && (
             <>
               <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
-                3. Reporting
+                {reportingNo}. Reporting
               </div>
               <ul className="flex flex-col gap-1">
                 {reporting.map((line, index) => (
@@ -283,8 +296,30 @@ export function QuotationEditor({
             </>
           )}
 
+          {exclusions.length > 0 && (
+            <>
+              <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
+                {exclusionsNo}. Exclusions
+              </div>
+              <ul className="flex flex-col gap-1">
+                {exclusions.map((line, index) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-neutral-400" />
+                    <input value={line} onChange={(e) => setExclusions((cur) => cur.map((l, i) => (i === index ? e.target.value : l)))} className="w-full bg-transparent outline-none" />
+                    <button type="button" aria-label="Remove exclusion line" onClick={() => setExclusions((cur) => cur.filter((_, i) => i !== index))} className="no-print text-neutral-400 hover:text-red-600">
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <button type="button" onClick={() => setExclusions((cur) => [...cur, ""])} className="no-print mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline">
+                <Plus className="size-3.5" /> Add exclusion line
+              </button>
+            </>
+          )}
+
           <div className="mb-2 mt-5 rounded bg-[#f3e6c4] px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#6b5310]">
-            {reporting.length > 0 ? "4." : "3."} Commercial conditions
+            {conditionsNo}. Commercial conditions
           </div>
           <textarea value={conditions} onChange={(e) => setConditions(e.target.value)} rows={reporting.length > 0 ? 10 : 4} className="w-full rounded border border-border bg-transparent p-2 text-sm outline-none focus:border-ring" />
           <div className="mt-2 grid grid-cols-2 gap-3 text-sm">

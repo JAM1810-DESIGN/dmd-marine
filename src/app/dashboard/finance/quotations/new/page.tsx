@@ -18,6 +18,12 @@ import {
   CARGO_SCOPE,
   CARGO_REPORTING,
   CARGO_CONDITIONS,
+  PREPURCHASE_ITEMS,
+  PREPURCHASE_SCOPE,
+  PREPURCHASE_REPORTING,
+  PREPURCHASE_EXCLUSIONS,
+  PREPURCHASE_CONDITIONS,
+  PREPURCHASE_PAYMENT_TERMS,
 } from "../quotation-defaults";
 import { TemplatePicker, type PickerTemplate } from "../template-picker";
 
@@ -73,27 +79,53 @@ export default async function NewQuotationPage({
       const name = service.name.toLowerCase();
 
       // Fully-specified service templates with their own USD rate card, scope,
-      // reporting section and commercial conditions.
-      const isVesselCondition = name.includes("vessel condition inspection");
-      const isCargo = name.includes("cargo operation support");
-      if (isVesselCondition || isCargo) {
-        const doc = isVesselCondition
+      // reporting/exclusions sections and commercial conditions.
+      type CustomDoc = {
+        scopeTitle: string;
+        scope: string[];
+        reporting: string[];
+        exclusions: string[];
+        conditions: string;
+        items: typeof VESSEL_CONDITION_ITEMS;
+        location?: string;
+        paymentTerms?: string;
+      };
+      const customDocs: Record<string, CustomDoc | undefined> = {
+        vesselCondition: name.includes("vessel condition inspection")
           ? {
               scopeTitle: "Scope of Inspection",
               scope: VESSEL_CONDITION_SCOPE,
               reporting: VESSEL_CONDITION_REPORTING,
+              exclusions: [],
               conditions: VESSEL_CONDITION_CONDITIONS,
               items: VESSEL_CONDITION_ITEMS,
-              location: undefined as string | undefined,
             }
-          : {
+          : undefined,
+        cargo: name.includes("cargo operation support")
+          ? {
               scopeTitle: "Scope of Service",
               scope: CARGO_SCOPE,
               reporting: CARGO_REPORTING,
+              exclusions: [],
               conditions: CARGO_CONDITIONS,
               items: CARGO_ITEMS,
-              location: "Philippines – Port / Anchorage / Terminal" as string | undefined,
-            };
+              location: "Philippines – Port / Anchorage / Terminal",
+            }
+          : undefined,
+        prePurchase: name.includes("pre-purchase")
+          ? {
+              scopeTitle: "Scope of Inspection",
+              scope: PREPURCHASE_SCOPE,
+              reporting: PREPURCHASE_REPORTING,
+              exclusions: PREPURCHASE_EXCLUSIONS,
+              conditions: PREPURCHASE_CONDITIONS,
+              items: PREPURCHASE_ITEMS,
+              paymentTerms: PREPURCHASE_PAYMENT_TERMS,
+            }
+          : undefined,
+      };
+      const doc = customDocs.vesselCondition ?? customDocs.cargo ?? customDocs.prePurchase;
+      if (doc) {
         return {
           key: service.id,
           label: service.name,
@@ -153,7 +185,9 @@ export default async function NewQuotationPage({
       scopeTitle: def.scopeTitle,
       scope: def.scope,
       reporting: def.reporting,
+      exclusions: def.exclusions,
       conditions: def.conditions,
+      paymentTerms: def.paymentTerms,
       items: def.items,
     };
     return (

@@ -964,6 +964,8 @@ model Quotation {
   scope          String[]
   // Optional "Reporting" / deliverables section, one bullet per entry.
   reporting      String[]
+  // Optional "Exclusions" section, one bullet per entry.
+  exclusions     String[]
   // Optional charges shown on the quotation (label + free-text rate, e.g.
   // "Waiting time exceeding 2 hours" / "USD 50.00/hour"). Stored as a JSON
   // array of { label, charge }.

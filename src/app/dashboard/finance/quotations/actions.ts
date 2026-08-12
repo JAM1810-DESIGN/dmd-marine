@@ -20,6 +20,7 @@ function parseForm(formData: FormData) {
   let items: unknown[] = [];
   let scope: string[] = [];
   let reporting: string[] = [];
+  let exclusions: string[] = [];
   try {
     const raw = formData.get("items");
     items = raw ? JSON.parse(String(raw)) : [];
@@ -38,6 +39,12 @@ function parseForm(formData: FormData) {
   } catch {
     reporting = [];
   }
+  try {
+    const raw = formData.get("exclusions");
+    exclusions = raw ? JSON.parse(String(raw)) : [];
+  } catch {
+    exclusions = [];
+  }
 
   return quotationSchema.safeParse({
     title: formData.get("title"),
@@ -53,6 +60,7 @@ function parseForm(formData: FormData) {
     scopeTitle: formData.get("scopeTitle") || undefined,
     scope: scope.filter((line) => line.trim().length > 0),
     reporting: reporting.filter((line) => line.trim().length > 0),
+    exclusions: exclusions.filter((line) => line.trim().length > 0),
     notes: formData.get("notes") || undefined,
     taxRatePercent: formData.get("taxRatePercent") || 0,
     customerId: formData.get("customerId") || undefined,
